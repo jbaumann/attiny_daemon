@@ -11,7 +11,7 @@ For instance, I own a UPS PICO made by [Pimodules](https://pimodules.com/), but 
 But if you have the spare money or need the additional functionality and do not want to build your own solution based on what is provided here, by all means, contact them and get one of their UPSs.
 
 ### Geekworm UPS Hat
-An example for one UPSthat is very moderately priced and can be bought on AliExpress or Banggood (or even Ebay and Amazon) is the GeekWorm UPS Hat for the Raspberry Pi. At around 12€ it sounds fantastic, until you test it and realize that when power is cut and restored afterwards, the battery is no longer charged. You have to manually turn the system off and on again using a little button mounted on the side of the HAT. This absolutely disqualifies this as a UPS.
+An example for one UPS that is very moderately priced and can be bought on AliExpress or Banggood (or even Ebay and Amazon) is the GeekWorm UPS Hat for the Raspberry Pi. At around 12€ it sounds fantastic, until you test it and realize that when power is cut and restored afterwards, the battery is no longer charged. You have to manually turn the system off and on again using a little button mounted on the side of the HAT. This absolutely disqualifies this as a UPS.
 
 # Possible Solutions
 ### Make your Own
