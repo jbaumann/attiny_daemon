@@ -13,6 +13,9 @@ But if you have the spare money or need the additional functionality and do not 
 ### Geekworm UPS Hat
 An example for one UPS that is very moderately priced and can be bought on AliExpress or Banggood (or even Ebay and Amazon) is the GeekWorm UPS Hat for the Raspberry Pi. At around 12€ it sounds fantastic, until you test it and realize that when power is cut and restored afterwards, the battery is no longer charged. You have to manually turn the system off and on again using a little button mounted on the side of the HAT. This absolutely disqualifies this as a UPS.
 
+### Others
+Well, to cut a long story short, having evaluated a lot of different solutions, and to quote a very good song, even if totally out of context, "i still haven't found what i'm looking for"...
+
 # Possible Solutions
 ### Make your Own
 One solution would be to create our own solution, starting by designing the charging circuit for the battery, using a nice boost converter, adding an intelligent controller that can be programmed and re-programmed for different needs, create a schematic, PCB and let it be manufactured by one of the PCB manufacturers. I believe such a design could get to a price of around 25€, not counting the hours to be invested. I might, at some later point, come back to this approach.
