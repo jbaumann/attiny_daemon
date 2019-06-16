@@ -28,6 +28,38 @@ It somehow left me with a feeling of "this could be done better", and in best ha
 
 # The final Solution
 ### The Approach
-I started to reverse-engineer the Geekworm UPS hat, but then found the blog of BrouSant, a guy from the Netherlands who already had [analyzed the board in some detail and written about it](https://brousant.nl/jm3/elektronica/104-geekworm-ups-for-raspberry-pi). He also provides a [modification](https://brousant.nl/jm3/elektronica/105-geekworm-ups-for-raspberry-pi-simple-modification-detailed) by resoldering SMD resistors and adding tiny wires to make the UPS work as needed, and a more complete solution with a PIC microcontroller that controls everything. But to my eye it didn't look like the elegant solution I was looking for, and at the same time it needed the skills to solder SMD, which not everyone has.
+I started to reverse-engineer the Geekworm UPS hat, but then found the blog of BrouSant, a guy from the Netherlands who already had [analyzed the board in some detail and written about it](https://brousant.nl/jm3/elektronica/104-geekworm-ups-for-raspberry-pi). He also provides a [modification](https://brousant.nl/jm3/elektronica/105-geekworm-ups-for-raspberry-pi-simple-modification-detailed) by resoldering SMD resistors and adding tiny wires to make the UPS work as needed, and a more complete solution with a PIC microcontroller that controls everything. But to my eye it didn't look like the elegant solution I was looking for, and at the same time it needed the skills to solder SMD, which not everyone has (me included).
 ### Requirements - Wish List
+So, if we are to create our own solution based on the information of BrouSant, then we can create our own list of requirements aka wish list:
+- soldering limited to mostly through-hole components
+- use of an ATTiny
+- simple build and simple modification of the programming on both ATTiny and Raspberry Pi
+- configuration of the ATTiny should be changeable from the Raspberry
+- configuration of the ATTiny should be stored in the EEPROM
+- watchdog functionality
+- communication using I2C
+- no blocking of Raspberry Pi pins
+- minimal footprint of the additional hardware
+- minimal modification of existing hardware
+- daemon for the Raspberry written in Python for simplicity's sake
+- everything should be configurable using a simple config file
+- if no config file exists, it should be created with values on the ATTiny
+- automatic sync of options in the config file between Raspberry and ATTiny
+- automatic shutdown
+- automatic restart
+- different thresholds for warning, hard shutdown and restart
+- external button to execute configurable functionality
+- measurement of an additional external voltage (not sure why, but nice to have)
+- minimal energy consumption
+
+### The Implementation
+We base our design on the Geekworm UPS HAt which we modify based on the idea of Brousant (see Wiki for details). 
+
+On top of this we use an ATTiny with a minimum of additional components to implement one part of the functionality on our wishlist.
+
+On the Raspberry a daemon written in Python3 communicates with the ATTiny and complements its functionality to realize the full functionality we need.
+
+The daemon reads a config file (per default in the same directory, configurabvle with a command line option), compares it with the ATTiny configuration, changes the ATTiny if an option in the config file has a value different from that stored in the ATTiny, and adds non-existent configuration entries which have a value on the ATTiny. This leads to a very simple initial start with sensible values for most of the configuration options.
+
+
 
