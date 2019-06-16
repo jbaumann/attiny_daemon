@@ -72,4 +72,4 @@ Three sub-directories contain the necessary information:
 - daemon - this directory contains the daemon, the unit file that allows us to install it as a service with systemd and an example configuration script. For first experiments, start the daemon with the option --nodaemon to allow for a graceful exit (i.e. no subsequent shutdown of the Raspberry Pi).
 
 
-And now it is time to head over to the [Wiki](https://github.com/jbaumann/attiny_daemon/wiki) to get details on how to install the different parts, the detailed thoughts on the different parts of the implementations and tips and tricks for building the hardware. Have fun.
+And now it is time to head over to the [Wiki](https://github.com/jbaumann/attiny_daemon/wiki) to get details on how to install and modify the hardware and software, the detailed thoughts on the different parts of the implementations and tips and tricks for building the hardware and modifying the software. Have fun.
