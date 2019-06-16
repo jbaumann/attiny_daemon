@@ -1,6 +1,6 @@
 # attiny_daemon - Hardware and Software for a Raspberry UPS based on the Geekworm UPS Hat
 If you want to read about the details of hardware, firmware and software, jump to the [Wiki](https://github.com/jbaumann/attiny_daemon/wiki)
-## Introduction
+## Introduction, or what happened so far...
 If we are looking for a reliable UPS solution for a Raspberry Pi (e.g. as the backbone of our house automation) we can find a number of products. These are generally either badly maintained, or the are expensive, or they simply do not work. Let us look at a few examples.
 
 ### Pimodules
