@@ -55,11 +55,15 @@ So, if we are to create our own solution based on the information of BrouSant, t
 ### The Implementation
 We base our design on the Geekworm UPS HAt which we modify based on the idea of Brousant (see Wiki for details). 
 
-On top of this we use an ATTiny with a minimum of additional components to implement one part of the functionality on our wishlist.
+On top of this we use an ATTiny with a minimum of additional components to implement one part of the functionality on our wishlist. A PCB designed for a minimal footprint while using only through-hole components can easily be connected to four pins of the Raspberry (SDA, SCL, 3.3V, GND) using a 2x2 Dupont connector.
 
 On the Raspberry a daemon written in Python3 communicates with the ATTiny and complements its functionality to realize the full functionality we need.
 
 The daemon reads a config file (per default in the same directory, configurabvle with a command line option), compares it with the ATTiny configuration, changes the ATTiny if an option in the config file has a value different from that stored in the ATTiny, and adds non-existent configuration entries which have a value on the ATTiny. This leads to a very simple initial start with sensible values for most of the configuration options.
 
+### The Files
+Three sub-directories contain the necessary information:
 
-
+- hardware - this directory contains Gerber files and board images. The board has been designed using EasyEDA and if there is interest I can make the EasyEDA project public so you can simply order the boartd using their board manufacturing service JLCPCB.
+- firmware - this directory contains the ATTiny implementation as an Arduino project. Simply open the project directory in your Arduino IDE, configure it for an ATTiny (45 or 85) and compile it. I personally program my ATTiny's with USBASP, an adapter which can be bought for small money.
+- daemon - this directory contains the daemon, the unit file that allows us to install it as a service with systemd and an example configuration script. For first experiments, start the daemon with the option --nodaemon to allow for a graceful exit (i.e. no subsequent shutdown of the Raspberry Pi).
