@@ -35,8 +35,9 @@ I started to reverse-engineer the Geekworm UPS hat, but then found the blog of B
 ### Requirements - Wish List
 So, if we are to create our own solution based on the information of BrouSant, then we can create our own list of requirements aka wish list:
 - soldering limited to mostly through-hole components
-- use of an ATTiny
+- use of an ATTiny for its small form factor and simple programming
 - simple build and simple modification of the programming on both ATTiny and Raspberry Pi
+- minimum added physical height
 - configuration of the ATTiny should be changeable from the Raspberry
 - configuration of the ATTiny should be stored in the EEPROM
 - watchdog functionality
