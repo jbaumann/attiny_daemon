@@ -3,7 +3,7 @@ If you want to read about the details of hardware, firmware and software, jump t
 ## Introduction, or what happened so far...
 If we are looking for a reliable UPS solution for a Raspberry Pi (e.g. as the backbone of our house automation) we can find a number of products. These are generally either badly maintained, or the are expensive, or they simply do not work. Let us look at a few examples.
 
-### Pimodules
+### PiModules
 For instance, I own a UPS PICO made by [Pimodules](https://pimodules.com/), but it has problems with newer kernels, the developer/producer seems to have absolutely no inclination to help the customers even though over years he promised to provide new firmware version (and yes, I wrote numerous e-mails and got the promises also), and with the successor UPS PICO HV3.0A the same seems to happen. In the forum, the last post by anyone was mid-2018, and while the hardware specs of the system are fantastic, it is a closed-source system, so we can't even fix it afterwards. While it costs around 30€, the disadvantages are so grave that I would not suggest to buy one.
 
 ### S.USV
