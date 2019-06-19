@@ -41,6 +41,7 @@ So, if we are to create our own solution based on the information of BrouSant, t
 - configuration of the ATTiny should be changeable from the Raspberry
 - configuration of the ATTiny should be stored in the EEPROM
 - watchdog functionality
+- temperature measurement (mainly for the battery)
 - communication using I2C
 - no blocking of Raspberry Pi pins
 - minimal footprint of the additional hardware
