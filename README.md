@@ -34,7 +34,7 @@ It somehow left me with a feeling of "this could be done better", and in best ha
 I started to reverse-engineer the Geekworm UPS hat, but then found the blog of BrouSant, a guy from the Netherlands who already had [analyzed the board in some detail and written about it](https://brousant.nl/jm3/elektronica/104-geekworm-ups-for-raspberry-pi). He also provides a [modification](https://brousant.nl/jm3/elektronica/105-geekworm-ups-for-raspberry-pi-simple-modification-detailed) by resoldering SMD resistors and adding tiny wires to make the UPS work as needed, and a more complete solution with a PIC microcontroller that controls everything. But to my eye it didn't look like the elegant solution I was looking for, and at the same time it needed the skills to solder SMD, which not everyone has (me included).
 ### Requirements - Wish List
 So, based on the information of BrouSant we can create our own list of requirements aka wish list:
-- soldering limited to mostly through-hole components
+- soldering limited to through-hole components
 - use of an ATTiny for its small form factor and simple programming
 - simple build and simple modification of the programming on both ATTiny and Raspberry Pi
 - minimum added physical height
