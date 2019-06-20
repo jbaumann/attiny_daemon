@@ -41,7 +41,7 @@ So, based on the information of BrouSant we can create our own list of requireme
 - configuration of the ATTiny should be changeable from the Raspberry
 - configuration of the ATTiny should be stored in the EEPROM
 - watchdog functionality
-- temperature measurement (rationalization: for the battery)
+- temperature measurement (rationalization: for monitoring the battery temperature)
 - communication using I2C
 - no blocking of Raspberry Pi pins
 - minimal footprint of the additional hardware
@@ -55,6 +55,7 @@ So, based on the information of BrouSant we can create our own list of requireme
 - different thresholds for warning, hard shutdown and restart
 - external button to execute configurable functionality
 - measurement of an additional external voltage (not sure why, but nice to have)
+- configurable compensation for intrinsic measurement offsets and integral non-linearity
 - minimal energy consumption
 
 ### The Implementation
