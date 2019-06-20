@@ -36,12 +36,12 @@ I started to reverse-engineer the Geekworm UPS hat, but then found the blog of B
 So, based on the information of BrouSant we can create our own list of requirements aka wish list:
 - soldering limited to through-hole components
 - use of an ATTiny for its small form factor and simple programming
-- simple build and simple modification of the programming on both ATTiny and Raspberry Pi
+- simple build and simple modifiability of the programming on both ATTiny and Raspberry Pi
 - minimum added physical height
 - configuration of the ATTiny should be changeable from the Raspberry
 - configuration of the ATTiny should be stored in the EEPROM
 - watchdog functionality
-- temperature measurement (mainly for the battery)
+- temperature measurement (rationalization: for the battery)
 - communication using I2C
 - no blocking of Raspberry Pi pins
 - minimal footprint of the additional hardware
@@ -64,7 +64,7 @@ On top of this we use an ATTiny with a minimum of additional components to imple
 
 On the Raspberry a daemon written in Python3 communicates with the ATTiny and complements its functionality to realize the full functionality we need.
 
-The daemon reads a config file (per default in the same directory, configurabvle with a command line option), compares it with the ATTiny configuration, changes the ATTiny if an option in the config file has a value different from that stored in the ATTiny, and adds non-existent configuration entries which have a value on the ATTiny. This leads to a very simple initial start with sensible values for most of the configuration options.
+The daemon reads a config file (per default in the same directory, configurable with a command line option), compares it with the ATTiny configuration, changes the ATTiny configuration if an option in the config file has a value different from that stored in the ATTiny, and adds non-existent configuration entries which have a value on the ATTiny to the daemon config. This leads to a very simple initial start with sensible values for most of the configuration options.
 
 ### The Files
 Three sub-directories contain the necessary information:
@@ -73,5 +73,6 @@ Three sub-directories contain the necessary information:
 - firmware - this directory contains the ATTiny implementation as an Arduino project. Simply open the project directory in your Arduino IDE, configure it for an ATTiny (45 or 85) and compile it. I personally program my ATTiny's with USBASP, an adapter which can be bought for small money.
 - daemon - this directory contains the daemon, the unit file that allows us to install it as a service with systemd and an example configuration script. For first experiments, start the daemon with the option --nodaemon to allow for a graceful exit (i.e. no subsequent shutdown of the Raspberry Pi).
 
+A fourth directory miscelleaneous contains additional pictures and diagrams used in the wiki pages.
 
 And now it is time to head over to the [Wiki](https://github.com/jbaumann/attiny_daemon/wiki) to get details on how to install and modify the hardware and software, the detailed thoughts on the different parts of the implementations and tips and tricks for building the hardware and modifying the software. Have fun.
