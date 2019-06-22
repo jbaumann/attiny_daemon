@@ -44,7 +44,7 @@
 #define EEPROM_T_COEFFICIENT         18    // uint16_t
 #define EEPROM_T_CONSTANT            20    // uint16_t
 
-#define EEPROM_INIT_VALUE            42
+#define EEPROM_INIT_VALUE          0x42
 
 // I2C interface definitions
 #define I2C_ADDRESS                0x37
@@ -70,8 +70,8 @@
 #define REGISTER_INIT_EEPROM       0xFF
 
 // Shutdown Levels
-#define SL_NORMAL                     bit(0)
-#define SL_INITIATED                  bit(1)
-#define SL_EXT_V                      bit(2)
-#define SL_BUTTON                     bit(3)
-#define SL_BAT_V                      bit(7)
+#define SL_NORMAL                bit(0)
+#define SL_INITIATED             bit(1)
+#define SL_EXT_V                 bit(2)
+#define SL_BUTTON                bit(3)
+#define SL_BAT_V                 bit(7)

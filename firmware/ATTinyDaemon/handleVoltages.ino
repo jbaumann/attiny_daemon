@@ -53,8 +53,8 @@ void read_voltages() {
 
   uint32_t temp_temperature = read_adc(NUM_MEASUREMENTS);
   temp_temperature *= t_coefficient;
-  temp_temperature /= 1000;
-  temp_temperature -= t_constant;
+
+  temp_temperature = temp_temperature / 1000 + t_constant;
 
   //-- Measure Vcc ---------------------------------------------------------------------
   /*

@@ -9,34 +9,34 @@
 /*
    This variable holds the register for the I2C communication
 */
-uint8_t register_number;           // register
+uint8_t register_number;
 
 /*
    These are the 8 bit registers (the register numbers are defined in ATTinyDaemon.h)
    Important: The value 0xFF is no valid value and will be filtered on the RPi side
 */
-uint8_t timeout = 60;              // timeout for the reset, will be placed in eeprom (should cover shutdown and reboot)
-uint8_t primed = 0;                // 0 if turned off, 1 if primed, temporary
-uint8_t should_shutdown = 0;       // 0, all is well, 1 shutdown has been initiated, 2 and larger should shutdown
-uint8_t force_shutdown = 1;        // != 0, force shutdown if below shutdown_voltage
+uint8_t timeout             =   60;              // timeout for the reset, will be placed in eeprom (should cover shutdown and reboot)
+uint8_t primed              =    0;                // 0 if turned off, 1 if primed, temporary
+uint8_t should_shutdown     =    0;       // 0, all is well, 1 shutdown has been initiated, 2 and larger should shutdown
+uint8_t force_shutdown      =    1;        // != 0, force shutdown if below shutdown_voltage
 
 /*
    These are the 16 bit registers (the register numbers are defined in ATTinyDaemon.h).
    The value 0xFFFF is no valid value and will be filtered on the RPi side
 */
-uint16_t bat_voltage = 0;          // the battery voltage, 3.3 should be low and 3.7 high voltage
+uint16_t bat_voltage       =    0;          // the battery voltage, 3.3 should be low and 3.7 high voltage
 uint16_t bat_v_coefficient = 1000; // the multiplier for the measured battery voltage * 1000, integral non-linearity
-uint16_t bat_v_constant = 0;       // the constant added to the measurement of the battery voltage * 1000, offset error
-uint16_t ext_voltage = 0;          // the external voltage from Pi or other source
+ int16_t bat_v_constant    =    0;       // the constant added to the measurement of the battery voltage * 1000, offset error
+uint16_t ext_voltage       =    0;          // the external voltage from Pi or other source
 uint16_t ext_v_coefficient = 1000; // the multiplier for the measured external voltage * 1000, integral non-linearity
-uint16_t ext_v_constant = 0;       // the constant added to the measurement of the external voltage * 1000, offset error
-uint16_t restart_voltage = 3900;   // the battery voltage at which the RPi will be started again
-uint16_t warn_voltage = 3400;      // the battery voltage at which the RPi should should down
-uint16_t shutdown_voltage = 3200;  // the battery voltage at which a hard shutdown is executed
-uint16_t seconds = 0;              // seconds since last i2c access
-uint16_t temperature = 0;          // the on-chip temperature
-uint16_t t_coefficient = 1000;     // the multiplier for the measured temperature * 1000, the coefficient
-uint16_t t_constant = 270;         // the constant subtracted from the measurement, negative offset
+ int16_t ext_v_constant    =    0;       // the constant added to the measurement of the external voltage * 1000, offset error
+uint16_t restart_voltage   = 3900;   // the battery voltage at which the RPi will be started again
+uint16_t warn_voltage      = 3400;      // the battery voltage at which the RPi should should down
+uint16_t shutdown_voltage  = 3200;  // the battery voltage at which a hard shutdown is executed
+uint16_t seconds           =    0;              // seconds since last i2c access
+uint16_t temperature       =    0;          // the on-chip temperature
+uint16_t t_coefficient     = 1000;     // the multiplier for the measured temperature * 1000, the coefficient
+ int16_t t_constant        = -270;        // the constant added to the measurement as offset
 
 /*
    Macros for setting the pin mode and output level of the pins
