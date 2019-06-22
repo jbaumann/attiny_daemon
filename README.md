@@ -6,7 +6,7 @@ Oh, and if at any one time you ask yourself, "why the heck has he implemented th
 
 If you want to read about the details of hardware, firmware and software, jump to the [Wiki](https://github.com/jbaumann/attiny_daemon/wiki)
 
-To whet your appetite here is a top view of the PCB designed for the attiny_daemon.
+To whet your appetite here is a top view of the PCB designed for the ATTiny Daemon.
 
 <img src="/hardware/Photo%20View%20Top.png" width="300">
 
