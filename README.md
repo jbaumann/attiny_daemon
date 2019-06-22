@@ -10,7 +10,7 @@ To whet your appetite here is a top view of the PCB designed for the ATTiny Daem
 
 <img src="/hardware/Photo%20View%20Top.png" width="300">
 
-## Introduction, or what happened so far...
+# Introduction, or what happened so far...
 If we are looking for a reliable UPS solution for a Raspberry Pi (e.g. as the backbone of our house automation) we can find a number of products. These are generally either badly maintained, or the are expensive, or they simply do not work. Let us look at a few examples.
 
 ### PiModules
