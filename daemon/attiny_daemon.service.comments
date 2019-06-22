@@ -1,0 +1,29 @@
+[Unit]
+Description=ATTiny UPS Daemon
+DefaultDependencies=no
+After=syslog.target
+StartLimitIntervalSec=0
+# here are a few timings for different targets
+#sysinit.target 16s (RPi Zero W)
+#basic.target 16s
+#dbus.service 18s
+# We could use the basic.target but the sysinit.target works better
+#After=basic.target
+After=sysinit.target
+
+[Service]
+Type=simple
+ExecStart=/opt/attiny_daemon/attiny_daemon.py
+# We could decide to restart only on failure, but it is
+# simpler to always restart the daemon
+#Restart=on-failure
+Restart=always
+# If we use this we can detect the termination and react in the
+# finally clause of our loop. We do not need it for our simple
+# daemon.
+#KillSignal=SIGINT    # Maps termination to Keyboard interrupt
+RestartSec=1
+User=pi
+
+[Install]
+WantedBy=sysinit.target

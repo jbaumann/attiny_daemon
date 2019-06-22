@@ -1,0 +1,16 @@
+[Unit]
+Description=ATTiny UPS Daemon
+DefaultDependencies=no
+After=syslog.target
+StartLimitIntervalSec=0
+After=sysinit.target
+
+[Service]
+Type=simple
+ExecStart=/opt/attiny_daemon/attiny_daemon.py
+Restart=always
+RestartSec=1
+User=pi
+
+[Install]
+WantedBy=sysinit.target
