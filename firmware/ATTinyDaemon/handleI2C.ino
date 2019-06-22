@@ -74,10 +74,10 @@ void receive_event(int bytes) {
         ext_v_constant = rbuf[1] | (rbuf[2] << 8);
         EEPROM.put(EEPROM_EXT_V_CONSTANT, ext_v_constant);
       } else if (register_number == REGISTER_T_COEFFICIENT) {
-        t_constant = rbuf[1] | (rbuf[2] << 8);
+        t_coefficient = rbuf[1] | (rbuf[2] << 8);
         EEPROM.put(EEPROM_T_COEFFICIENT, t_coefficient);
       } else if (register_number == REGISTER_T_CONSTANT) {
-        ext_v_constant = rbuf[1] | (rbuf[2] << 8);
+        t_constant = rbuf[1] | (rbuf[2] << 8);
         EEPROM.put(EEPROM_T_CONSTANT, t_constant);
       }
     }
