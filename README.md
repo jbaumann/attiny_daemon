@@ -80,10 +80,10 @@ The daemon reads a config file (per default in the same directory, configurable 
 ### The Files
 Three sub-directories contain the necessary information:
 
-- hardware - this directory contains Gerber files and board images. The board has been designed using EasyEDA and if there is interest I can make the EasyEDA project public so you can simply order the boartd using their board manufacturing service JLCPCB. It is important to know that even without the PCB building the hardware on a proto board is a perfectly valid approach and works like a charm (but still, a professional PCB is way cooler, right?).
-- firmware - this directory contains the ATTiny implementation as an Arduino project. Simply open the project directory in your Arduino IDE, configure it for an ATTiny (45 or 85) and compile it. I personally program my ATTiny's with USBASP, an adapter which can be bought for small money.
-- daemon - this directory contains the daemon, the unit file that allows us to install it as a service with systemd and an example configuration script. For first experiments, start the daemon with the option --nodaemon to allow for a graceful exit (i.e. no subsequent shutdown of the Raspberry Pi).
+- **hardware** - this directory contains Gerber files and board images. The board has been designed using EasyEDA and if there is interest I can make the EasyEDA project public so you can simply order the boartd using their board manufacturing service JLCPCB. It is important to know that even without the PCB building the hardware on a proto board is a perfectly valid approach and works like a charm (but still, a professional PCB is way cooler, right?).
+- **firmware** - this directory contains the ATTiny implementation as an Arduino project. Simply open the project directory in your Arduino IDE, configure it for an ATTiny (45 or 85) and compile it. I personally program my ATTiny's with USBASP, an adapter which can be bought for small money.
+- **daemon** - this directory contains the daemon, the unit file that allows us to install it as a service with systemd and an example configuration script. For first experiments, start the daemon with the option --nodaemon to allow for a graceful exit (i.e. no subsequent shutdown of the Raspberry Pi).
 
-A fourth directory miscelleaneous contains additional pictures and diagrams used in the wiki pages.
+A fourth directory **miscelleaneous** contains additional pictures and diagrams used in the wiki pages.
 
 And now it is time to head over to the [Wiki](https://github.com/jbaumann/attiny_daemon/wiki) to get details on how to install and modify the hardware and software, the detailed thoughts on the different parts of the implementations and tips and tricks for building the hardware and modifying the software. Have fun.
