@@ -53,7 +53,7 @@ So, based on the information of BrouSant we can create our own list of requireme
 - watchdog functionality
 - temperature measurement (rationalization: for monitoring the battery temperature)
 - communication using I2C
-- no blocking of Raspberry Pi pins
+- no blocking of Raspberry Pi pins (the hardware uses one I2C address, all the used pins are shared)
 - minimal footprint of the additional hardware
 - minimal modification of existing hardware
 - daemon for the Raspberry written in Python for simplicity's sake
