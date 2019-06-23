@@ -33,7 +33,7 @@ One solution would be to create our own solution, starting by designing the char
 Actually, Peter Scargill started something like that in a [blog article](https://tech.scargill.net/more-uninterruptable-thoughts/) and the [follow-up](https://tech.scargill.net/the-kitchen-sink/), but he got sick and never picked up where he left. It seems that it worked pretty well, but has the single disadvantage that it is no HAT for the Raspberry and thus very far from a plug&play solution.
 ### Build on an existing solution
 I bought the Geekworm UPS Hat over 2 years ago and became quite frustated with them because of having to turn them off and on manually. They went into my parts bin and waited for disassembly.
-But recently I got into thinking that maybe I could use them as a basis for something that works exactly as I need it. I accidentally stumbled upon a [blog entry](https://tinkerman.cat/post/geekworm-power-pack-hat-hack) by Xose Pérez of Espurna Fame, and a [video](https://www.youtube.com/watch?v=7Vx_QIYrgQo) by Ralph S Bacon. Both used an ATTiny85 to enhance the functionality of a Geekworm UPS. Both used a simple solution to let the ATTiny do the switching and got a solution there.
+But recently I got into thinking that maybe I could use them as a basis for something that works exactly as I need it. I accidentally stumbled upon a [blog entry](https://tinkerman.cat/post/geekworm-power-pack-hat-hack) by Xose Pérez of Espurna Fame, and a [video](https://www.youtube.com/watch?v=7Vx_QIYrgQo) by Ralph S Bacon. Both used an ATTiny85 to enhance the functionality of a Geekworm UPS. Both used a simple solution to let the ATTiny do the switching and got a solution there, even though they do not address the charging problem.
 
 The story could end here. But it didn't.
 
@@ -42,6 +42,7 @@ It somehow left me with a feeling of "this could be done better", and in best ha
 # The final Solution
 ### The Approach
 I started to reverse-engineer the Geekworm UPS hat, but then found the blog of BrouSant, a guy from the Netherlands who already had [analyzed the board in some detail and written about it](https://brousant.nl/jm3/elektronica/104-geekworm-ups-for-raspberry-pi). He also provides a [modification](https://brousant.nl/jm3/elektronica/105-geekworm-ups-for-raspberry-pi-simple-modification-detailed) by resoldering SMD resistors and adding tiny wires to make the UPS work as needed, and a more complete solution with a PIC microcontroller that controls everything. But to my eye it didn't look like the elegant solution I was looking for, and at the same time it needed the skills to solder SMD, which not everyone has (me included).
+
 ### Requirements - Wish List
 Let us create our own list of requirements aka wish list:
 - soldering limited to through-hole components
@@ -71,7 +72,7 @@ Let us create our own list of requirements aka wish list:
 Incidentally, everything on this list is already implemented...
 
 ### The Implementation
-We base our design on the Geekworm UPS HAT which we modify based on the idea of Brousant (see Wiki for details). 
+We base our design on the Geekworm UPS HAT which we modify based on the idea of Brousant (see Wiki for details). We have to do this modification solely because the UPS doesn't continue charging the batteries after a power loss. If at any time the design is changed so that this functionality is provided then we can use an unmodified hardware. But since then we need the small modification.
 
 On top of this we use an ATTiny with a minimum of additional components to implement one part of the functionality on our wishlist. A PCB designed for a minimal footprint while using only through-hole components can easily be connected to four pins of the Raspberry (SDA, SCL, 3.3V, GND) using a 2x2 Dupont connector.
 
