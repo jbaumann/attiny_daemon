@@ -42,6 +42,7 @@ It somehow left me with a feeling of "this could be done better", and in best ha
 # The final Solution
 ### The Approach
 I started to reverse-engineer the Geekworm UPS hat, but then found the blog of BrouSant, a guy from the Netherlands who already had [analyzed the board in some detail and written about it](https://brousant.nl/jm3/elektronica/104-geekworm-ups-for-raspberry-pi). He also provides a [modification](https://brousant.nl/jm3/elektronica/105-geekworm-ups-for-raspberry-pi-simple-modification-detailed) by resoldering SMD resistors and adding tiny wires to make the UPS work as needed, and a more complete solution with a PIC microcontroller that controls everything. But to my eye it didn't look like the elegant solution I was looking for, and at the same time it needed the skills to solder SMD, which not everyone has (me included).
+
 ### Requirements - Wish List
 Let us create our own list of requirements aka wish list:
 - soldering limited to through-hole components
@@ -71,7 +72,7 @@ Let us create our own list of requirements aka wish list:
 Incidentally, everything on this list is already implemented...
 
 ### The Implementation
-We base our design on the Geekworm UPS HAT which we modify based on the idea of Brousant (see Wiki for details). 
+We base our design on the Geekworm UPS HAT which we modify based on the idea of Brousant (see Wiki for details). We have to do this modification solely because the UPS doesn't continue charging the batteries after a power loss. If at any time the design is changed so that this functionality is provided then we can use an unmodified hardware. But since then we need the small modification.
 
 On top of this we use an ATTiny with a minimum of additional components to implement one part of the functionality on our wishlist. A PCB designed for a minimal footprint while using only through-hole components can easily be connected to four pins of the Raspberry (SDA, SCL, 3.3V, GND) using a 2x2 Dupont connector.
 
