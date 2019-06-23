@@ -1,9 +1,8 @@
 [Unit]
 Description=ATTiny UPS Daemon
 DefaultDependencies=no
-After=syslog.target
-StartLimitIntervalSec=0
 After=sysinit.target
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple

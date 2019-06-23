@@ -1,15 +1,15 @@
 [Unit]
 Description=ATTiny UPS Daemon
 DefaultDependencies=no
-After=syslog.target
-StartLimitIntervalSec=0
 # here are a few timings for different targets
 #sysinit.target 16s (RPi Zero W)
 #basic.target 16s
 #dbus.service 18s
 # We could use the basic.target but the sysinit.target works better
 #After=basic.target
+#After=syslog.target
 After=sysinit.target
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
