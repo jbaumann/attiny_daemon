@@ -1,4 +1,9 @@
-# ATTiny Daemon - Hardware and Software for a Raspberry UPS based on the Geekworm UPS Hat
+# ATTiny Daemon - An affordable UPS for the Raspberry that actually works
+Are you desperately searching for an UPS for Raspberry that doesn't cost twice as much as the actual device? Do you look for a UPS that simply works and is reliable? Do you look for simple extensibility and a hacker-friendly system that allows you to add your own functionality? Do you look for a project that is based solely on through-hole components (because not everyone is able to solder SMT components)?
+
+Then search no further, you have come to the right place.
+
+# Hardware and Software for a Raspberry UPS based on the Geekworm UPS Hat
 
 This repository contains all the information for a tiny add-on PCB that turns the non-functioning Geekworm UPS HAT into a real UPS with a large number of additional features, including automatic shutdown and restart, temperature measurements of the battery, communication over I2C and an external button that can provide arbitrary functionality. The solution consists of three parts, the hardware based on an ATTiny45, the firmware for the ATTiny (currently at roughly 94% of the flash, so if you buy an ATTiny, go for the ATTiny85), and a systemd daemon written in Python with the accompying systemd unit file.
 
