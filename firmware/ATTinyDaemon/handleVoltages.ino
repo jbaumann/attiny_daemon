@@ -84,8 +84,12 @@ void read_voltages() {
   temp_ext_voltage /= 1024;
 
   // correct the measurement using coefficient and constant
-  temp_ext_voltage *= ext_v_coefficient;
-  temp_ext_voltage = temp_ext_voltage / 1000 + ext_v_constant;
+  if(temp_ext_voltage > ext_v_constant) {
+    temp_ext_voltage *= ext_v_coefficient;
+    temp_ext_voltage = temp_ext_voltage / 1000 + ext_v_constant;
+  } else {
+    temp_ext_voltage = 0;
+  }
 
 
   //-- Turn off the ADC ----------------------------------------------------------------
@@ -93,13 +97,11 @@ void read_voltages() {
 
   if (bat_voltage != 0) {
     // Average battery voltage over the last few measurements.
-    // This allows us to average out short load spikes caused by
+    // This allows us to average out short voltage spikes caused by
     // the Raspberry's different loads.
     temp_bat_voltage = (temp_bat_voltage + bat_voltage * 9) / 10;
 
-    // if an I2C read comes here, then v_bat is not yet consistent. But this is no real problem,
-    // and it is better to have this outside the atomic part.
-    if (warn_voltage > temp_bat_voltage && should_shutdown != SL_INITIATED) {
+    if (state == WARN_STATE && should_shutdown != SL_INITIATED) {
       should_shutdown |= SL_BAT_V;
     } else {
       should_shutdown &= ~SL_BAT_V;
@@ -113,7 +115,6 @@ void read_voltages() {
     ext_voltage = temp_ext_voltage;
     temperature = temp_temperature;
   }
-
 }
 
 /*

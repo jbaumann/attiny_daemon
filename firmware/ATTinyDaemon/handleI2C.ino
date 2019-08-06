@@ -151,6 +151,9 @@ void request_event() {
   } else if (register_number == REGISTER_T_CONSTANT) {
     Wire.write((uint8_t *)&t_constant, sizeof(t_constant));
 
+  } else if (register_number == REGISTER_VERSION) {
+    Wire.write((uint8_t *)&prog_version, sizeof(prog_version));
+
   }
 
 

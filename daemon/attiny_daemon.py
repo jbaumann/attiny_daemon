@@ -15,6 +15,11 @@ from pathlib import Path
 ### Global configuration of the daemon. You should know what you do if you change
 ### these values.
 
+# Version information
+major = 1
+minor = 4
+patch = 5
+
 # config file is in the same directory as the script:
 _configfile_default = str(Path(__file__).parent.absolute()) + "/attiny_daemon.cfg"
 _shutdown_cmd = "sudo systemctl poweroff"  # sudo allows us to start as user 'pi'
@@ -60,12 +65,20 @@ def main(*args):
     config = Config(args.cfgfile)
     config.read_config()
 
+    logging.info("ATTiny Daemon version " + str(major) + "." + str(minor) + "." + str(patch))
+
     attiny = ATTiny(bus, config[Config.I2C_ADDRESS])
 
     if attiny.get_last_access() < 0:
         logging.error("Cannot access ATTiny")
         log_geekworm_voltage()
         exit(1)
+
+    (a_major, a_minor, a_patch) = attiny.get_version()
+    logging.info("ATTiny firmware version " + str(a_major) + "." + str(a_minor) + "." + str(a_patch))
+
+    if major != a_major:
+        logging.error("Daemon and Firmware major version mismatch. This might lead to serious problems. Check both versions.")
 
     config.merge_and_sync_values(attiny)
 
@@ -89,14 +102,14 @@ def main(*args):
                 fallback = "Unknown shutdown_level " + str(should_shutdown) + ". Shutting down."
                 logging.warning(shutdown_levels.get(should_shutdown, fallback))
 
-                if should_shutdown == button_level:
-                    # we are manually shutting down, this will not prevent a restart
-                    attiny.set_should_shutdown(0)
-                    button_functions[config[Config.BUTTON_FUNCTION]]()
                 if should_shutdown > 16:
                     attiny.set_should_shutdown(SL_INITIATED) # we are shutting down
                     logging.info("shutting down now...")
                     os.system(_shutdown_cmd)
+                elif (should_shutdown | button_level) != 0:
+                    # we are executing the button command and setting the level to normal
+                    attiny.set_should_shutdown(0)
+                    button_functions[config[Config.BUTTON_FUNCTION]]()
 
             logging.debug("Sleeping for " + str(config[Config.SLEEPTIME]) + " seconds.")
             time.sleep(config[Config.SLEEPTIME])
@@ -383,6 +396,7 @@ class ATTiny:
     REG_TEMPERATURE       = 0x41
     REG_T_COEFFICIENT     = 0x42
     REG_T_CONSTANT        = 0x43
+    REG_VERSION           = 0x80
     REG_INIT_EEPROM       = 0xFF
 
     def __init__(self, bus, address):
@@ -548,6 +562,24 @@ class ATTiny:
                 logging.debug("Couldn't read 8 bit register " + str(register) + ". Exception: " + str(e))
         logging.warning("Couldn't read 8 bit register after " + str(_num_retries) + " retries.")
         return 0xFF
+
+    def get_version(self):
+        global _time_const, _num_retries
+        for x in range(_num_retries):
+            time.sleep(_time_const)
+            try:
+                read = self._bus.read_i2c_block_data(self._address, self.REG_VERSION, 5)
+                if read[4] == self.REG_VERSION:
+                    major = read[2]
+                    minor = read[1]
+                    patch = read[0]
+                    if major != 0xFF:  # Filter spurious errors, major version will not be 0xFF 
+                        return (major, minor, patch)
+                logging.debug("Couldn't read version information correctly.")
+            except Exception as e:
+                logging.debug("Couldn't read version information. Exception: " + str(e))
+        logging.warning("Couldn't read version information after " + str(_num_retries) + " retries.")
+        return (0xFF, 0xFF, 0xFF)
 
 
 def read_geekworm():

@@ -9,13 +9,13 @@
 void reset_watchdog () {
   uint8_t wd_value;
 
-  if (bat_voltage < shutdown_voltage) {
+  if (bat_voltage <= shutdown_voltage) {
     // either startup or low power (includes bat_voltage == 0)
     // If we are starting then this gives us enough time to
     // initialize everything without any problems    
     wd_value = bit (WDIE) | bit (WDP3) | bit (WDP0);                 // set WDIE, and 8 seconds delay
     seconds += 8;
-  } else if (bat_voltage < warn_voltage) {
+  } else if (bat_voltage <= warn_voltage) {
     // warn_voltage, we reduce signalling to every 2 seconds
     wd_value = bit (WDIE) | bit (WDP2) | bit (WDP1) | bit (WDP0);    // set WDIE, and 2 second delay
     seconds += 2;

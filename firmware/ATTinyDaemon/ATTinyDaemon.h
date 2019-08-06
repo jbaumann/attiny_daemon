@@ -19,6 +19,16 @@
  * 
  */
 
+/*
+   Macros for setting the pin mode and output level of the pins
+*/
+#define PB_OUTPUT(PIN_NAME) (DDRB |= bit(PIN_NAME))    // pinMode(PIN, OUTPUT)
+#define PB_INPUT(PIN_NAME) (DDRB &= ~bit(PIN_NAME))    // pinMode(PIN, INPUT)
+#define PB_HIGH(PIN_NAME) (PORTB |= bit(PIN_NAME))     // digitalWrite(PIN, 1)
+#define PB_LOW(PIN_NAME) (PORTB &= ~bit(PIN_NAME))     // digitalWrite(PIN, 0)
+#define PB_CHECK(PIN_NAME) (PORTB & bit(PIN_NAME))     // digitalWrite(PIN, 0)
+#define PB_READ(PIN_NAME) (PINB & bit(PIN_NAME))       // digitalRead(PIN)
+
 #define LED_BUTTON                  PB4    // combined led/button pin
 #define PIN_SWITCH                  PB1    // pin used for resetting the Raspberry
 #define EXT_VOLTAGE                ADC3    // ADC number, used to measure external or RPi voltage (Ax, ADCx or x)
@@ -26,6 +36,15 @@
 #define BLINK_TIME                  100    // time in milliseconds for the LED to blink
 #define RPI_RESTART                 200    // time in milliseconds to pull switch to low to restart RPi
 #define NUM_MEASUREMENTS              5    // the number of ADC measurements we average, should be larger than 4
+
+// States
+#define RUNNING_STATE        0             // the system is running normally
+#define UNCLEAR_STATE        1             // the system has been reset and is unsure about its state
+#define REC_WARN_STATE       2             // the system was in the warn state and is now recoveringe
+#define REC_SHUTDOWN_STATE   4             // the system was in the shutdown state and is now recovering
+#define WARN_STATE           8             // the system was in the warn state
+#define SHUTDOWN_STATE      16             // the system was in the shutdown state
+
 
 // EEPROM address definition
 // Base address is used to decide whether data was stored before
@@ -67,11 +86,17 @@
 #define REGISTER_T_COEFFICIENT     0x42
 #define REGISTER_T_CONSTANT        0x43
 
+#define REGISTER_VERSION           0x80
 #define REGISTER_INIT_EEPROM       0xFF
 
 // Shutdown Levels
-#define SL_NORMAL                bit(0)
+#define SL_NORMAL                0
+#define SL_RESERVED_0            bit(0)
 #define SL_INITIATED             bit(1)
 #define SL_EXT_V                 bit(2)
 #define SL_BUTTON                bit(3)
+#define SL_RESERVED_4            bit(4)
+// the following levels definitely trigger a shutdown
+#define SL_RESERVED_5            bit(5)
+#define SL_RESERVED_6            bit(6)
 #define SL_BAT_V                 bit(7)

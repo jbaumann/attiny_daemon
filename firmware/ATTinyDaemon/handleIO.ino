@@ -12,8 +12,8 @@
  */
 void ledOff_buttonOn() {
   // switch back to monitoring button
-  PB_INPUT(LED_BUTTON);
   PB_HIGH(LED_BUTTON);              // Input pullup
+  PB_INPUT(LED_BUTTON);
 
   PCMSK |= bit(LED_BUTTON);         // set interrupt pin
   GIFR |= bit(PCIF);                // clear interrupts
@@ -23,11 +23,11 @@ void ledOff_buttonOn() {
 void ledOn_buttonOff() {
 
   GIMSK &= ~(bit(PCIE));            // disable pin change interrupts
-  //  GIFR |= bit(PCIF);            // clear interrupts
-  //  PCMSK |= bit(LED);            // set interrupt pin
+  GIFR &= ~(bit(PCIF));             // clear interrupts
+  PCMSK &= ~(bit(LED_BUTTON));      // set interrupt pin
 
-  PB_LOW(LED_BUTTON);
   PB_OUTPUT(LED_BUTTON);
+  PB_LOW(LED_BUTTON);
 }
 
 void ledOff_buttonOff() {
