@@ -11,9 +11,10 @@ Oh, and if at any one time you ask yourself, "why the heck has he implemented th
 
 If you want to read about the details of hardware, firmware and software, jump to the [Wiki](https://github.com/jbaumann/attiny_daemon/wiki)
 
-To whet your appetite here is a top view of the PCB designed for the ATTiny Daemon.
+To whet your appetite here is a top view of the PCB designed for the ATTiny Daemon in its two variants.
 
-<img src="/hardware/v1.7/Photo%20View%20Top.png" width="300">
+<img src="/hardware/v1.8/Photo_Top_View.png" width="300">
+<img src="/hardware/v1.8shim/Photo_Top_View.png" width="300">
 
 # Introduction, or what happened so far...
 If we are looking for a reliable UPS solution for a Raspberry Pi (e.g. as the backbone of our house automation) we can find a number of products. These are generally either badly maintained, or the are expensive, or they simply do not work. Let us look at a few examples.
