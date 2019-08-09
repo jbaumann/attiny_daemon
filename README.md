@@ -5,7 +5,7 @@ Then search no further, you have come to the right place.
 
 # Hardware and Software for a Raspberry UPS based on the Geekworm UPS Hat
 
-This repository contains all the information for a tiny add-on PCB that turns the non-functioning Geekworm UPS HAT into a real UPS with a large number of additional features, including automatic shutdown and restart, temperature measurements of the battery, communication over I2C and an external button that can provide arbitrary functionality. The solution consists of three parts, the hardware based on an ATTiny45, the firmware for the ATTiny (currently at roughly 94% of the flash, so if you buy an ATTiny, go for the ATTiny85), and a systemd daemon written in Python with the accompying systemd unit file.
+This repository contains all the information for a tiny add-on PCB that turns the non-functioning Geekworm UPS HAT into a real UPS with a large number of additional features, including automatic shutdown and restart, temperature measurements of the battery, communication over I2C and an external button that can provide arbitrary functionality. The solution consists of three parts, the hardware based on an ATTiny45, the firmware for the ATTiny (currently at roughly 97% of the flash, so if you buy an ATTiny, go for the ATTiny85), and a systemd daemon written in Python with the accompying systemd unit file.
 
 Oh, and if at any one time you ask yourself, "why the heck has he implemented this feature?", the answer is most probably "because we can..."
 
@@ -13,7 +13,7 @@ If you want to read about the details of hardware, firmware and software, jump t
 
 To whet your appetite here is a top view of the PCB designed for the ATTiny Daemon.
 
-<img src="/hardware/Photo%20View%20Top.png" width="300">
+<img src="/hardware/v1.7/Photo%20View%20Top.png" width="300">
 
 # Introduction, or what happened so far...
 If we are looking for a reliable UPS solution for a Raspberry Pi (e.g. as the backbone of our house automation) we can find a number of products. These are generally either badly maintained, or the are expensive, or they simply do not work. Let us look at a few examples.
