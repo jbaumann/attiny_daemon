@@ -11,9 +11,12 @@ Oh, and if at any one time you ask yourself, "why the heck has he implemented th
 
 If you want to read about the details of hardware, firmware and software, jump to the [Wiki](https://github.com/jbaumann/attiny_daemon/wiki)
 
-To whet your appetite here is a top view of the PCB designed for the ATTiny Daemon in its two variants.
+To whet your appetite here is a top view of the PCB designed for the ATTiny Daemon in its minimal variant
 
 <img src="/hardware/v1.8/Photo_Top_View.png" width="300">
+
+and in a variant that is slightly larger but comes with a mounting hole.
+
 <img src="/hardware/v1.8shim/Photo_Top_View.png" width="300">
 
 # Introduction, or what happened so far...
