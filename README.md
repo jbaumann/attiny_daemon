@@ -62,7 +62,7 @@ Let us create our own list of requirements aka wish list:
 - configuration of the ATTiny should be changeable from the Raspberry
 - configuration of the ATTiny should be stored in the EEPROM
 - watchdog functionality
-- temperature measurement (rationalization: for monitoring the battery temperature)
+- temperature measurement for monitoring the battery temperature
 - communication using I2C
 - no blocking of Raspberry Pi pins (the hardware uses one I2C address, all the used pins are shared)
 - minimal footprint of the additional hardware
