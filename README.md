@@ -75,7 +75,7 @@ Let us create our own list of requirements aka wish list:
 - automatic restart
 - different thresholds for warning, hard shutdown and restart
 - external button to execute configurable functionality
-- measurement of an additional external voltage (not sure why, but nice to have)
+- measurement of an additional external voltage
 - configurable compensation for intrinsic measurement offsets and integral non-linearity
 - minimal energy consumption
 
