@@ -69,7 +69,7 @@ Let us create our own list of requirements aka wish list:
 - minimal modification of existing hardware
 - daemon for the Raspberry written in Python for simplicity's sake
 - everything should be configurable using a simple config file
-- if no config file exists, it should be created with values on the ATTiny
+- if no config file exists, it should be created with values read from the ATTiny
 - automatic sync of options in the config file between Raspberry and ATTiny
 - automatic shutdown
 - automatic restart
