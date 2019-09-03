@@ -9,9 +9,9 @@
 /*
    Our version number - used by the daemon to ensure that the major number is equal
  */
-#define MAJOR 1L
-#define MINOR 12L
-#define PATCH 3L
+#define MAJOR 2L
+#define MINOR 0L
+#define PATCH 4L
 
 const uint32_t prog_version = (MAJOR<<16)|(MINOR<<8)|PATCH;
 
@@ -43,7 +43,7 @@ uint8_t register_number;
 uint8_t timeout             =   60;  // timeout for the reset, will be placed in eeprom (should cover shutdown and reboot)
 uint8_t primed              =    0;  // 0 if turned off, 1 if primed, temporary
 uint8_t should_shutdown     =    0;  // 0, all is well, 1 shutdown has been initiated, 2 and larger should shutdown
-uint8_t force_shutdown      =    1;  // != 0, force shutdown if below shutdown_voltage
+uint8_t force_shutdown      =    0;  // != 0, force shutdown if below shutdown_voltage
 
 /*
    These are the 16 bit registers (the register numbers are defined in ATTinyDaemon.h).

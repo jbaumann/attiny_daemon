@@ -7,6 +7,20 @@
 #include <avr/wdt.h>
 
 /*
+ * Flash size definition
+ * used to decide which implementation fits into the flash
+ * We define FLASH_4K (ATTiny45) and FLASH_8K (ATTiny85 and larger)
+ */
+#if defined (__AVR_ATtiny25__)
+#error "This processor does not have enough flash for this program"
+#elif defined (__AVR_ATtiny45__)
+#define FLASH_4K
+#elif defined (__AVR_ATtiny85__)
+#define FLASH_8K
+#endif
+
+
+/*
  * Pinout
  * 1  !RESET ADC0 PCINT5  PB5
  * 2         ADC3 PCINT3  PB3

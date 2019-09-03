@@ -17,7 +17,7 @@
     the only information we might have is the current voltage and we are in the RUNNING_STATE.
 */
 void handle_state() {
-    // Going down the states is done here, back to running only in the main loop
+    // Going down the states is done here, back to running only in the main loop and in handelI2C
   if (bat_voltage <= shutdown_voltage) {
     state = SHUTDOWN_STATE;
   } else if (bat_voltage <= warn_voltage) {

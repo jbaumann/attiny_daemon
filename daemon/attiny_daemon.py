@@ -16,8 +16,8 @@ from pathlib import Path
 ### these values.
 
 # Version information
-major = 1
-minor = 4
+major = 2
+minor = 0
 patch = 5
 
 # config file is in the same directory as the script:
@@ -399,9 +399,24 @@ class ATTiny:
     REG_VERSION           = 0x80
     REG_INIT_EEPROM       = 0xFF
 
+    _POLYNOME = 0x31
+
     def __init__(self, bus, address):
         self._bus = bus
         self._address = address
+
+    def addCrc(self, crc, n):
+      for bitnumber in range(0,8):
+        if ( n ^ crc ) & 0x80 : crc = ( crc << 1 ) ^ self._POLYNOME
+        else                  : crc = ( crc << 1 )
+        n = n << 1
+      return crc & 0xFF
+
+    def calcCRC(self, register, read, len):
+      crc = self.addCrc(0, register)
+      for elem in range(0, len):
+        crc = self.addCrc(crc, read[elem])
+      return crc
 
     def set_timeout(self, timeout):
         return self.set_8bit_value(self.REG_TIMEOUT, timeout)
@@ -420,7 +435,11 @@ class ATTiny:
 
     def set_8bit_value(self, register, value):
         global _time_const, _num_retries
-        arg_list = [value, register]
+
+        crc = self.addCrc(0, register)
+        crc = self.addCrc(crc, value)
+
+        arg_list = [value, crc]
         for x in range(_num_retries):
             time.sleep(_time_const)
             try:
@@ -465,7 +484,9 @@ class ATTiny:
 
         # we interpret every value as a 16-bit signed value
         vals = value.to_bytes(2, byteorder='little', signed=True)
-        arg_list = [vals[0], vals[1], register]
+        crc = self.calcCRC(register, vals, 2)
+
+        arg_list = [vals[0], vals[1], crc]
 
         for x in range(_num_retries):
             time.sleep(_time_const)
@@ -526,7 +547,7 @@ class ATTiny:
                 read = self._bus.read_i2c_block_data(self._address, register, 3)
                 # we interpret every value as a 16-bit signed value
                 val = int.from_bytes(read[0:2], byteorder='little', signed=True)
-                if read[2] == register:
+                if read[2] == self.calcCRC(register, read, 2):
                     if val != 0xFFFF:  # Filter spurious errors, no 16bit val can be 0xFFFF
                         return val
                 logging.debug("Couldn't read 16 bit register " + str(register) + " correctly.")
@@ -554,7 +575,7 @@ class ATTiny:
             try:
                 read = self._bus.read_i2c_block_data(self._address, register, 2)
                 val = read[0]
-                if read[1] == register:
+                if read[1] == self.calcCRC(register, read, 1):
                     if val != 0xFF:  # Filter spurious errors, no 8bit val can be 0xFF
                         return val
                 logging.debug("Couldn't read register " + str(register) + " correctly.")
@@ -569,7 +590,7 @@ class ATTiny:
             time.sleep(_time_const)
             try:
                 read = self._bus.read_i2c_block_data(self._address, self.REG_VERSION, 5)
-                if read[4] == self.REG_VERSION:
+                if read[4] == self.calcCRC(self.REG_VERSION, read, 4):
                     major = read[2]
                     minor = read[1]
                     patch = read[0]

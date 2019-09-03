@@ -39,6 +39,13 @@
 */
 
 void read_voltages() {
+  uint8_t num_measurements = 
+#if defined FLASH_8K
+    state > WARN_STATE ? 1 : NUM_MEASUREMENTS; // if we are in shutdown state take only one measurement
+#elif defined FLASH_4K
+    1;                                         // With less flash, we take only one measurement
+#endif
+  
   /* Table 17-5 defines the prescaler values. For a clock frequency of 8MHz which we use,
      a divison factor of 64 leads to the needed sample rate of 125kHz, which is in the
      needed 50-200kHz range. For this factor ADPS[2:0] is 110
@@ -51,7 +58,7 @@ void read_voltages() {
   // switch to ADC4 and to internal 1.1V reference to measure temperature
   ADMUX = bit(REFS1) | bit(MUX3) | bit(MUX2) | bit(MUX1) | bit(MUX0);
 
-  uint32_t temp_temperature = read_adc(NUM_MEASUREMENTS);
+  uint32_t temp_temperature = read_adc(num_measurements);
   temp_temperature *= t_coefficient;
 
   temp_temperature = temp_temperature / 1000 + t_constant;
@@ -67,7 +74,7 @@ void read_voltages() {
   ADMUX = bit(MUX3) | bit(MUX2);
 
   // Calculate Vcc (in mV); 1.126.400 = 1.1*1024*1000, see Ch. 17.11.1 of datasheet
-  uint32_t temp_bat_voltage = 1126400L / read_adc(NUM_MEASUREMENTS);
+  uint32_t temp_bat_voltage = 1126400L / read_adc(num_measurements);
 
   // correct the measurement using coefficient and constant
   temp_bat_voltage *= bat_v_coefficient;
@@ -79,7 +86,7 @@ void read_voltages() {
   // of the ADC we want to use directly
   ADMUX = ADC_NUMBER(EXT_VOLTAGE);
 
-  uint32_t temp_ext_voltage = read_adc(NUM_MEASUREMENTS);
+  uint32_t temp_ext_voltage = read_adc(num_measurements);
   temp_ext_voltage *= temp_bat_voltage;    // normalize relative to Vcc
   temp_ext_voltage /= 1024;
 
@@ -121,16 +128,16 @@ void read_voltages() {
    This function takes num_measurements ADC measurements, throws away highest and
    lowest and averages the rest. If num_measurements is < 4, we simply average
    all measured values. This allows to get a more precise measurement.
-*/
-uint32_t read_adc(int num_measurements) {
-  /*
-    Table 17-4 Note2 states:
-    After switching to internal voltage reference the ADC requires a settling time
-    of 1ms before measurements are stable. Conversions starting before this may not
-    be reliable. The ADC must be enabled during the settling time.
-  */
 
-  uint16_t result = 0;
+   Table 17-4 Note2 states:
+   After switching to internal voltage reference the ADC requires a settling time
+   of 1ms before measurements are stable. Conversions starting before this may not
+   be reliable. The ADC must be enabled during the settling time.
+*/
+#if defined FLASH_8K
+uint32_t read_adc(uint8_t num_measurements) {
+
+  uint32_t result = 0;
   uint16_t highest_val = 0;
   uint16_t lowest_val = USHRT_MAX;
   for (int i = 0; i < num_measurements; i++) {
@@ -158,3 +165,25 @@ uint32_t read_adc(int num_measurements) {
 
   return result;  // 32 bit forces correct calculation of voltages in the next step
 }
+
+#elif defined FLASH_4K
+/* 
+   Reduced to one read to save flash memory.
+   This change buys us more than 150 byte of program code.
+*/
+uint32_t read_adc(uint8_t num_measurements) {
+
+  uint32_t result = 0;
+
+  delay(2); // Wait for ADC to settle
+  ADCSRA |= bit(ADSC); // Start conversion
+  loop_until_bit_is_clear(ADCSRA, ADSC); // wait for results
+
+  uint8_t low  = ADCL; // must read ADCL first - it then locks ADCH
+  uint8_t high = ADCH; // unlocks both
+
+  result = (high << 8) | low;
+
+  return result;  // 32 bit forces correct calculation of voltages in the next step
+}
+#endif
