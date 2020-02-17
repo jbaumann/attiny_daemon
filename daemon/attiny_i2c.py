@@ -81,7 +81,7 @@ class ATTiny:
                     return True
             except Exception as e:
                 logging.debug("Couldn't set 8 bit register " + hex(register) + ". Exception: " + str(e))
-        logging.warning("Couldn't set 8 bit register after " + str(_num_retries) + " retries.")
+        logging.warning("Couldn't set 8 bit register after " + str(self._num_retries) + " retries.")
         return False
 
     def set_restart_voltage(self, value):
@@ -126,7 +126,7 @@ class ATTiny:
                     return True
             except Exception as e:
                 logging.debug("Couldn't set 16 bit register " + hex(register) + ". Exception: " + str(e))
-        logging.warning("Couldn't set 16 bit register after " + str(_num_retries) + " retries.")
+        logging.warning("Couldn't set 16 bit register after " + str(self._num_retries) + " retries.")
         return False
 
     def get_last_access(self):
@@ -181,7 +181,7 @@ class ATTiny:
                 logging.debug("Couldn't read 16 bit register " + hex(register) + " correctly.")
             except Exception as e:
                 logging.debug("Couldn't read 16 bit register " + hex(register) + ". Exception: " + str(e))
-        logging.warning("Couldn't read 16 bit register after " + str(_num_retries) + " retries.")
+        logging.warning("Couldn't read 16 bit register after " + str(self._num_retries) + " retries.")
         return 0xFFFF
 
     def get_timeout(self):
@@ -208,7 +208,7 @@ class ATTiny:
                 logging.debug("Couldn't read register " + hex(register) + " correctly.")
             except Exception as e:
                 logging.debug("Couldn't read 8 bit register " + hex(register) + ". Exception: " + str(e))
-        logging.warning("Couldn't read 8 bit register after " + str(_num_retries) + " retries.")
+        logging.warning("Couldn't read 8 bit register after " + str(self._num_retries) + " retries.")
         return 0xFF
 
     def get_version(self):
@@ -225,6 +225,6 @@ class ATTiny:
                 logging.debug("Couldn't read version information correctly.")
             except Exception as e:
                 logging.debug("Couldn't read version information. Exception: " + str(e))
-        logging.warning("Couldn't read version information after " + str(_num_retries) + " retries.")
+        logging.warning("Couldn't read version information after " + str(self._num_retries) + " retries.")
         return (0xFF, 0xFF, 0xFF)
 
