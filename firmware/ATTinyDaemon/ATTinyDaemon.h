@@ -48,7 +48,9 @@
 #define EXT_VOLTAGE                ADC3    // ADC number, used to measure external or RPi voltage (Ax, ADCx or x)
 
 #define BLINK_TIME                  100    // time in milliseconds for the LED to blink
-#define RPI_RESTART                 200    // time in milliseconds to pull switch to low to restart RPi
+#define RPI_RESET_PULSE             200    // time in milliseconds to pull switch to low to restart RPi when pulsed
+#define RPI_RESET_SWITCH           2500    // time in milliseconds to pull switch to low to restart RPi when switched
+#define MIN_POWER_LEVEL            4750    // the voltage level seen as "ON" at the external voltage after a reset
 #define NUM_MEASUREMENTS              5    // the number of ADC measurements we average, should be larger than 4
 
 // States
@@ -76,6 +78,7 @@
 #define EEPROM_EXT_V_CONSTANT        16    // uint16_t
 #define EEPROM_T_COEFFICIENT         18    // uint16_t
 #define EEPROM_T_CONSTANT            20    // uint16_t
+#define EEPROM_RESET_CONFIG          22    // uint8_t
 
 #define EEPROM_INIT_VALUE          0x42
 
@@ -99,6 +102,7 @@
 #define REGISTER_TEMPERATURE       0x41
 #define REGISTER_T_COEFFICIENT     0x42
 #define REGISTER_T_CONSTANT        0x43
+#define REGISTER_RESET_CONFIG      0x51
 
 #define REGISTER_VERSION           0x80
 #define REGISTER_INIT_EEPROM       0xFF

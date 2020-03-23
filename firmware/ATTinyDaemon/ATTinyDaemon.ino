@@ -7,13 +7,18 @@
 */
 
 /*
-   Our version number - used by the daemon to ensure that the major number is equal
+   Our version number - used by the daemon to ensure that the major number is equal between firmware and daemon
  */
+#if defined FLASH_8K
+#define FLASH_SIZE 8192
+#elif defined FLASH_4K
+#define FLASH_SIZE 4096
+#endif
 #define MAJOR 2L
 #define MINOR 0L
 #define PATCH 4L
 
-const uint32_t prog_version = (MAJOR<<16)|(MINOR<<8)|PATCH;
+const uint32_t prog_version = (FLASH_SIZE<<24)|(MAJOR<<16)|(MINOR<<8)|PATCH;
 
 /*
    The state variable encapsulates the all-over state of the system (ATTiny and RPi
@@ -44,6 +49,7 @@ uint8_t timeout             =   60;  // timeout for the reset, will be placed in
 uint8_t primed              =    0;  // 0 if turned off, 1 if primed, temporary
 uint8_t should_shutdown     =    0;  // 0, all is well, 1 shutdown has been initiated, 2 and larger should shutdown
 uint8_t force_shutdown      =    0;  // != 0, force shutdown if below shutdown_voltage
+uint8_t reset_configuration =    0;  // bit0 short/long reset pulse, bit1 1 / 2 pulse(s), bit2 check external voltage
 
 /*
    These are the 16 bit registers (the register numbers are defined in ATTinyDaemon.h).
@@ -142,7 +148,11 @@ void loop() {
     if (state == SHUTDOWN_STATE) {
       // immediately turn off the system if force_shutdown is set
       if (force_shutdown != 0) {
-        switch_low();
+        // we only shut down if the reset configuration is 0. 
+        //@TODO: Implement for other reset configurations
+        if(reset_configuration == 0) {
+          switch_low();
+        }
       }
       ledOff_buttonOff();
     } else if(state == WARN_STATE) {
@@ -151,7 +161,11 @@ void loop() {
       reset_counter();
     } else if(state == REC_SHUTDOWN_STATE) {
        if (isPoweredDown()) { // we had turned off the power to the RPi
-        switch_high();
+        // we only restart if the reset configuration is 0. 
+        //@TODO: Implement for other reset configurations
+        if(reset_configuration == 0) {
+          switch_high();
+        }
       }
       reset_counter();
       state = RUNNING_STATE;
@@ -225,6 +239,9 @@ void read_EEPROM_values() {
   EEPROM.get(EEPROM_EXT_V_CONSTANT, ext_v_constant);
   EEPROM.get(EEPROM_T_COEFFICIENT, t_coefficient);
   EEPROM.get(EEPROM_T_CONSTANT, t_constant);
+#if defined FLASH_8K
+  EEPROM.put(EEPROM_RESET_CONFIG, reset_configuration);
+#endif
 }
 
 /*
@@ -251,6 +268,9 @@ void init_EEPROM() {
   EEPROM.put(EEPROM_EXT_V_CONSTANT, ext_v_constant);
   EEPROM.put(EEPROM_T_COEFFICIENT, t_coefficient);
   EEPROM.put(EEPROM_T_CONSTANT, t_constant);
+#if defined FLASH_8K
+  EEPROM.put(EEPROM_RESET_CONFIG, reset_configuration);
+#endif
 }
 
 boolean isPoweredDown() {

@@ -29,12 +29,32 @@ void handle_state() {
       state = WARN_STATE;
     }
   } else { // we are at a safe voltage
+    /*
     if (state == SHUTDOWN_STATE) {
       state = REC_SHUTDOWN_STATE;
     } else if (state == WARN_STATE) {
       state = REC_WARN_STATE;
     } else if (state == UNCLEAR_STATE) {
       state = RUNNING_STATE;
+    }
+    By removing the else statement and thus the decision in the code we get 18 additional bytes
+    */
+    switch(state) {
+      case SHUTDOWN_STATE: 
+        state = REC_SHUTDOWN_STATE;
+#if defined FLASH_8K
+        break;
+#endif
+      case WARN_STATE: 
+        state = REC_WARN_STATE;
+#if defined FLASH_8K
+        break;
+#endif
+      case UNCLEAR_STATE: 
+        state = RUNNING_STATE;
+#if defined FLASH_8K
+        break;
+#endif
     }
   }
 }
