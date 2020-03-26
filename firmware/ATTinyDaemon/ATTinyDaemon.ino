@@ -15,8 +15,8 @@
 #define FLASH_SIZE 4096
 #endif
 #define MAJOR 2L
-#define MINOR 0L
-#define PATCH 4L
+#define MINOR 1L
+#define PATCH 0L
 
 const uint32_t prog_version = (FLASH_SIZE<<24)|(MAJOR<<16)|(MINOR<<8)|PATCH;
 

@@ -18,8 +18,8 @@ from attiny_i2c import ATTiny
 
 # Version information
 major = 2
-minor = 1
-patch = 1
+minor = 2
+patch = 0
 
 # config file is in the same directory as the script:
 _configfile_default = str(Path(__file__).parent.absolute()) + "/attiny_daemon.cfg"
@@ -193,6 +193,7 @@ class Config(Mapping):
     RESTART_VOLTAGE = 'restart voltage'
     LOG_LEVEL = 'loglevel'
     BUTTON_FUNCTION = 'button function'
+    RESET_CONFIG = 'reset configuration'
 
     MAX_INT = sys.maxsize
     DEFAULT_CONFIG = {
@@ -212,6 +213,7 @@ class Config(Mapping):
             SHUTDOWN_VOLTAGE: str(MAX_INT),
             RESTART_VOLTAGE: str(MAX_INT),
             BUTTON_FUNCTION: "nothing",
+            RESET_CONFIG: "0",
             LOG_LEVEL: 'DEBUG'
         }
     }
@@ -264,6 +266,7 @@ class Config(Mapping):
             self._storage[self.SHUTDOWN_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.SHUTDOWN_VOLTAGE)
             self._storage[self.RESTART_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.RESTART_VOLTAGE)
             self._storage[self.BUTTON_FUNCTION] = self.parser.get(self.DAEMON_SECTION, self.BUTTON_FUNCTION)
+            self._storage[self.RESET_CONFIG] = self.parser.getint(self.DAEMON_SECTION, self.RESET_CONFIG)
             logging.getLogger().setLevel(self.parser.get(self.DAEMON_SECTION, self.LOG_LEVEL))
             logging.debug("config variables are set")
         except Exception as e:
@@ -298,15 +301,18 @@ class Config(Mapping):
         attiny_primed = attiny.get_primed()
         attiny_timeout = attiny.get_timeout()
         attiny_force_shutdown = attiny.get_force_shutdown()
+        attiny_reset_configuration = attiny.get_reset_configuration()
+
 
         if self._storage[self.TIMEOUT] == self.MAX_INT:
             # timeout was not set in the config file
-            # we will get timeout, primed and force_shutdown
-            # from the ATTiny
+            # we will get timeout, primed, reset configuration 
+            # and force_shutdown from the ATTiny
             logging.debug("Getting Timeout from ATTiny")
             self._storage[self.PRIMED] = attiny_primed
             self._storage[self.TIMEOUT] = attiny_timeout
             self._storage[self.FORCE_SHUTDOWN] = attiny_force_shutdown
+            self._storage[self.RESET_CONFIG] = attiny_reset_configuration
 
             self.parser.set(self.DAEMON_SECTION, self.TIMEOUT,
                             str(self._storage[self.TIMEOUT]))
@@ -314,6 +320,8 @@ class Config(Mapping):
                             str(self._storage[self.PRIMED]))
             self.parser.set(self.DAEMON_SECTION, self.FORCE_SHUTDOWN,
                             str(self._storage[self.FORCE_SHUTDOWN]))
+            self.parser.set(self.DAEMON_SECTION, self.RESET_CONFIG,
+                            str(self._storage[self.RESET_CONFIG]))
             changed_config = True
         else:
             if attiny_timeout != self._storage[self.TIMEOUT]:
@@ -325,6 +333,9 @@ class Config(Mapping):
             if attiny_force_shutdown != self._storage[self.FORCE_SHUTDOWN]:
                 logging.debug("Writing Force_Shutdown to ATTiny")
                 attiny.set_force_shutdown(self._storage[self.FORCE_SHUTDOWN])
+            if attiny_reset_configuration != self._storage[self.RESET_CONFIG]:
+                logging.debug("Writing Reset Configuration to ATTiny")
+                attiny.set_reset_configuration(self._storage[self.RESET_CONFIG])
 
         # check for max_int and only set if sleeptime is set to that value
         if self._storage[self.SLEEPTIME] == self.MAX_INT:

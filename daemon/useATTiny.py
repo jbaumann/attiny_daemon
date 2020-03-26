@@ -1,3 +1,5 @@
+#!/usr/bin/env python3 
+
 import sys
 
 sys.path.append('/opt/attiny_daemon/')  # add the path to our ATTiny module
@@ -20,4 +22,21 @@ bus = smbus.SMBus(1)
 attiny = ATTiny(bus, _i2c_address, _time_const, _num_retries)
 
 # access data
+(major, minor, patch) = attiny.get_version()
+version = str(major) + "." + str(minor) + "." + str(patch)
+logging.info("Current Version is " + version)
+
 logging.info("Current temperature is " + str(attiny.get_temperature()) + " degrees Celsius.")
+
+logging.info("Current battery voltage is " + str(attiny.get_bat_voltage() / 1000) + "V.")
+logging.info("Current external voltage is " + str(attiny.get_ext_voltage() / 1000) + "V.")
+
+logging.info("Current timeout is " + str(attiny.get_timeout()))
+logging.info("Current primed is " + str(attiny.get_primed()))
+logging.info("Current force_shutdown is " + str(attiny.get_force_shutdown()))
+
+logging.info("Current warn voltage is " + str(attiny.get_warn_voltage() / 1000) + "V.")
+logging.info("Current shutdown voltage is " + str(attiny.get_shutdown_voltage() / 1000) + "V.")
+logging.info("Current restart voltage is " + str(attiny.get_restart_voltage() / 1000) + "V.")
+
+logging.info("Current reset configuration is " + str(attiny.get_reset_configuration()))
