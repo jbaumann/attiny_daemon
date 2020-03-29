@@ -12,26 +12,28 @@ from collections.abc import Mapping
 from pathlib import Path
 
 class ATTiny:
-    REG_LAST_ACCESS       = 0x01
-    REG_BAT_VOLTAGE       = 0x11
-    REG_EXT_VOLTAGE       = 0x12
-    REG_BAT_V_COEFFICIENT = 0x13
-    REG_BAT_V_CONSTANT    = 0x14
-    REG_EXT_V_COEFFICIENT = 0x15
-    REG_EXT_V_CONSTANT    = 0x16
-    REG_TIMEOUT           = 0x21
-    REG_PRIMED            = 0x22
-    REG_SHOULD_SHUTDOWN   = 0x23
-    REG_FORCE_SHUTDOWN    = 0x24
-    REG_RESTART_VOLTAGE   = 0x31
-    REG_WARN_VOLTAGE      = 0x32
-    REG_SHUTDOWN_VOLTAGE  = 0x33
-    REG_TEMPERATURE       = 0x41
-    REG_T_COEFFICIENT     = 0x42
-    REG_T_CONSTANT        = 0x43
-    REG_RESET_CONFIG      = 0x51
-    REG_VERSION           = 0x80
-    REG_INIT_EEPROM       = 0xFF
+    REG_LAST_ACCESS        = 0x01
+    REG_BAT_VOLTAGE        = 0x11
+    REG_EXT_VOLTAGE        = 0x12
+    REG_BAT_V_COEFFICIENT  = 0x13
+    REG_BAT_V_CONSTANT     = 0x14
+    REG_EXT_V_COEFFICIENT  = 0x15
+    REG_EXT_V_CONSTANT     = 0x16
+    REG_TIMEOUT            = 0x21
+    REG_PRIMED             = 0x22
+    REG_SHOULD_SHUTDOWN    = 0x23
+    REG_FORCE_SHUTDOWN     = 0x24
+    REG_RESTART_VOLTAGE    = 0x31
+    REG_WARN_VOLTAGE       = 0x32
+    REG_SHUTDOWN_VOLTAGE   = 0x33
+    REG_TEMPERATURE        = 0x41
+    REG_T_COEFFICIENT      = 0x42
+    REG_T_CONSTANT         = 0x43
+    REG_RESET_CONFIG       = 0x51
+    REG_RESET_PULSE_LENGTH = 0x52
+    REG_SW_RECOVERY_DELAY  = 0x53
+    REG_VERSION            = 0x80
+    REG_INIT_EEPROM        = 0xFF
 
     _POLYNOME = 0x31
 
@@ -115,6 +117,12 @@ class ATTiny:
     def set_ext_v_constant(self, value):
         return self.set_16bit_value(self.REG_EXT_V_CONSTANT, value)
 
+    def set_reset_pulse_length(self, value):
+        return self.set_16bit_value(self.REG_RESET_PULSE_LENGTH, value)
+
+    def set_switch_recovery_delay(self, value):
+        return self.set_16bit_value(self.REG_SW_RECOVERY_DELAY, value)
+
     def set_16bit_value(self, register, value):
         # we interpret every value as a 16-bit signed value
         vals = value.to_bytes(2, byteorder='little', signed=True)
@@ -171,6 +179,12 @@ class ATTiny:
 
     def get_t_constant(self):
         return self.get_16bit_value(self.REG_T_CONSTANT)
+
+    def get_reset_pulse_length(self):
+        return self.get_16bit_value(self.REG_RESET_PULSE_LENGTH)
+
+    def get_switch_recovery_delay(self):
+        return self.get_16bit_value(self.REG_SW_RECOVERY_DELAY)
 
     def get_16bit_value(self, register):
         for x in range(self._num_retries):

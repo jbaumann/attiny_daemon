@@ -39,13 +39,9 @@
 */
 
 void read_voltages() {
-  uint8_t num_measurements = 
-#if defined FLASH_8K
-    state > WARN_STATE ? 1 : NUM_MEASUREMENTS; // if we are in shutdown state take only one measurement
-#elif defined FLASH_4K
-    1;                                         // With less flash, we take only one measurement
-#endif
-  
+  // if we are in shutdown state take only one measurement
+  uint8_t num_measurements = state > WARN_STATE ? 1 : NUM_MEASUREMENTS; 
+
   /* Table 17-5 defines the prescaler values. For a clock frequency of 8MHz which we use,
      a divison factor of 64 leads to the needed sample rate of 125kHz, which is in the
      needed 50-200kHz range. For this factor ADPS[2:0] is 110
@@ -134,7 +130,6 @@ void read_voltages() {
    of 1ms before measurements are stable. Conversions starting before this may not
    be reliable. The ADC must be enabled during the settling time.
 */
-#if defined FLASH_8K
 uint32_t read_adc(uint8_t num_measurements) {
 
   uint32_t result = 0;
@@ -165,25 +160,3 @@ uint32_t read_adc(uint8_t num_measurements) {
 
   return result;  // 32 bit forces correct calculation of voltages in the next step
 }
-
-#elif defined FLASH_4K
-/* 
-   Reduced to one read to save flash memory.
-   This change buys us more than 150 byte of program code.
-*/
-uint32_t read_adc(uint8_t num_measurements) {
-
-  uint32_t result = 0;
-
-  delay(2); // Wait for ADC to settle
-  ADCSRA |= bit(ADSC); // Start conversion
-  loop_until_bit_is_clear(ADCSRA, ADSC); // wait for results
-
-  uint8_t low  = ADCL; // must read ADCL first - it then locks ADCH
-  uint8_t high = ADCH; // unlocks both
-
-  result = (high << 8) | low;
-
-  return result;  // 32 bit forces correct calculation of voltages in the next step
-}
-#endif

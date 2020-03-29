@@ -14,7 +14,7 @@
 #if defined (__AVR_ATtiny25__)
 #error "This processor does not have enough flash for this program"
 #elif defined (__AVR_ATtiny45__)
-#define FLASH_4K
+#error "This processor does not have enough flash for this program"
 #elif defined (__AVR_ATtiny85__)
 #define FLASH_8K
 #endif
@@ -48,8 +48,6 @@
 #define EXT_VOLTAGE                ADC3    // ADC number, used to measure external or RPi voltage (Ax, ADCx or x)
 
 #define BLINK_TIME                  100    // time in milliseconds for the LED to blink
-#define RPI_RESET_PULSE             200    // time in milliseconds to pull switch to low to restart RPi when pulsed
-#define RPI_RESET_SWITCH           2500    // time in milliseconds to pull switch to low to restart RPi when switched
 #define MIN_POWER_LEVEL            4750    // the voltage level seen as "ON" at the external voltage after a reset
 #define NUM_MEASUREMENTS              5    // the number of ADC measurements we average, should be larger than 4
 
@@ -79,33 +77,37 @@
 #define EEPROM_T_COEFFICIENT         18    // uint16_t
 #define EEPROM_T_CONSTANT            20    // uint16_t
 #define EEPROM_RESET_CONFIG          22    // uint8_t
+#define EEPROM_RESET_PULSE_LENGTH    23    // uint16_t
+#define EEPROM_SW_RECOVERY_DELAY     25    // uint16_t
 
 #define EEPROM_INIT_VALUE          0x42
 
 // I2C interface definitions
-#define I2C_ADDRESS                0x37
+#define I2C_ADDRESS                 0x37
 
-#define REGISTER_LAST_ACCESS       0x01
-#define REGISTER_BAT_VOLTAGE       0x11
-#define REGISTER_EXT_VOLTAGE       0x12
-#define REGISTER_BAT_V_COEFFICIENT 0x13
-#define REGISTER_BAT_V_CONSTANT    0x14
-#define REGISTER_EXT_V_COEFFICIENT 0x15
-#define REGISTER_EXT_V_CONSTANT    0x16
-#define REGISTER_TIMEOUT           0x21
-#define REGISTER_PRIMED            0x22
-#define REGISTER_SHOULD_SHUTDOWN   0x23
-#define REGISTER_FORCE_SHUTDOWN    0x24
-#define REGISTER_RESTART_VOLTAGE   0x31
-#define REGISTER_WARN_VOLTAGE      0x32
-#define REGISTER_SHUTDOWN_VOLTAGE  0x33
-#define REGISTER_TEMPERATURE       0x41
-#define REGISTER_T_COEFFICIENT     0x42
-#define REGISTER_T_CONSTANT        0x43
-#define REGISTER_RESET_CONFIG      0x51
+#define REGISTER_LAST_ACCESS        0x01
+#define REGISTER_BAT_VOLTAGE        0x11
+#define REGISTER_EXT_VOLTAGE        0x12
+#define REGISTER_BAT_V_COEFFICIENT  0x13
+#define REGISTER_BAT_V_CONSTANT     0x14
+#define REGISTER_EXT_V_COEFFICIENT  0x15
+#define REGISTER_EXT_V_CONSTANT     0x16
+#define REGISTER_TIMEOUT            0x21
+#define REGISTER_PRIMED             0x22
+#define REGISTER_SHOULD_SHUTDOWN    0x23
+#define REGISTER_FORCE_SHUTDOWN     0x24
+#define REGISTER_RESTART_VOLTAGE    0x31
+#define REGISTER_WARN_VOLTAGE       0x32
+#define REGISTER_SHUTDOWN_VOLTAGE   0x33
+#define REGISTER_TEMPERATURE        0x41
+#define REGISTER_T_COEFFICIENT      0x42
+#define REGISTER_T_CONSTANT         0x43
+#define REGISTER_RESET_CONFIG       0x51
+#define REGISTER_RESET_PULSE_LENGTH 0x52
+#define REGISTER_SW_RECOVERY_DELAY  0x53
 
-#define REGISTER_VERSION           0x80
-#define REGISTER_INIT_EEPROM       0xFF
+#define REGISTER_VERSION            0x80
+#define REGISTER_INIT_EEPROM        0xFF
 
 // Shutdown Levels
 #define SL_NORMAL                0

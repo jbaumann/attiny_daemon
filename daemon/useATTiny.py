@@ -40,3 +40,5 @@ logging.info("Current shutdown voltage is " + str(attiny.get_shutdown_voltage() 
 logging.info("Current restart voltage is " + str(attiny.get_restart_voltage() / 1000) + "V.")
 
 logging.info("Current reset configuration is " + str(attiny.get_reset_configuration()))
+logging.info("Current reset pulse length is " + str(attiny.get_reset_pulse_length()))
+logging.info("Current switch recovery delay is " + str(attiny.get_switch_recovery_delay()))

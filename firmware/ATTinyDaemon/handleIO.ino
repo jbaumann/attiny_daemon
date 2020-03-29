@@ -59,42 +59,35 @@ void switch_low() {
 }
 
 /*
-   restartRaspberry() sets the PIN_SWITCH to low, waits for RPI_RESTART
-   milliseconds and then sets the PIN_SWITCH to high again. Additionally,
-   should_shutdown is cleared.
+   restartRaspberry() executes a reset of the RPI using either
+   a pulse or a switching sequence, depending on reset_configuration:
+   bit 0 (0 = 1 / 1 = 2) pulses
+   bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
+   This leads to the following behavior:
+   0    1 pulse
+   1    2 pulses, do not check for external voltage
+   2    1 pulse
+   3    2 pulses, check for external voltage
+
+   Additionally, should_shutdown is cleared.
 */
-// bit0 (0 = short / 1 = long) reset pulse, bit1 (0 = 1 / 1 = 2 long) pulse(s)
-// bit2 (0 = don't check / 1 = check) external voltage
-// 0, 1, 2, 3, 4, 5, 6, 7
 void restart_raspberry() {
   should_shutdown = 0;
 
-  if (reset_configuration & 0x7) {
-    resetPulse(RPI_RESET_SWITCH);
-    if(reset_configuration & 0x6) {
-      // 2 long pulses
-      delay(RPI_RESET_PULSE);
-      if(reset_configuration & 0x4) {
-#if defined FLASH_8K  
-        // check voltage
-        read_voltages();
-        
-        if(ext_voltage > MIN_POWER_LEVEL) {
-          return;
-        }
-#elif defined FLASH_4K
-        // we cannot check the voltage because the flash is too small
-        // If the last measurement (before the pulse) was low, then we assume that it is now high
-        // and vice versa. Thus the logic without a new measurement is inverted
-        if(ext_voltage < MIN_POWER_LEVEL) {
-          return;
-        }
-#endif
+  resetPulse(reset_pulse_length);
+  if (reset_configuration & 0x1) {
+    // bit 0 is set, we use 2 pulses
+    if (reset_configuration & 0x2) {
+      // bit 1 is set, we check the external voltage
+      read_voltages();
+
+      if (ext_voltage > MIN_POWER_LEVEL) {
+        // the external voltage is present i.e., the Pi has just been turned on.
+        return;
       }
-      resetPulse(RPI_RESET_SWITCH);      
     }
-  } else {
-    resetPulse(RPI_RESET_PULSE);
+    delay(sw_recovery_delay); // wait for the switch circuit to revover
+    resetPulse(reset_pulse_length);
   }
 }
 

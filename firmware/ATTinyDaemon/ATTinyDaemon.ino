@@ -9,16 +9,11 @@
 /*
    Our version number - used by the daemon to ensure that the major number is equal between firmware and daemon
  */
-#if defined FLASH_8K
-#define FLASH_SIZE 8192
-#elif defined FLASH_4K
-#define FLASH_SIZE 4096
-#endif
 #define MAJOR 2L
-#define MINOR 1L
+#define MINOR 3L
 #define PATCH 0L
 
-const uint32_t prog_version = (FLASH_SIZE<<24)|(MAJOR<<16)|(MINOR<<8)|PATCH;
+const uint32_t prog_version = (MAJOR<<16)|(MINOR<<8)|PATCH;
 
 /*
    The state variable encapsulates the all-over state of the system (ATTiny and RPi
@@ -49,25 +44,27 @@ uint8_t timeout             =   60;  // timeout for the reset, will be placed in
 uint8_t primed              =    0;  // 0 if turned off, 1 if primed, temporary
 uint8_t should_shutdown     =    0;  // 0, all is well, 1 shutdown has been initiated, 2 and larger should shutdown
 uint8_t force_shutdown      =    0;  // != 0, force shutdown if below shutdown_voltage
-uint8_t reset_configuration =    0;  // bit0 short/long reset pulse, bit1 1 / 2 pulse(s), bit2 check external voltage
+uint8_t reset_configuration =    0;  // bit 0 (0 = 1 / 1 = 2) pulses, bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
 
 /*
    These are the 16 bit registers (the register numbers are defined in ATTinyDaemon.h).
    The value 0xFFFF is no valid value and will be filtered on the RPi side
 */
-uint16_t bat_voltage       =    0;   // the battery voltage, 3.3 should be low and 3.7 high voltage
-uint16_t bat_v_coefficient = 1000;   // the multiplier for the measured battery voltage * 1000, integral non-linearity
-int16_t  bat_v_constant    =    0;   // the constant added to the measurement of the battery voltage * 1000, offset error
-uint16_t ext_voltage       =    0;   // the external voltage from Pi or other source
-uint16_t ext_v_coefficient = 1000;   // the multiplier for the measured external voltage * 1000, integral non-linearity
-int16_t  ext_v_constant    =    0;   // the constant added to the measurement of the external voltage * 1000, offset error
-uint16_t restart_voltage   = 3900;   // the battery voltage at which the RPi will be started again
-uint16_t warn_voltage      = 3400;   // the battery voltage at which the RPi should should down
-uint16_t shutdown_voltage  = 3200;   // the battery voltage at which a hard shutdown is executed
-uint16_t seconds           =    0;   // seconds since last i2c access
-uint16_t temperature       =    0;   // the on-chip temperature
-uint16_t t_coefficient     = 1000;   // the multiplier for the measured temperature * 1000, the coefficient
-int16_t  t_constant        = -270;   // the constant added to the measurement as offset
+uint16_t bat_voltage        =    0;   // the battery voltage, 3.3 should be low and 3.7 high voltage
+uint16_t bat_v_coefficient  = 1000;   // the multiplier for the measured battery voltage * 1000, integral non-linearity
+int16_t  bat_v_constant     =    0;   // the constant added to the measurement of the battery voltage * 1000, offset error
+uint16_t ext_voltage        =    0;   // the external voltage from Pi or other source
+uint16_t ext_v_coefficient  = 1000;   // the multiplier for the measured external voltage * 1000, integral non-linearity
+int16_t  ext_v_constant     =    0;   // the constant added to the measurement of the external voltage * 1000, offset error
+uint16_t restart_voltage    = 3900;   // the battery voltage at which the RPi will be started again
+uint16_t warn_voltage       = 3400;   // the battery voltage at which the RPi should should down
+uint16_t shutdown_voltage   = 3200;   // the battery voltage at which a hard shutdown is executed
+uint16_t seconds            =    0;   // seconds since last i2c access
+uint16_t temperature        =    0;   // the on-chip temperature
+uint16_t t_coefficient      = 1000;   // the multiplier for the measured temperature * 1000, the coefficient
+int16_t  t_constant         = -270;   // the constant added to the measurement as offset
+uint16_t reset_pulse_length =  200;   // the reset pulse length (normally 200 for a reset, 4000 for switching)
+uint16_t sw_recovery_delay  =  500;   // the pause needed between two reset pulse for the circuit recovery
 
 void setup() {
   reset_watchdog ();  // do this first in case WDT fires
@@ -239,9 +236,9 @@ void read_EEPROM_values() {
   EEPROM.get(EEPROM_EXT_V_CONSTANT, ext_v_constant);
   EEPROM.get(EEPROM_T_COEFFICIENT, t_coefficient);
   EEPROM.get(EEPROM_T_CONSTANT, t_constant);
-#if defined FLASH_8K
-  EEPROM.put(EEPROM_RESET_CONFIG, reset_configuration);
-#endif
+  EEPROM.get(EEPROM_RESET_CONFIG, reset_configuration);
+  EEPROM.get(EEPROM_RESET_PULSE_LENGTH, reset_pulse_length);
+  EEPROM.get(EEPROM_SW_RECOVERY_DELAY, sw_recovery_delay);
 }
 
 /*
@@ -268,9 +265,9 @@ void init_EEPROM() {
   EEPROM.put(EEPROM_EXT_V_CONSTANT, ext_v_constant);
   EEPROM.put(EEPROM_T_COEFFICIENT, t_coefficient);
   EEPROM.put(EEPROM_T_CONSTANT, t_constant);
-#if defined FLASH_8K
   EEPROM.put(EEPROM_RESET_CONFIG, reset_configuration);
-#endif
+  EEPROM.put(EEPROM_RESET_PULSE_LENGTH, reset_pulse_length);
+  EEPROM.put(EEPROM_SW_RECOVERY_DELAY, sw_recovery_delay);
 }
 
 boolean isPoweredDown() {

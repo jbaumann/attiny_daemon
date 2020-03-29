@@ -18,8 +18,8 @@ from attiny_i2c import ATTiny
 
 # Version information
 major = 2
-minor = 2
-patch = 0
+minor = 3
+patch = 2
 
 # config file is in the same directory as the script:
 _configfile_default = str(Path(__file__).parent.absolute()) + "/attiny_daemon.cfg"
@@ -194,6 +194,8 @@ class Config(Mapping):
     LOG_LEVEL = 'loglevel'
     BUTTON_FUNCTION = 'button function'
     RESET_CONFIG = 'reset configuration'
+    RESET_PULSE_LENGTH = 'reset pulse length'
+    SW_RECOVERY_DELAY = 'switch recovery delay'
 
     MAX_INT = sys.maxsize
     DEFAULT_CONFIG = {
@@ -214,6 +216,8 @@ class Config(Mapping):
             RESTART_VOLTAGE: str(MAX_INT),
             BUTTON_FUNCTION: "nothing",
             RESET_CONFIG: "0",
+            RESET_PULSE_LENGTH: "200",
+            SW_RECOVERY_DELAY: "500",
             LOG_LEVEL: 'DEBUG'
         }
     }
@@ -267,6 +271,8 @@ class Config(Mapping):
             self._storage[self.RESTART_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.RESTART_VOLTAGE)
             self._storage[self.BUTTON_FUNCTION] = self.parser.get(self.DAEMON_SECTION, self.BUTTON_FUNCTION)
             self._storage[self.RESET_CONFIG] = self.parser.getint(self.DAEMON_SECTION, self.RESET_CONFIG)
+            self._storage[self.RESET_PULSE_LENGTH] = self.parser.getint(self.DAEMON_SECTION, self.RESET_PULSE_LENGTH)
+            self._storage[self.SW_RECOVERY_DELAY] = self.parser.getint(self.DAEMON_SECTION, self.SW_RECOVERY_DELAY)
             logging.getLogger().setLevel(self.parser.get(self.DAEMON_SECTION, self.LOG_LEVEL))
             logging.debug("config variables are set")
         except Exception as e:
@@ -302,17 +308,22 @@ class Config(Mapping):
         attiny_timeout = attiny.get_timeout()
         attiny_force_shutdown = attiny.get_force_shutdown()
         attiny_reset_configuration = attiny.get_reset_configuration()
+        attiny_reset_pulse_length = attiny.get_reset_pulse_length()
+        attiny_switch_recovery_delay = attiny.get_switch_recovery_delay()
 
 
         if self._storage[self.TIMEOUT] == self.MAX_INT:
             # timeout was not set in the config file
-            # we will get timeout, primed, reset configuration 
-            # and force_shutdown from the ATTiny
+            # we will get timeout, primed, reset configuration, 
+            # reset pulse length, switch recovery delay and 
+            # force_shutdown from the ATTiny
             logging.debug("Getting Timeout from ATTiny")
             self._storage[self.PRIMED] = attiny_primed
             self._storage[self.TIMEOUT] = attiny_timeout
             self._storage[self.FORCE_SHUTDOWN] = attiny_force_shutdown
             self._storage[self.RESET_CONFIG] = attiny_reset_configuration
+            self._storage[self.RESET_PULSE_LENGTH] = attiny_reset_pulse_length
+            self._storage[self.SW_RECOVERY_DELAY] = attiny_switch_recovery_delay
 
             self.parser.set(self.DAEMON_SECTION, self.TIMEOUT,
                             str(self._storage[self.TIMEOUT]))
@@ -322,6 +333,10 @@ class Config(Mapping):
                             str(self._storage[self.FORCE_SHUTDOWN]))
             self.parser.set(self.DAEMON_SECTION, self.RESET_CONFIG,
                             str(self._storage[self.RESET_CONFIG]))
+            self.parser.set(self.DAEMON_SECTION, self.RESET_PULSE_LENGTH,
+                            str(self._storage[self.RESET_PULSE_LENGTH]))
+            self.parser.set(self.DAEMON_SECTION, self.SW_RECOVERY_DELAY,
+                            str(self._storage[self.SW_RECOVERY_DELAY]))
             changed_config = True
         else:
             if attiny_timeout != self._storage[self.TIMEOUT]:
@@ -336,6 +351,12 @@ class Config(Mapping):
             if attiny_reset_configuration != self._storage[self.RESET_CONFIG]:
                 logging.debug("Writing Reset Configuration to ATTiny")
                 attiny.set_reset_configuration(self._storage[self.RESET_CONFIG])
+            if attiny_reset_pulse_length != self._storage[self.RESET_PULSE_LENGTH]:
+                logging.debug("Writing Reset Pulse Length to ATTiny")
+                attiny.set_reset_pulse_length(self._storage[self.RESET_PULSE_LENGTH])
+            if attiny_switch_recovery_delay != self._storage[self.SW_RECOVERY_DELAY]:
+                logging.debug("Writing Switch Recovery Delay to ATTiny")
+                attiny.set_switch_recovery_delay(self._storage[self.SW_RECOVERY_DELAY])
 
         # check for max_int and only set if sleeptime is set to that value
         if self._storage[self.SLEEPTIME] == self.MAX_INT:
