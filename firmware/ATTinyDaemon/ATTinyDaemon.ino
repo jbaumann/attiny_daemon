@@ -8,12 +8,12 @@
 
 /*
    Our version number - used by the daemon to ensure that the major number is equal between firmware and daemon
- */
+*/
 #define MAJOR 2L
-#define MINOR 3L
+#define MINOR 4L
 #define PATCH 0L
 
-const uint32_t prog_version = (MAJOR<<16)|(MINOR<<8)|PATCH;
+const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
 /*
    The state variable encapsulates the all-over state of the system (ATTiny and RPi
@@ -23,7 +23,7 @@ const uint32_t prog_version = (MAJOR<<16)|(MINOR<<8)|PATCH;
     UNCLEAR_STATE      -   1 - the system has been reset and is unsure about its state
     REC_WARN_STATE     -   2 - the system was in the warn state and is now recovering
     REC_SHUTDOWN_STATE -   4 - the system was in the shutdown state and is now recovering
-    WARN_STATE         -   8 - the system is in the warn state 
+    WARN_STATE         -   8 - the system is in the warn state
     SHUTDOWN_STATE     -  16 - the system is in the shutdown state
 
     They are ordered in a way that allows to later check for the severity of the state by
@@ -115,14 +115,14 @@ ISR (PCINT0_vect) {
 }
 
 void loop() {
-  if(state < SHUTDOWN_STATE) {
+  if (state < SHUTDOWN_STATE) {
     if (primed != 0 || (seconds < timeout) ) {
       // start the regular blink if either primed is set or we are not yet in a timeout.
       // This means the the LED stops blinking at the same time at which
       // the second button functionality is enabled.
       // We do this here to get additional on-time for the LED during reading the voltages
       ledOn_buttonOff();
-    }    
+    }
   }
 
   read_voltages();
@@ -145,39 +145,31 @@ void loop() {
     if (state == SHUTDOWN_STATE) {
       // immediately turn off the system if force_shutdown is set
       if (force_shutdown != 0) {
-        // we only shut down if the reset configuration is 0. 
-        //@TODO: Implement for other reset configurations
-        if(reset_configuration == 0) {
-          switch_low();
-        }
+        ups_off();
       }
       ledOff_buttonOff();
-    } else if(state == WARN_STATE) {
+    } else if (state == WARN_STATE) {
       // The RPi has been warned using the should_shutdown variable
       // we simply let it shutdown even if it does not set SL_INITIATED
       reset_counter();
-    } else if(state == REC_SHUTDOWN_STATE) {
-       if (isPoweredDown()) { // we had turned off the power to the RPi
-        // we only restart if the reset configuration is 0. 
-        //@TODO: Implement for other reset configurations
-        if(reset_configuration == 0) {
-          switch_high();
-        }
+    } else if (state == REC_SHUTDOWN_STATE) {
+      if (isPoweredDown()) { // we had turned off the power to the RPi
+        ups_on();
       }
       reset_counter();
       state = RUNNING_STATE;
     }
-    
-    if(state == REC_WARN_STATE) {
+
+    if (state == REC_WARN_STATE) {
       state = RUNNING_STATE;
     }
 
-    if(state == UNCLEAR_STATE) {
+    if (state == UNCLEAR_STATE) {
       // we do nothing and wait until either a timeout occurs, the voltage
       // drops to warn_voltage or is higher than restart_voltage (see handle_state())
     }
-    
-    if(state == RUNNING_STATE) {
+
+    if (state == RUNNING_STATE) {
       if (seconds > timeout) {
         // RPi has not accessed the I2C interface for more than timeout seconds.
         // We restart it. Signal restart by blinking ten times
@@ -190,9 +182,9 @@ void loop() {
         restart_raspberry();
         reset_counter();
       }
-    }    
+    }
   }
-  
+
   if (state < SHUTDOWN_STATE) {
     // allow the button functionality as long as possible and even if not primed
     ledOff_buttonOn();

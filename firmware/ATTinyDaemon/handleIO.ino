@@ -46,13 +46,13 @@ void ledOff_buttonOff() {
    another 10-15uA. The low state is implemented by simply pulling the output
    low.
 */
-void switch_high() {
+void switch_pin_high() {
   // Input with Pullup
   PB_HIGH(PIN_SWITCH);
   PB_INPUT(PIN_SWITCH);
 }
 
-void switch_low() {
+void switch_pin_low() {
   // Turn off pullup, then to output
   PB_LOW(PIN_SWITCH);
   PB_OUTPUT(PIN_SWITCH);
@@ -61,20 +61,21 @@ void switch_low() {
 /*
    restartRaspberry() executes a reset of the RPI using either
    a pulse or a switching sequence, depending on reset_configuration:
-   bit 0 (0 = 1 / 1 = 2) pulses
-   bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
+   bit 0 (0 = voltage level / 1 = switched) UPS control
+   bit 1 (0 = don't check / 1 = check) external voltage (only if switched)
    This leads to the following behavior:
-   0    1 pulse
-   1    2 pulses, do not check for external voltage
-   2    1 pulse
-   3    2 pulses, check for external voltage
+   0    pull the switch pin low to turn the UPS off (reset needs 1 pulse)
+   1    turn switch off and on to turn the UPS off/on (2 pulses, do not check for external voltage)
+   2    pull the switch pin low to turn the UPS off (reset needs 1 pulse)
+   3    turn switch off and on to turn the UPS off/on (2 pulses, check for external voltage)
 
    Additionally, should_shutdown is cleared.
 */
-void restart_raspberry() {
+/*
+  void restart_raspberry() {
   should_shutdown = 0;
 
-  resetPulse(reset_pulse_length);
+  push_switch(reset_pulse_length);
   if (reset_configuration & 0x1) {
     // bit 0 is set, we use 2 pulses
     if (reset_configuration & 0x2) {
@@ -87,12 +88,53 @@ void restart_raspberry() {
       }
     }
     delay(sw_recovery_delay); // wait for the switch circuit to revover
-    resetPulse(reset_pulse_length);
+    push_switch(reset_pulse_length);
+  }
+  }
+*/
+
+void restart_raspberry() {
+  should_shutdown = 0;
+
+  ups_off();
+  delay(sw_recovery_delay); // wait for the switch circuit to revover
+  ups_on();
+}
+
+void push_switch(uint16_t pulse_time) {
+  switch_pin_low();
+  delay(pulse_time);
+  switch_pin_high();
+}
+
+void ups_off() {
+  if (UPS_IS_VOLTAGE_CONTROLLED) {
+    switch_pin_low();
+  } else {
+    if (UPS_CHECK_VOLTAGE) {
+      read_voltages();
+
+      if (ext_voltage < MIN_POWER_LEVEL) {
+        // the external voltage is off i.e., the Pi is already turned off.
+        return;
+      }
+    }
+    push_switch(reset_pulse_length);
   }
 }
 
-void resetPulse(uint16_t pulse_time) {
-  switch_low();
-  delay(pulse_time);
-  switch_high();
+void ups_on() {
+  if (UPS_IS_VOLTAGE_CONTROLLED) {
+    switch_pin_high();
+  } else {
+    if (UPS_CHECK_VOLTAGE) {
+      read_voltages();
+
+      if (ext_voltage > MIN_POWER_LEVEL) {
+        // the external voltage is present i.e., the Pi has already been turned on.
+        return;
+      }
+    }
+    push_switch(reset_pulse_length);
+  }
 }

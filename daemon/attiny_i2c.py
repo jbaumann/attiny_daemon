@@ -87,7 +87,7 @@ class ATTiny:
                     return True
             except Exception as e:
                 logging.debug("Couldn't set 8 bit register " + hex(register) + ". Exception: " + str(e))
-        logging.warning("Couldn't set 8 bit register after " + str(_num_retries) + " retries.")
+        logging.warning("Couldn't set 8 bit register after " + str(self._num_retries) + " retries.")
         return False
 
     def set_restart_voltage(self, value):
@@ -138,7 +138,7 @@ class ATTiny:
                     return True
             except Exception as e:
                 logging.debug("Couldn't set 16 bit register " + hex(register) + ". Exception: " + str(e))
-        logging.warning("Couldn't set 16 bit register after " + str(_num_retries) + " retries.")
+        logging.warning("Couldn't set 16 bit register after " + str(self._num_retries) + " retries.")
         return False
 
     def get_last_access(self):
