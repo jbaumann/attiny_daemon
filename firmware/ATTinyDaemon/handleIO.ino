@@ -59,6 +59,24 @@ void switch_pin_low() {
 }
 
 /*
+   Functions that abstract checking the different bits of reset_configuration.
+   These will be unrolled by the compiler, so no additional overhead on the heap
+*/
+
+boolean ups_is_voltage_controlled() {
+  return ((reset_configuration & 0x1) == 0);
+}
+boolean ups_is_switched() {
+  return (reset_configuration & 0x1);
+}
+boolean ups_no_check_voltage() {
+  return ((reset_configuration & 0x2) == 0);
+}
+boolean ups_check_voltage() {
+  return (reset_configuration & 0x2);
+}
+
+/*
    restartRaspberry() executes a reset of the RPI using either
    a pulse or a switching sequence, depending on reset_configuration:
    bit 0 (0 = voltage level / 1 = switched) UPS control
@@ -71,28 +89,6 @@ void switch_pin_low() {
 
    Additionally, should_shutdown is cleared.
 */
-/*
-  void restart_raspberry() {
-  should_shutdown = 0;
-
-  push_switch(reset_pulse_length);
-  if (reset_configuration & 0x1) {
-    // bit 0 is set, we use 2 pulses
-    if (reset_configuration & 0x2) {
-      // bit 1 is set, we check the external voltage
-      read_voltages();
-
-      if (ext_voltage > MIN_POWER_LEVEL) {
-        // the external voltage is present i.e., the Pi has just been turned on.
-        return;
-      }
-    }
-    delay(sw_recovery_delay); // wait for the switch circuit to revover
-    push_switch(reset_pulse_length);
-  }
-  }
-*/
-
 void restart_raspberry() {
   should_shutdown = 0;
 
@@ -108,10 +104,10 @@ void push_switch(uint16_t pulse_time) {
 }
 
 void ups_off() {
-  if (UPS_IS_VOLTAGE_CONTROLLED) {
+  if (ups_is_voltage_controlled()) {
     switch_pin_low();
   } else {
-    if (UPS_CHECK_VOLTAGE) {
+    if (ups_check_voltage()) {
       read_voltages();
 
       if (ext_voltage < MIN_POWER_LEVEL) {
@@ -124,10 +120,10 @@ void ups_off() {
 }
 
 void ups_on() {
-  if (UPS_IS_VOLTAGE_CONTROLLED) {
+  if (ups_is_voltage_controlled()) {
     switch_pin_high();
   } else {
-    if (UPS_CHECK_VOLTAGE) {
+    if (ups_check_voltage()) {
       read_voltages();
 
       if (ext_voltage > MIN_POWER_LEVEL) {

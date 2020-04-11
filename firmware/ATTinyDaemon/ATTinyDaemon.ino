@@ -64,7 +64,7 @@ uint16_t temperature        =    0;   // the on-chip temperature
 uint16_t t_coefficient      = 1000;   // the multiplier for the measured temperature * 1000, the coefficient
 int16_t  t_constant         = -270;   // the constant added to the measurement as offset
 uint16_t reset_pulse_length =  200;   // the reset pulse length (normally 200 for a reset, 4000 for switching)
-uint16_t sw_recovery_delay  =  500;   // the pause needed between two reset pulse for the circuit recovery
+uint16_t sw_recovery_delay  = 1000;   // the pause needed between two reset pulse for the circuit recovery
 
 void setup() {
   reset_watchdog ();  // do this first in case WDT fires
@@ -153,9 +153,7 @@ void loop() {
       // we simply let it shutdown even if it does not set SL_INITIATED
       reset_counter();
     } else if (state == REC_SHUTDOWN_STATE) {
-      if (isPoweredDown()) { // we had turned off the power to the RPi
-        ups_on();
-      }
+      ups_on();
       reset_counter();
       state = RUNNING_STATE;
     }
@@ -196,7 +194,24 @@ void loop() {
   noInterrupts ();           // timed sequence follows
   reset_watchdog();
   sleep_enable();
-  interrupts ();             // guarantees next instruction executed
+
+  /*
+     Ch. 7.5.1 states the following
+     In order to disable BOD during sleep (see Table 7-1 on page 34) the BODS bit must be 
+     written to logic one. This is controlled by a timed sequence and the enable bit, BODSE in MCUCR. 
+     First, both BODS and BODSE must be set to one. 
+     Second, within four clock cycles, BODS must be set to one and BODSE must be set to zero. 
+     The BODS bitis active three clock cycles after it is set. 
+     A sleep instruction must be executed while BODS is active in order to turnoff the BOD for the actual sleep mode. 
+     The BODS bit is automatically cleared after three clock cycles.
+     In devices where Sleeping BOD has not been implemented this bit is unused and will always read zero.
+  */
+  // turn off brown-out enable in software, will be turned on automatically after wakeup
+  // BODS must be set to one and BODSE must be set to zero within four clock cycles
+  //MCUCR = bit (BODS) | bit (BODSE);
+  // The BODS bit is automatically cleared after three clock cycles
+  //MCUCR = bit (BODS); 
+  interrupts ();                     // guarantees next instruction executed
   sleep_cpu ();
   sleep_disable();
 }
@@ -260,8 +275,4 @@ void init_EEPROM() {
   EEPROM.put(EEPROM_RESET_CONFIG, reset_configuration);
   EEPROM.put(EEPROM_RESET_PULSE_LENGTH, reset_pulse_length);
   EEPROM.put(EEPROM_SW_RECOVERY_DELAY, sw_recovery_delay);
-}
-
-boolean isPoweredDown() {
-  return (PB_CHECK(PIN_SWITCH) == 0);
 }

@@ -58,13 +58,6 @@
 #define MIN_POWER_LEVEL            4750    // the voltage level seen as "ON" at the external voltage after a reset
 #define NUM_MEASUREMENTS              5    // the number of ADC measurements we average, should be larger than 4
 
-/*
-   Macros that abstract checking the different bits of reset_configuration
- */
-#define UPS_IS_VOLTAGE_CONTROLLED ((reset_configuration & 0x1) == 0)
-#define UPS_IS_SWITCHED (reset_configuration & 0x1)
-#define UPS_NO_CHECK_VOLTAGE ((reset_configuration & 0x2) == 0)
-#define UPS_CHECK_VOLTAGE (reset_configuration & 0x2)
 
 /*
    Values modelling the different states the system can be in
