@@ -3,9 +3,9 @@ Are you desperately searching for an UPS for Raspberry that doesn't cost twice a
 
 Then search no further, you have come to the right place.
 
-# Hardware and Software for a Raspberry UPS based on the Geekworm UPS Hat
+# Hardware and Software for a Raspberry UPS based on the Geekworm UPS Hat and the Geekworm UPS 2 HAT 
 
-This repository contains all the information for a tiny add-on PCB that turns the non-functioning Geekworm UPS HAT into a real UPS with a large number of additional features, including automatic shutdown and restart, temperature measurements of the battery, communication over I2C and an external button that can provide arbitrary functionality. The solution consists of three parts, the hardware based on an ATTiny85, the firmware for the ATTiny (earlier versions also support the ATTiny45, but its flash is too small to hold all the functionality), and a systemd daemon written in Python with the accompying systemd unit file.
+This repository contains all the information for a tiny add-on PCB that turns the non-functioning Geekworm UPS HAT or the Geekworm UPS 2 HAT (or any other UPS that allows to be turned off and on using a button or by pulling a pin to low) into a real UPS with a large number of additional features, including automatic shutdown and restart, temperature measurements of the battery, communication over I2C and an external button that can provide arbitrary functionality. The solution consists of three parts, the hardware based on an ATTiny85, the firmware for the ATTiny (earlier versions also support the ATTiny45, but its flash is too small to hold all the functionality), and a systemd daemon written in Python with the accompying systemd unit file.
 
 Oh, and if at any one time you ask yourself, "why the heck has he implemented this feature?", the answer is most probably "because we can..."
 
