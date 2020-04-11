@@ -57,7 +57,7 @@ I started to reverse-engineer the Geekworm UPS hat, but then found the blog of B
 
 ### Requirements - Wish List
 Let us create our own list of requirements aka wish list:
-- overall price of less than 20€ (including the HAT)
+- overall price of less than 25€ (including the HAT)
 - soldering limited to through-hole components
 - use of an ATTiny for its small form factor and simple programming
 - simple build and simple modifiability of the programming on both ATTiny and Raspberry Pi
