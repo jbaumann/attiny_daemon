@@ -3,9 +3,9 @@ Are you desperately searching for an UPS for Raspberry that doesn't cost twice a
 
 Then search no further, you have come to the right place.
 
-# Hardware and Software for a Raspberry UPS based on the Geekworm UPS Hat
+# Hardware and Software for a Raspberry UPS based on the Geekworm UPS Hat and the Geekworm UPS 2 HAT 
 
-This repository contains all the information for a tiny add-on PCB that turns the non-functioning Geekworm UPS HAT into a real UPS with a large number of additional features, including automatic shutdown and restart, temperature measurements of the battery, communication over I2C and an external button that can provide arbitrary functionality. The solution consists of three parts, the hardware based on an ATTiny85, the firmware for the ATTiny (earlier versions also support the ATTiny45, but its flash is too small to hold all the functionality), and a systemd daemon written in Python with the accompying systemd unit file.
+This repository contains all the information for a tiny add-on PCB that turns the non-functioning Geekworm UPS HAT or the Geekworm UPS 2 HAT (or any other UPS that allows to be turned off and on using a button or by pulling a pin to low) into a real UPS with a large number of additional features, including automatic shutdown and restart, temperature measurements of the battery, communication over I2C and an external button that can provide arbitrary functionality. The solution consists of three parts, the hardware based on an ATTiny85, the firmware for the ATTiny (earlier versions also support the ATTiny45, but its flash is too small to hold all the functionality), and a systemd daemon written in Python with the accompying systemd unit file.
 
 Oh, and if at any one time you ask yourself, "why the heck has he implemented this feature?", the answer is most probably "because we can..."
 
@@ -30,7 +30,10 @@ For instance, I own a UPS PICO made by [Pimodules](https://pimodules.com/), but 
 But if you have the spare money or need the additional functionality and do not want to build your own solution based on what is provided here, by all means, contact them and get one of their UPSs.
 
 ### Geekworm UPS Hat
-An example for one UPS that is very moderately priced and can be bought on AliExpress or Banggood (or even Ebay and Amazon) is the GeekWorm UPS Hat for the Raspberry Pi. At around 12€ it sounds fantastic, until you test it and realize that when power is cut and restored afterwards, the battery is no longer charged. You have to manually turn the system off and on again using a little button mounted on the side of the HAT. This absolutely disqualifies this as a UPS.
+An example for one UPS that is very moderately priced and can be bought on AliExpress or Banggood (or even Ebay and Amazon) is the GeekWorm UPS Hat for the Raspberry Pi. At around 12€ it sounds fantastic, until you test it and realize that when power is cut and restored afterwards, the battery is no longer charged. You have to manually turn the system off and on again using a little button mounted on the side of the HAT. This absolutely disqualifies this as a UPS on its own. But with the ATTiny_Daemon this is a good basis for a full-fledged UPS.
+
+### Geekworm UPS 2 Hat
+Geekworm produced a new version of their UPS supporting higher currents for the newer Raspberry Pis. It costs a bit more (around 22€), offers a much nicer PCB with a lot of added functionality that makes it, in principle, very attractive as a UPS. It still has the problem that it does not restart the Raspberry automatically when primary power is reestablished. This means that on its own it is not a usable UPS. But with the ATTiny_Daemon this is currently the best basis for a full-fledged UPS.
 
 ### Others
 Well, to cut a long story short, having evaluated a lot of different solutions, and to quote a very good song, even if totally out of context, "i still haven't found what i'm looking for"...
@@ -54,7 +57,7 @@ I started to reverse-engineer the Geekworm UPS hat, but then found the blog of B
 
 ### Requirements - Wish List
 Let us create our own list of requirements aka wish list:
-- overall price of less than 20€ (including the HAT)
+- overall price of less than 25€ (including the HAT)
 - soldering limited to through-hole components
 - use of an ATTiny for its small form factor and simple programming
 - simple build and simple modifiability of the programming on both ATTiny and Raspberry Pi
