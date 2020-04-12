@@ -217,7 +217,7 @@ class Config(Mapping):
             BUTTON_FUNCTION: "nothing",
             RESET_CONFIG: "0",
             RESET_PULSE_LENGTH: "200",
-            SW_RECOVERY_DELAY: "500",
+            SW_RECOVERY_DELAY: "1000",
             LOG_LEVEL: 'DEBUG'
         }
     }

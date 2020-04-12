@@ -11,7 +11,7 @@
 */
 #define MAJOR 2L
 #define MINOR 4L
-#define PATCH 0L
+#define PATCH 2L
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
@@ -118,7 +118,7 @@ void loop() {
   if (state < SHUTDOWN_STATE) {
     if (primed != 0 || (seconds < timeout) ) {
       // start the regular blink if either primed is set or we are not yet in a timeout.
-      // This means the the LED stops blinking at the same time at which
+      // This means the LED stops blinking at the same time at which
       // the second button functionality is enabled.
       // We do this here to get additional on-time for the LED during reading the voltages
       ledOn_buttonOff();
@@ -189,28 +189,12 @@ void loop() {
   }
 
   // go to deep sleep
-  // taken from http://www.gammon.com.au/power
+  // taken in part from http://www.gammon.com.au/power
   set_sleep_mode (SLEEP_MODE_PWR_DOWN);
   noInterrupts ();           // timed sequence follows
   reset_watchdog();
   sleep_enable();
-
-  /*
-     Ch. 7.5.1 states the following
-     In order to disable BOD during sleep (see Table 7-1 on page 34) the BODS bit must be 
-     written to logic one. This is controlled by a timed sequence and the enable bit, BODSE in MCUCR. 
-     First, both BODS and BODSE must be set to one. 
-     Second, within four clock cycles, BODS must be set to one and BODSE must be set to zero. 
-     The BODS bitis active three clock cycles after it is set. 
-     A sleep instruction must be executed while BODS is active in order to turnoff the BOD for the actual sleep mode. 
-     The BODS bit is automatically cleared after three clock cycles.
-     In devices where Sleeping BOD has not been implemented this bit is unused and will always read zero.
-  */
-  // turn off brown-out enable in software, will be turned on automatically after wakeup
-  // BODS must be set to one and BODSE must be set to zero within four clock cycles
-  //MCUCR = bit (BODS) | bit (BODSE);
-  // The BODS bit is automatically cleared after three clock cycles
-  //MCUCR = bit (BODS); 
+  sleep_bod_disable();
   interrupts ();                     // guarantees next instruction executed
   sleep_cpu ();
   sleep_disable();
