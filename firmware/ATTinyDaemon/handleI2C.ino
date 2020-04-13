@@ -197,7 +197,17 @@ void request_event() {
     case REGISTER_VERSION:
       write_data_crc((uint8_t *)&prog_version, sizeof(prog_version));
       break;
+    case REGISTER_FUSE_LOW:
+      write_data_crc((uint8_t *)&fuse_low, sizeof(fuse_low));
+      break;
+    case REGISTER_FUSE_HIGH:
+      write_data_crc((uint8_t *)&fuse_high, sizeof(fuse_high));
+      break;
+    case REGISTER_FUSE_EXTENDED:
+      write_data_crc((uint8_t *)&fuse_extended, sizeof(fuse_extended));
+      break;
   }
+
 
   // we had a read operation and reset the counter
   reset_counter();

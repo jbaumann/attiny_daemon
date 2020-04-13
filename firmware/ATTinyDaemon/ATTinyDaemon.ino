@@ -10,8 +10,8 @@
    Our version number - used by the daemon to ensure that the major number is equal between firmware and daemon
 */
 #define MAJOR 2L
-#define MINOR 4L
-#define PATCH 2L
+#define MINOR 6L
+#define PATCH 3L
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
@@ -35,6 +35,15 @@ uint8_t state = UNCLEAR_STATE;
    This variable holds the register for the I2C communication
 */
 uint8_t register_number;
+
+/*
+   These variables hold the fuse settings. If we try to read the fuse settings over I2C without
+   this buffering then we very often get timeouts. So, until we are in dire need of memory we
+   simply copy the fuse settings to RAM.
+ */
+uint8_t fuse_low;
+uint8_t fuse_high;
+uint8_t fuse_extended;
 
 /*
    These are the 8 bit registers (the register numbers are defined in ATTinyDaemon.h)
@@ -68,6 +77,8 @@ uint16_t sw_recovery_delay  = 1000;   // the pause needed between two reset puls
 
 void setup() {
   reset_watchdog ();  // do this first in case WDT fires
+
+  check_fuses();      // verify that we can run with the fuse settings
 
   /*
      If we got a reset while pulling down the switch, this might lead to short
@@ -131,12 +142,7 @@ void loop() {
   if (state < SHUTDOWN_STATE) {
     if (should_shutdown > SL_INITIATED && (seconds < timeout)) {
       // RPi should take action, possibly shut down. Signal by blinking 5 times
-      for (int i = 0; i < 5; i++) {
-        delay(BLINK_TIME);
-        ledOff_buttonOn();
-        delay(BLINK_TIME);
-        ledOn_buttonOff();
-      }
+        blink_led(5, BLINK_TIME);
     }
   }
 
@@ -171,12 +177,7 @@ void loop() {
       if (seconds > timeout) {
         // RPi has not accessed the I2C interface for more than timeout seconds.
         // We restart it. Signal restart by blinking ten times
-        for (int i = 0; i < 10; i++) {
-          ledOn_buttonOff();
-          delay(BLINK_TIME / 2);
-          ledOff_buttonOn();
-          delay(BLINK_TIME / 2);
-        }
+        blink_led(10, BLINK_TIME / 2);
         restart_raspberry();
         reset_counter();
       }
@@ -195,7 +196,7 @@ void loop() {
   reset_watchdog();
   sleep_enable();
   sleep_bod_disable();
-  interrupts ();                     // guarantees next instruction executed
+  interrupts ();             // guarantees next instruction executed
   sleep_cpu ();
   sleep_disable();
 }
@@ -206,6 +207,53 @@ void loop() {
 */
 void reset_counter() {
   seconds = 0;
+}
+
+/*
+   check the fuse settings for clock frequency and divisor. Signal SOS in
+   an endless loop if not correct.
+*/
+void check_fuses() {  
+  fuse_low = boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS);
+  fuse_high = boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS);
+  fuse_extended = boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS);
+
+  if (fuse_low == 0xE2) {
+    // everything set up perfectly, we are running at 8MHz
+    return;
+  }
+  if (fuse_low == 0x62) {
+    /*
+       Default fuse setting, we can change the clock divisor to run with 8 MHz.
+       We do not need to correct any other values for the arduino libraries
+       since we only use the delay()-function which relies on a system timer 
+     */
+    
+    clock_prescale_set(clock_div_1);
+    return;
+  }
+  // fuses have been changed, but not to the needed frequency. We send an SOS.
+  
+  while (1) {
+    blink_led(3, BLINK_TIME / 2);
+    delay(BLINK_TIME / 2);
+    blink_led(3, BLINK_TIME);
+    delay(BLINK_TIME / 2);
+    blink_led(3, BLINK_TIME / 2);
+    delay(BLINK_TIME);
+  }
+}
+
+/*
+   Blink the led n times for blink_length 
+ */
+void blink_led(int n, int blink_length) {
+    for (int i = 0; i < n; i++) {
+      ledOn_buttonOff();
+      delay(blink_length);
+      ledOff_buttonOn();
+      delay(blink_length);
+    }  
 }
 
 /*
