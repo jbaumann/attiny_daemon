@@ -33,6 +33,9 @@ class ATTiny:
     REG_RESET_PULSE_LENGTH = 0x52
     REG_SW_RECOVERY_DELAY  = 0x53
     REG_VERSION            = 0x80
+    REG_FUSE_LOW           = 0x81
+    REG_FUSE_HIGH          = 0x82
+    REG_FUSE_EXTENDED      = 0x83
     REG_INIT_EEPROM        = 0xFF
 
     _POLYNOME = 0x31
@@ -194,13 +197,12 @@ class ATTiny:
                 # we interpret every value as a 16-bit signed value
                 val = int.from_bytes(read[0:2], byteorder='little', signed=True)
                 if read[2] == self.calcCRC(register, read, 2):
-                    if val != 0xFFFF:  # Filter spurious errors, no 16bit val can be 0xFFFF
-                        return val
+                    return val
                 logging.debug("Couldn't read 16 bit register " + hex(register) + " correctly.")
             except Exception as e:
                 logging.debug("Couldn't read 16 bit register " + hex(register) + ". Exception: " + str(e))
         logging.warning("Couldn't read 16 bit register after " + str(self._num_retries) + " retries.")
-        return 0xFFFF
+        return 0xFFFFFFFF
 
     def get_timeout(self):
         return self.get_8bit_value(self.REG_TIMEOUT)
@@ -217,6 +219,15 @@ class ATTiny:
     def get_reset_configuration(self):
         return self.get_8bit_value(self.REG_RESET_CONFIG)
 
+    def get_fuse_low(self):
+        return self.get_8bit_value(self.REG_FUSE_LOW)
+
+    def get_fuse_high(self):
+        return self.get_8bit_value(self.REG_FUSE_HIGH)
+
+    def get_fuse_extended(self):
+        return self.get_8bit_value(self.REG_FUSE_EXTENDED)
+
     def get_8bit_value(self, register):
         for x in range(self._num_retries):
             time.sleep(self._time_const)
@@ -224,13 +235,12 @@ class ATTiny:
                 read = self._bus.read_i2c_block_data(self._address, register, 2)
                 val = read[0]
                 if read[1] == self.calcCRC(register, read, 1):
-                    if val != 0xFF:  # Filter spurious errors, no 8bit val can be 0xFF
-                        return val
+                    return val
                 logging.debug("Couldn't read register " + hex(register) + " correctly.")
             except Exception as e:
                 logging.debug("Couldn't read 8 bit register " + hex(register) + ". Exception: " + str(e))
         logging.warning("Couldn't read 8 bit register after " + str(self._num_retries) + " retries.")
-        return 0xFF
+        return 0xFFFF
 
     def get_version(self):
         for x in range(self._num_retries):
@@ -241,11 +251,10 @@ class ATTiny:
                     major = read[2]
                     minor = read[1]
                     patch = read[0]
-                    if major != 0xFF:  # Filter spurious errors, major version will not be 0xFF 
-                        return (major, minor, patch)
+                    return (major, minor, patch)
                 logging.debug("Couldn't read version information correctly.")
             except Exception as e:
                 logging.debug("Couldn't read version information. Exception: " + str(e))
         logging.warning("Couldn't read version information after " + str(self._num_retries) + " retries.")
-        return (0xFF, 0xFF, 0xFF)
+        return (0xFFFF, 0xFFFF, 0xFFFF)
 

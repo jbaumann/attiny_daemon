@@ -18,8 +18,8 @@ from attiny_i2c import ATTiny
 
 # Version information
 major = 2
-minor = 3
-patch = 2
+minor = 6
+patch = 4
 
 # config file is in the same directory as the script:
 _configfile_default = str(Path(__file__).parent.absolute()) + "/attiny_daemon.cfg"

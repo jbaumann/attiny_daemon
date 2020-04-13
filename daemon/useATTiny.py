@@ -42,3 +42,8 @@ logging.info("Current restart voltage is " + str(attiny.get_restart_voltage() / 
 logging.info("Current reset configuration is " + str(attiny.get_reset_configuration()))
 logging.info("Current reset pulse length is " + str(attiny.get_reset_pulse_length()))
 logging.info("Current switch recovery delay is " + str(attiny.get_switch_recovery_delay()))
+
+
+logging.info("Low fuse is " + hex(attiny.get_fuse_low()))
+logging.info("High fuse is " + hex(attiny.get_fuse_high()))
+logging.info("Extended fuse is " + hex(attiny.get_fuse_extended()))
