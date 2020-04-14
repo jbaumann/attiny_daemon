@@ -3,6 +3,8 @@
 #include <EEPROM.h>
 #include <limits.h>
 #include <avr/io.h>
+#include <avr/boot.h>
+#include <avr/power.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
 
@@ -118,8 +120,12 @@
 #define REGISTER_RESET_CONFIG       0x51
 #define REGISTER_RESET_PULSE_LENGTH 0x52
 #define REGISTER_SW_RECOVERY_DELAY  0x53
+#define REGISTER_FUSE_LOW           0x81
+#define REGISTER_FUSE_HIGH          0x82
+#define REGISTER_FUSE_EXTENDED      0x83
 
 #define REGISTER_VERSION            0x80
+
 #define REGISTER_INIT_EEPROM        0xFF
 
 /*
