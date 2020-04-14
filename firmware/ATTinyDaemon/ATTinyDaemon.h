@@ -123,6 +123,7 @@
 #define REGISTER_FUSE_LOW           0x81
 #define REGISTER_FUSE_HIGH          0x82
 #define REGISTER_FUSE_EXTENDED      0x83
+#define REGISTER_INTERNAL_STATE     0x84
 
 #define REGISTER_VERSION            0x80
 

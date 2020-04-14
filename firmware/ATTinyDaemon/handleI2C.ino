@@ -206,6 +206,9 @@ void request_event() {
     case REGISTER_FUSE_EXTENDED:
       write_data_crc((uint8_t *)&fuse_extended, sizeof(fuse_extended));
       break;
+    case REGISTER_INTERNAL_STATE:
+      write_data_crc((uint8_t *)&state, sizeof(state));
+      break;
   }
 
 
