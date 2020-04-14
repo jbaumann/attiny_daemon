@@ -36,6 +36,7 @@ class ATTiny:
     REG_FUSE_LOW           = 0x81
     REG_FUSE_HIGH          = 0x82
     REG_FUSE_EXTENDED      = 0x83
+    REG_INTERNAL_STATE     = 0x84
     REG_INIT_EEPROM        = 0xFF
 
     _POLYNOME = 0x31
@@ -227,6 +228,9 @@ class ATTiny:
 
     def get_fuse_extended(self):
         return self.get_8bit_value(self.REG_FUSE_EXTENDED)
+
+    def get_internal_state(self):
+        return self.get_8bit_value(self.REG_INTERNAL_STATE)
 
     def get_8bit_value(self, register):
         for x in range(self._num_retries):
