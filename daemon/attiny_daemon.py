@@ -188,6 +188,7 @@ class Config(Mapping):
     T_COEFFICIENT = 'temperature coefficient'
     T_CONSTANT = 'temperature constant'
     FORCE_SHUTDOWN = 'force shutdown'
+    LED_OFF_MODE = 'led off mode'
     WARN_VOLTAGE = 'warn voltage'
     SHUTDOWN_VOLTAGE = 'shutdown voltage'
     RESTART_VOLTAGE = 'restart voltage'
@@ -211,6 +212,7 @@ class Config(Mapping):
             T_COEFFICIENT: str(MAX_INT),
             T_CONSTANT: str(MAX_INT),
             FORCE_SHUTDOWN: 'True',
+            LED_OFF_MODE: 'False',
             WARN_VOLTAGE: str(MAX_INT),
             SHUTDOWN_VOLTAGE: str(MAX_INT),
             RESTART_VOLTAGE: str(MAX_INT),
@@ -266,6 +268,7 @@ class Config(Mapping):
             self._storage[self.T_COEFFICIENT] = self.parser.getint(self.DAEMON_SECTION, self.T_COEFFICIENT)
             self._storage[self.T_CONSTANT] = self.parser.getint(self.DAEMON_SECTION, self.T_CONSTANT)
             self._storage[self.FORCE_SHUTDOWN] = self.parser.getboolean(self.DAEMON_SECTION, self.FORCE_SHUTDOWN)
+            self._storage[self.LED_OFF_MODE] = self.parser.getboolean(self.DAEMON_SECTION, self.LED_OFF_MODE)
             self._storage[self.WARN_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.WARN_VOLTAGE)
             self._storage[self.SHUTDOWN_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.SHUTDOWN_VOLTAGE)
             self._storage[self.RESTART_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.RESTART_VOLTAGE)
@@ -307,6 +310,7 @@ class Config(Mapping):
         attiny_primed = attiny.get_primed()
         attiny_timeout = attiny.get_timeout()
         attiny_force_shutdown = attiny.get_force_shutdown()
+        attiny_led_off_mode = attiny.get_led_off_mode()
         attiny_reset_configuration = attiny.get_reset_configuration()
         attiny_reset_pulse_length = attiny.get_reset_pulse_length()
         attiny_switch_recovery_delay = attiny.get_switch_recovery_delay()
@@ -321,6 +325,7 @@ class Config(Mapping):
             self._storage[self.PRIMED] = attiny_primed
             self._storage[self.TIMEOUT] = attiny_timeout
             self._storage[self.FORCE_SHUTDOWN] = attiny_force_shutdown
+            self._storage[self.LED_OFF_MODE] = attiny_led_off_mode
             self._storage[self.RESET_CONFIG] = attiny_reset_configuration
             self._storage[self.RESET_PULSE_LENGTH] = attiny_reset_pulse_length
             self._storage[self.SW_RECOVERY_DELAY] = attiny_switch_recovery_delay
@@ -331,6 +336,8 @@ class Config(Mapping):
                             str(self._storage[self.PRIMED]))
             self.parser.set(self.DAEMON_SECTION, self.FORCE_SHUTDOWN,
                             str(self._storage[self.FORCE_SHUTDOWN]))
+            self.parser.set(self.DAEMON_SECTION, self.LED_OFF_MODE,
+                            str(self._storage[self.LED_OFF_MODE]))
             self.parser.set(self.DAEMON_SECTION, self.RESET_CONFIG,
                             str(self._storage[self.RESET_CONFIG]))
             self.parser.set(self.DAEMON_SECTION, self.RESET_PULSE_LENGTH,
@@ -348,6 +355,9 @@ class Config(Mapping):
             if attiny_force_shutdown != self._storage[self.FORCE_SHUTDOWN]:
                 logging.debug("Writing Force_Shutdown to ATTiny")
                 attiny.set_force_shutdown(self._storage[self.FORCE_SHUTDOWN])
+            if attiny_led_off_mode != self._storage[self.LED_OFF_MODE]:
+                logging.debug("Writing LED_Off_Mode to ATTiny")
+                attiny.set_led_off_mode(self._storage[self.LED_OFF_MODE])
             if attiny_reset_configuration != self._storage[self.RESET_CONFIG]:
                 logging.debug("Writing Reset Configuration to ATTiny")
                 attiny.set_reset_configuration(self._storage[self.RESET_CONFIG])
