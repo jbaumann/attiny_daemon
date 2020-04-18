@@ -22,12 +22,13 @@ bus = smbus.SMBus(1)
 attiny = ATTiny(bus, _i2c_address, _time_const, _num_retries)
 
 states = {
-    0 : "RUNNING_STATE",
-    1 : "UNCLEAR_STATE",
-    2 : "REC_WARN_STATE",
-    4 : "REC_SHUTDOWN_STATE",
-    8 : "WARN_STATE",
-    16 : "SHUTDOWN_STATE",
+     0 : "RUNNING_STATE",
+     1 : "UNCLEAR_STATE",
+     2 : "REC_WARN_STATE",
+     4 : "REC_SHUTDOWN_STATE",
+     8 : "WARN_STATE",
+    16 : "WARN_TO_SHUTDOWN",
+    32 : "SHUTDOWN_STATE",
 }
 
 state = attiny.get_internal_state()
