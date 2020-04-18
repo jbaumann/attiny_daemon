@@ -7,10 +7,11 @@
     REC_WARN_STATE     -   2 - the system was in the warn state and is now recoveringe
     REC_SHUTDOWN_STATE -   4 - the system was in the shutdown state and is now recovering
     WARN_STATE         -   8 - the system is in the warn state 
-    SHUTDOWN_STATE     -  16 - the system is in the shutdown state
+    WARN_TO_SHUTDOWN   -  16 - the system transitions from warn state to shutdown state
+    SHUTDOWN_STATE     -  32 - the system is in the shutdown state
 
     They are ordered in a way that allows to later check for the severity of the state by
-    e.g., "if(state < SHUTDOWN_STATE)"
+    e.g., "if(state <= WARN_STATE)"
 
     This function implements the state changes between these states, during the normal
     execution but in the case of a reset as well. For this we have to take into account that
@@ -19,7 +20,7 @@
 void handle_state() {
     // Going down the states is done here, back to running only in the main loop and in handelI2C
   if (bat_voltage <= shutdown_voltage) {
-    state = SHUTDOWN_STATE;
+    state = WARN_TO_SHUTDOWN;
   } else if (bat_voltage <= warn_voltage) {
     state = WARN_STATE;
   } else if (bat_voltage <= restart_voltage) {
@@ -32,6 +33,9 @@ void handle_state() {
  
     switch(state) {
       case SHUTDOWN_STATE: 
+        state = REC_SHUTDOWN_STATE;
+        break;
+      case WARN_TO_SHUTDOWN:
         state = REC_SHUTDOWN_STATE;
         break;
       case WARN_STATE: 

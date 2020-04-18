@@ -65,11 +65,12 @@
    Values modelling the different states the system can be in
  */
 #define RUNNING_STATE        0             // the system is running normally
-#define UNCLEAR_STATE        1             // the system has been reset and is unsure about its state
-#define REC_WARN_STATE       2             // the system was in the warn state and is now recoveringe
-#define REC_SHUTDOWN_STATE   4             // the system was in the shutdown state and is now recovering
-#define WARN_STATE           8             // the system was in the warn state
-#define SHUTDOWN_STATE      16             // the system was in the shutdown state
+#define UNCLEAR_STATE        bit(0)        // the system has been reset and is unsure about its state
+#define REC_WARN_STATE       bit(1)        // the system was in the warn state and is now recoveringe
+#define REC_SHUTDOWN_STATE   bit(2)        // the system was in the shutdown state and is now recovering
+#define WARN_STATE           bit(3)        // the system is in the warn state
+#define WARN_TO_SHUTDOWN     bit(4)        // the system transitions from warn state to shutdown state
+#define SHUTDOWN_STATE       bit(5)        // the system is in the shutdown state
 
 /*
    EEPROM address definition

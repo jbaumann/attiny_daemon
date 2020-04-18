@@ -24,10 +24,11 @@ const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
     REC_WARN_STATE     -   2 - the system was in the warn state and is now recovering
     REC_SHUTDOWN_STATE -   4 - the system was in the shutdown state and is now recovering
     WARN_STATE         -   8 - the system is in the warn state
-    SHUTDOWN_STATE     -  16 - the system is in the shutdown state
+    WARN_TO_SHUTDOWN   -  16 - the system transitions from warn state to shutdown state
+    SHUTDOWN_STATE     -  32 - the system is in the shutdown state
 
     They are ordered in a way that allows to later check for the severity of the state by
-    e.g., "if(state < SHUTDOWN_STATE)"
+    e.g., "if(state <= WARN_STATE)"
 */
 uint8_t state = UNCLEAR_STATE;
 
@@ -126,7 +127,7 @@ ISR (PCINT0_vect) {
 }
 
 void loop() {
-  if (state < SHUTDOWN_STATE) {
+  if (state <= WARN_STATE) {
     if (primed != 0 || (seconds < timeout) ) {
       // start the regular blink if either primed is set or we are not yet in a timeout.
       // This means the LED stops blinking at the same time at which
@@ -139,7 +140,7 @@ void loop() {
   read_voltages();
   handle_state();
 
-  if (state < SHUTDOWN_STATE) {
+  if (state <= WARN_STATE) {
     if (should_shutdown > SL_INITIATED && (seconds < timeout)) {
       // RPi should take action, possibly shut down. Signal by blinking 5 times
         blink_led(5, BLINK_TIME);
@@ -148,27 +149,29 @@ void loop() {
 
   // we act only if primed is set
   if (primed != 0) {
-    if (state == SHUTDOWN_STATE) {
+    if(state == WARN_TO_SHUTDOWN) {
       // immediately turn off the system if force_shutdown is set
       if (force_shutdown != 0) {
         ups_off();
       }
+      state = SHUTDOWN_STATE;
+    }
+
+    if (state == SHUTDOWN_STATE) {
       ledOff_buttonOff();
     } else if (state == WARN_STATE) {
       // The RPi has been warned using the should_shutdown variable
       // we simply let it shutdown even if it does not set SL_INITIATED
       reset_counter();
     } else if (state == REC_SHUTDOWN_STATE) {
+      // we have recovered from a shutdown and are now at a safe voltage
       ups_on();
       reset_counter();
       state = RUNNING_STATE;
-    }
-
-    if (state == REC_WARN_STATE) {
+    } else if (state == REC_WARN_STATE) {
+      // we have recovered from a warn state and are now at a safe voltage
       state = RUNNING_STATE;
-    }
-
-    if (state == UNCLEAR_STATE) {
+    } else if (state == UNCLEAR_STATE) {
       // we do nothing and wait until either a timeout occurs, the voltage
       // drops to warn_voltage or is higher than restart_voltage (see handle_state())
     }
@@ -184,7 +187,7 @@ void loop() {
     }
   }
 
-  if (state < SHUTDOWN_STATE) {
+  if (state <= WARN_STATE) {
     // allow the button functionality as long as possible and even if not primed
     ledOff_buttonOn();
   }
