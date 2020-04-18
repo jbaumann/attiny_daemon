@@ -6,8 +6,8 @@
 */
 
 
-#define CRC8INIT 0x00                                  // The initalization value used for the CRC calculation
-#define CRC8POLY 0x31                                  // The CRC8 polynome used: X^8+X^5+X^4+X^0
+const uint8_t CRC8INIT = 0x00;                         // The initalization value used for the CRC calculation
+const uint8_t CRC8POLY = 0x31;                         // The CRC8 polynome used: X^8+X^5+X^4+X^0
 
 uint8_t reg = CRC8INIT;                                // Register used for calculating the CRC
 

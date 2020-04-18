@@ -8,7 +8,8 @@
    Transmission errors are fixed on the receiving side (the Raspberry) by simply
    retrying the read.
 */
-#define BUFFER_SIZE 8
+const uint8_t BUFFER_SIZE = 8;
+
 uint8_t rbuf[BUFFER_SIZE];
 void receive_event(int bytes) {
 
@@ -53,6 +54,10 @@ void receive_event(int bytes) {
           force_shutdown = rbuf[1];
           EEPROM.put(EEPROM_FORCE_SHUTDOWN, force_shutdown);
           break;
+        case REGISTER_LED_OFF_MODE:
+          led_off_mode = rbuf[1];
+          EEPROM.put(EEPROM_LED_OFF_MODE, led_off_mode);
+          break;          
         case REGISTER_RESET_CONFIG:
           reset_configuration = rbuf[1];
           EEPROM.put(EEPROM_RESET_CONFIG, reset_configuration);
@@ -167,6 +172,9 @@ void request_event() {
     case REGISTER_FORCE_SHUTDOWN:
       write_data_crc((uint8_t *)&force_shutdown, sizeof(force_shutdown));
       break;
+    case REGISTER_LED_OFF_MODE:
+      write_data_crc((uint8_t *)&led_off_mode, sizeof(led_off_mode));
+      break;      
     case REGISTER_RESTART_VOLTAGE:
       write_data_crc((uint8_t *)&restart_voltage, sizeof(restart_voltage));
       break;

@@ -1,4 +1,31 @@
 /*
+   Functions for setting the pin mode and output level of the pins.
+   These will be unrolled by the compiler, so no additional overhead on the heap
+*/
+void pb_output(uint8_t pin) {
+  DDRB |= bit(pin);              // pinMode(pin, OUTPUT)
+}
+void pb_input(uint8_t pin) {
+  (DDRB &= ~bit(pin));           // pinMode(pin, INPUT)
+}
+void pb_high(uint8_t pin) {
+  (PORTB |= bit(pin));           // digitalWrite(pin, 1)
+}
+void pb_low(uint8_t pin) {
+  (PORTB &= ~bit(pin));          // digitalWrite(pin, 0)
+}
+/*
+uint8_t PB_CHECK(uint8_t pin) {
+  return (PORTB & bit(pin));     // check PIN_NAME
+}
+uint8_t PB_READ(uint8_t pin) {
+  return (PINB & bit(pin));      // digitalRead(PIN)
+}
+*/
+
+
+
+/*
    The following three methods implement the dual use of the GPIO pin
    LED_BUTTON as an LED driver and button input. This is done by
    turning on the interrupts and changing to input with pullup when
@@ -12,8 +39,8 @@
 */
 void ledOff_buttonOn() {
   // switch back to monitoring button
-  PB_HIGH(LED_BUTTON);              // Input pullup
-  PB_INPUT(LED_BUTTON);
+  pb_high(LED_BUTTON);              // Input pullup
+  pb_input(LED_BUTTON);
 
   PCMSK |= bit(LED_BUTTON);         // set interrupt pin
   GIFR |= bit(PCIF);                // clear interrupts
@@ -21,20 +48,22 @@ void ledOff_buttonOn() {
 }
 
 void ledOn_buttonOff() {
-
+  if(led_off_mode) {
+    return;
+  }
   GIMSK &= ~(bit(PCIE));            // disable pin change interrupts
   GIFR &= ~(bit(PCIF));             // clear interrupts
   PCMSK &= ~(bit(LED_BUTTON));      // set interrupt pin
 
-  PB_OUTPUT(LED_BUTTON);
-  PB_LOW(LED_BUTTON);
+  pb_output(LED_BUTTON);
+  pb_low(LED_BUTTON);
 }
 
 void ledOff_buttonOff() {
   // Go to high impedance and turn off the pin change interrupts
   GIMSK &= ~(bit(PCIE));            // disable pin change interrupts
-  PB_INPUT(LED_BUTTON);
-  PB_LOW(LED_BUTTON);
+  pb_input(LED_BUTTON);
+  pb_low(LED_BUTTON);
 }
 
 /*
@@ -48,14 +77,14 @@ void ledOff_buttonOff() {
 */
 void switch_pin_high() {
   // Input with Pullup
-  PB_HIGH(PIN_SWITCH);
-  PB_INPUT(PIN_SWITCH);
+  pb_high(PIN_SWITCH);
+  pb_input(PIN_SWITCH);
 }
 
 void switch_pin_low() {
   // Turn off pullup, then to output
-  PB_LOW(PIN_SWITCH);
-  PB_OUTPUT(PIN_SWITCH);
+  pb_low(PIN_SWITCH);
+  pb_output(PIN_SWITCH);
 }
 
 /*

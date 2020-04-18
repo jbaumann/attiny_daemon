@@ -9,9 +9,9 @@
 /*
    Our version number - used by the daemon to ensure that the major number is equal between firmware and daemon
 */
-#define MAJOR 2L
-#define MINOR 7L
-#define PATCH 0L
+const uint32_t MAJOR = 2;
+const uint32_t MINOR = 8;
+const uint32_t PATCH = 4;
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
@@ -19,23 +19,23 @@ const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
    The state variable encapsulates the all-over state of the system (ATTiny and RPi
    together).
    The possible states are:
-    RUNNING_STATE      -   0 - the system is running normally
-    UNCLEAR_STATE      -   1 - the system has been reset and is unsure about its state
-    REC_WARN_STATE     -   2 - the system was in the warn state and is now recovering
-    REC_SHUTDOWN_STATE -   4 - the system was in the shutdown state and is now recovering
-    WARN_STATE         -   8 - the system is in the warn state
-    WARN_TO_SHUTDOWN   -  16 - the system transitions from warn state to shutdown state
-    SHUTDOWN_STATE     -  32 - the system is in the shutdown state
+    RUNNING_STATE       -  0 - the system is running normally
+    UNCLEAR_STATE       -  1 - the system has been reset and is unsure about its state
+    WARN_TO_RUNNING     -  2 - the system transitions from warn state to running state
+    SHUTDOWN_TO_RUNNING -  4 - the system transitions from shutdown state to running state
+    WARN_STATE          -  8 - the system is in the warn state
+    WARN_TO_SHUTDOWN    - 16 - the system transitions from warn state to shutdown state
+    SHUTDOWN_STATE      - 32 - the system is in the shutdown state
 
     They are ordered in a way that allows to later check for the severity of the state by
     e.g., "if(state <= WARN_STATE)"
 */
-uint8_t state = UNCLEAR_STATE;
+enum State state = UNCLEAR_STATE;
 
 /*
    This variable holds the register for the I2C communication
 */
-uint8_t register_number;
+enum Register register_number;
 
 /*
    These variables hold the fuse settings. If we try to read the fuse settings over I2C without
@@ -55,6 +55,7 @@ uint8_t primed              =    0;  // 0 if turned off, 1 if primed, temporary
 uint8_t should_shutdown     =    0;  // 0, all is well, 1 shutdown has been initiated, 2 and larger should shutdown
 uint8_t force_shutdown      =    0;  // != 0, force shutdown if below shutdown_voltage
 uint8_t reset_configuration =    0;  // bit 0 (0 = 1 / 1 = 2) pulses, bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
+uint8_t led_off_mode        =    0;  // 0 LED behaves normally, 1 LED does not blink
 
 /*
    These are the 16 bit registers (the register numbers are defined in ATTinyDaemon.h).
@@ -163,12 +164,12 @@ void loop() {
       // The RPi has been warned using the should_shutdown variable
       // we simply let it shutdown even if it does not set SL_INITIATED
       reset_counter();
-    } else if (state == REC_SHUTDOWN_STATE) {
+    } else if (state == SHUTDOWN_TO_RUNNING) {
       // we have recovered from a shutdown and are now at a safe voltage
       ups_on();
       reset_counter();
       state = RUNNING_STATE;
-    } else if (state == REC_WARN_STATE) {
+    } else if (state == WARN_TO_RUNNING) {
       // we have recovered from a warn state and are now at a safe voltage
       state = RUNNING_STATE;
     } else if (state == UNCLEAR_STATE) {
@@ -257,57 +258,4 @@ void blink_led(int n, int blink_length) {
       ledOff_buttonOn();
       delay(blink_length);
     }  
-}
-
-/*
-   Read the values stored in the EEPROM. The addresses are defined in
-   the header file. We use the modern get()-method that determines the
-   object size itself, because the accompanying put()-method uses the
-   update()-function that checks whether the data has been modified
-   before it writes.
-*/
-void read_EEPROM_values() {
-  EEPROM.get(EEPROM_TIMEOUT_ADDRESS, timeout);
-  EEPROM.get(EEPROM_PRIMED_ADDRESS, primed);
-  EEPROM.get(EEPROM_RESTART_V_ADDRESS, restart_voltage);
-  EEPROM.get(EEPROM_WARN_V_ADDRESS, warn_voltage);
-  EEPROM.get(EEPROM_SHUTDOWN_V_ADDRESS, shutdown_voltage);
-  EEPROM.get(EEPROM_BAT_V_COEFFICIENT, ext_v_coefficient);
-  EEPROM.get(EEPROM_BAT_V_CONSTANT, ext_v_constant);
-  EEPROM.get(EEPROM_EXT_V_COEFFICIENT, ext_v_coefficient);
-  EEPROM.get(EEPROM_EXT_V_CONSTANT, ext_v_constant);
-  EEPROM.get(EEPROM_T_COEFFICIENT, t_coefficient);
-  EEPROM.get(EEPROM_T_CONSTANT, t_constant);
-  EEPROM.get(EEPROM_RESET_CONFIG, reset_configuration);
-  EEPROM.get(EEPROM_RESET_PULSE_LENGTH, reset_pulse_length);
-  EEPROM.get(EEPROM_SW_RECOVERY_DELAY, sw_recovery_delay);
-}
-
-/*
-   Initialize the EEPROM and set the values to the currently
-   held values in our variables. This function is called when,
-   in the setup() function, we determine that no valid EEPROM
-   data can be read (by checking the EEPROM_INIT_VALUE).
-   This method can also be used later from the Raspberry to
-   reinit the EEPROM, but individual values are written at once
-   whenever they are transmitted using I2C (see the function
-   receiveEvent()).
-*/
-void init_EEPROM() {
-  // put uses update(), thus no unnecessary writes
-  EEPROM.put(EEPROM_BASE_ADDRESS, EEPROM_INIT_VALUE);
-  EEPROM.put(EEPROM_TIMEOUT_ADDRESS, timeout);
-  EEPROM.put(EEPROM_PRIMED_ADDRESS, primed);
-  EEPROM.put(EEPROM_RESTART_V_ADDRESS, restart_voltage);
-  EEPROM.put(EEPROM_WARN_V_ADDRESS, warn_voltage);
-  EEPROM.put(EEPROM_SHUTDOWN_V_ADDRESS, shutdown_voltage);
-  EEPROM.put(EEPROM_BAT_V_COEFFICIENT, ext_v_coefficient);
-  EEPROM.put(EEPROM_BAT_V_CONSTANT, ext_v_constant);
-  EEPROM.put(EEPROM_EXT_V_COEFFICIENT, ext_v_coefficient);
-  EEPROM.put(EEPROM_EXT_V_CONSTANT, ext_v_constant);
-  EEPROM.put(EEPROM_T_COEFFICIENT, t_coefficient);
-  EEPROM.put(EEPROM_T_CONSTANT, t_constant);
-  EEPROM.put(EEPROM_RESET_CONFIG, reset_configuration);
-  EEPROM.put(EEPROM_RESET_PULSE_LENGTH, reset_pulse_length);
-  EEPROM.put(EEPROM_SW_RECOVERY_DELAY, sw_recovery_delay);
 }
