@@ -19,7 +19,7 @@ from attiny_i2c import ATTiny
 # Version information
 major = 2
 minor = 7
-patch = 0
+patch = 2
 
 # config file is in the same directory as the script:
 _configfile_default = str(Path(__file__).parent.absolute()) + "/attiny_daemon.cfg"
@@ -88,7 +88,7 @@ def main(*args):
     try:
         while True:
             should_shutdown = attiny.should_shutdown()
-            if should_shutdown == 0xFF:
+            if should_shutdown == 0xFFFF:
                 # We have a big problem
                 logging.error("Lost connection to ATTiny.")
                 log_geekworm_voltage()
