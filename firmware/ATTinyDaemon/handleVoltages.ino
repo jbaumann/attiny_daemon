@@ -40,7 +40,7 @@
 
 void read_voltages() {
   // if we are in shutdown state take only one measurement
-  uint8_t num_measurements = state > WARN_STATE ? 1 : NUM_MEASUREMENTS; 
+  uint8_t num_measurements = state > State::warn_state ? 1 : NUM_MEASUREMENTS; 
 
   /* Table 17-5 defines the prescaler values. For a clock frequency of 8MHz which we use,
      a divison factor of 64 leads to the needed sample rate of 125kHz, which is in the
@@ -55,9 +55,9 @@ void read_voltages() {
   ADMUX = bit(REFS1) | bit(MUX3) | bit(MUX2) | bit(MUX1) | bit(MUX0);
 
   uint32_t temp_temperature = read_adc(num_measurements);
-  temp_temperature *= t_coefficient;
+  temp_temperature *= temperature_coefficient;
 
-  temp_temperature = temp_temperature / 1000 + t_constant;
+  temp_temperature = temp_temperature / 1000 + temperature_constant;
 
   //-- Measure Vcc ---------------------------------------------------------------------
   /*
@@ -73,8 +73,8 @@ void read_voltages() {
   uint32_t temp_bat_voltage = 1126400L / read_adc(num_measurements);
 
   // correct the measurement using coefficient and constant
-  temp_bat_voltage *= bat_v_coefficient;
-  temp_bat_voltage = temp_bat_voltage / 1000 + bat_v_constant;
+  temp_bat_voltage *= bat_voltage_coefficient;
+  temp_bat_voltage = temp_bat_voltage / 1000 + bat_voltage_constant;
 
 
   //-- Measure EXT_V -------------------------------------------------------------------
@@ -87,9 +87,9 @@ void read_voltages() {
   temp_ext_voltage /= 1024;
 
   // correct the measurement using coefficient and constant
-  if(temp_ext_voltage > ext_v_constant) {
-    temp_ext_voltage *= ext_v_coefficient;
-    temp_ext_voltage = temp_ext_voltage / 1000 + ext_v_constant;
+  if(temp_ext_voltage > ext_voltage_constant) {
+    temp_ext_voltage *= ext_voltage_coefficient;
+    temp_ext_voltage = temp_ext_voltage / 1000 + ext_voltage_constant;
   } else {
     temp_ext_voltage = 0;
   }
@@ -104,7 +104,7 @@ void read_voltages() {
     // the Raspberry's different loads.
     temp_bat_voltage = (temp_bat_voltage + bat_voltage * 9) / 10;
 
-    if (state == WARN_STATE && should_shutdown != SL_INITIATED) {
+    if (state == State::warn_state && should_shutdown != SL_INITIATED) {
       should_shutdown |= SL_BAT_V;
     } else {
       should_shutdown &= ~SL_BAT_V;
