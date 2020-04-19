@@ -35,7 +35,7 @@ State state = State::unclear_state;
 /*
    This variable holds the register for the I2C communication
 */
-enum Register register_number;
+Register register_number;
 
 /*
    These variables hold the fuse settings. If we try to read the fuse settings over I2C without
@@ -48,18 +48,18 @@ uint8_t fuse_extended;
 
 /*
    These are the 8 bit registers (the register numbers are defined in ATTinyDaemon.h)
-   Important: The value 0xFF is no valid value and will be filtered on the RPi side
+   Important: The value 0xFFFF is no valid value and will be filtered on the RPi side
 */
 uint8_t timeout                  =   60;  // timeout for the reset, will be placed in eeprom (should cover shutdown and reboot)
 uint8_t primed                   =    0;  // 0 if turned off, 1 if primed, temporary
-enum Shutdown_Levels should_shutdown =    0;  // 0, all is well, 1 shutdown has been initiated, 2 and larger should shutdown
+uint8_t should_shutdown          = Shutdown_Cause::none; 
 uint8_t force_shutdown           =    0;  // != 0, force shutdown if below shutdown_voltage
 uint8_t reset_configuration      =    0;  // bit 0 (0 = 1 / 1 = 2) pulses, bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
 uint8_t led_off_mode             =    0;  // 0 LED behaves normally, 1 LED does not blink
 
 /*
    These are the 16 bit registers (the register numbers are defined in ATTinyDaemon.h).
-   The value 0xFFFF is no valid value and will be filtered on the RPi side
+   The value 0xFFFFFFFF is no valid value and will be filtered on the RPi side
 */
 uint16_t bat_voltage             =    0;   // the battery voltage, 3.3 should be low and 3.7 high voltage
 uint16_t bat_voltage_coefficient = 1000;   // the multiplier for the measured battery voltage * 1000, integral non-linearity
@@ -118,11 +118,11 @@ ISR (PCINT0_vect) {
   if (seconds > timeout && primed == 0) {
     primed = 1;
     // could be set during the shutdown while the timeout has not yet been exceeded. We reset it.
-    should_shutdown = SL_NORMAL;
+    should_shutdown = Shutdown_Cause::none;
   } else {
     // signal the Raspberry that the button has been pressed.
-    if (should_shutdown != SL_INITIATED) {
-      should_shutdown |= SL_BUTTON;
+    if (should_shutdown != Shutdown_Cause::rpi_initiated) {
+      should_shutdown |= Shutdown_Cause::button;
     }
   }
 }
@@ -142,7 +142,7 @@ void loop() {
   handle_state();
 
   if (state <= State::warn_state) {
-    if (should_shutdown > SL_INITIATED && (seconds < timeout)) {
+    if (should_shutdown > Shutdown_Cause::rpi_initiated && (seconds < timeout)) {
       // RPi should take action, possibly shut down. Signal by blinking 5 times
         blink_led(5, BLINK_TIME);
     }

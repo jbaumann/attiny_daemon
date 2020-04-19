@@ -87,7 +87,7 @@ void read_voltages() {
   temp_ext_voltage /= 1024;
 
   // correct the measurement using coefficient and constant
-  if(temp_ext_voltage > ext_voltage_constant) {
+  if((signed)temp_ext_voltage > ext_voltage_constant) {
     temp_ext_voltage *= ext_voltage_coefficient;
     temp_ext_voltage = temp_ext_voltage / 1000 + ext_voltage_constant;
   } else {
@@ -104,10 +104,10 @@ void read_voltages() {
     // the Raspberry's different loads.
     temp_bat_voltage = (temp_bat_voltage + bat_voltage * 9) / 10;
 
-    if (state == State::warn_state && should_shutdown != SL_INITIATED) {
-      should_shutdown |= SL_BAT_V;
+    if (state == State::warn_state && should_shutdown != Shutdown_Cause::rpi_initiated) {
+      should_shutdown |= Shutdown_Cause::bat_voltage;
     } else {
-      should_shutdown &= ~SL_BAT_V;
+      should_shutdown &= ~Shutdown_Cause::bat_voltage;
     }
   }
 

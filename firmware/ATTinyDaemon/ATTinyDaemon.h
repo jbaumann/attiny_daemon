@@ -68,27 +68,27 @@ enum class State : uint8_t {
    Following this is the data
 */
 namespace EEPROM_Address {
-  // this enum is in its own namespace and not declared as a class to keep the implicit conversion
-  // to int when calling EEPROM.get() or EEPROM.put(). The result, when using it, is the same.
-  enum EEPROM_Address {
-    base                        =  0,      // uint8_t
-    timeout                     =  1,      // uint8_t
-    primed                      =  2,      // uint8_t
-    force_shutdown              =  3,      // uint8_t
-    restart_voltage             =  4,      // uint16_t
-    warn_voltage                =  6,      // uint16_t
-    shutdown_voltage            =  8,      // uint16_t
-    bat_voltage_coefficient     = 10,      // uint16_t
-    bat_voltage_constant        = 12,      // uint16_t
-    ext_voltage_coefficient     = 14,      // uint16_t
-    ext_voltage_constant        = 16,      // uint16_t
-    temperature_coefficient     = 18,      // uint16_t
-    temperature_constant        = 20,      // uint16_t
-    reset_configuration         = 22,      // uint8_t
-    reset_pulse_length          = 23,      // uint16_t
-    switch_recovery_delay       = 25,      // uint16_t
-    led_off_mode                = 27,      // uint8_t
-  }; __attribute__ ((__packed__));            // force smallest size i.e., uint_8t (GCC syntax)
+// this enum is in its own namespace and not declared as a class to keep the implicit conversion
+// to int when calling EEPROM.get() or EEPROM.put(). The result, when using it, is the same.
+enum EEPROM_Address {
+  base                          =  0,      // uint8_t
+  timeout                       =  1,      // uint8_t
+  primed                        =  2,      // uint8_t
+  force_shutdown                =  3,      // uint8_t
+  restart_voltage               =  4,      // uint16_t
+  warn_voltage                  =  6,      // uint16_t
+  shutdown_voltage              =  8,      // uint16_t
+  bat_voltage_coefficient       = 10,      // uint16_t
+  bat_voltage_constant          = 12,      // uint16_t
+  ext_voltage_coefficient       = 14,      // uint16_t
+  ext_voltage_constant          = 16,      // uint16_t
+  temperature_coefficient       = 18,      // uint16_t
+  temperature_constant          = 20,      // uint16_t
+  reset_configuration           = 22,      // uint8_t
+  reset_pulse_length            = 23,      // uint16_t
+  switch_recovery_delay         = 25,      // uint16_t
+  led_off_mode                  = 27,      // uint8_t
+} __attribute__ ((__packed__));            // force smallest size i.e., uint_8t (GCC syntax)
 }
 
 const uint8_t EEPROM_INIT_VALUE = 0x42;
@@ -98,51 +98,54 @@ const uint8_t EEPROM_INIT_VALUE = 0x42;
 */
 const uint8_t I2C_ADDRESS       = 0x37;
 
-enum Register {
-  REGISTER_LAST_ACCESS          = 0x01,
-  REGISTER_BAT_VOLTAGE          = 0x11,
-  REGISTER_EXT_VOLTAGE          = 0x12,
-  REGISTER_BAT_V_COEFFICIENT    = 0x13,
-  REGISTER_BAT_V_CONSTANT       = 0x14,
-  REGISTER_EXT_V_COEFFICIENT    = 0x15,
-  REGISTER_EXT_V_CONSTANT       = 0x16,
-  REGISTER_TIMEOUT              = 0x21,
-  REGISTER_PRIMED               = 0x22,
-  REGISTER_SHOULD_SHUTDOWN      = 0x23,
-  REGISTER_FORCE_SHUTDOWN       = 0x24,
-  REGISTER_LED_OFF_MODE         = 0x25,
-  REGISTER_RESTART_VOLTAGE      = 0x31,
-  REGISTER_WARN_VOLTAGE         = 0x32,
-  REGISTER_SHUTDOWN_VOLTAGE     = 0x33,
-  REGISTER_TEMPERATURE          = 0x41,
-  REGISTER_T_COEFFICIENT        = 0x42,
-  REGISTER_T_CONSTANT           = 0x43,
-  REGISTER_RESET_CONFIG         = 0x51,
-  REGISTER_RESET_PULSE_LENGTH   = 0x52,
-  REGISTER_SW_RECOVERY_DELAY    = 0x53,
-  REGISTER_VERSION              = 0x80,
-  REGISTER_FUSE_LOW             = 0x81,
-  REGISTER_FUSE_HIGH            = 0x82,
-  REGISTER_FUSE_EXTENDED        = 0x83,
-  REGISTER_INTERNAL_STATE       = 0x84,
+enum class Register : uint8_t {
+  last_access                   = 0x01,
+  bat_voltage                   = 0x11,
+  ext_voltage                   = 0x12,
+  bat_voltage_coefficient       = 0x13,
+  bat_voltage_constant          = 0x14,
+  ext_voltage_coefficient       = 0x15,
+  ext_voltage_constant          = 0x16,
+  timeout                       = 0x21,
+  primed                        = 0x22,
+  should_shutdown               = 0x23,
+  force_shutdown                = 0x24,
+  led_off_mode                  = 0x25,
+  restart_voltage               = 0x31,
+  warn_voltage                  = 0x32,
+  shutdown_voltage              = 0x33,
+  temperature                   = 0x41,
+  temperature_coefficient       = 0x42,
+  temperature_constant          = 0x43,
+  reset_configuration           = 0x51,
+  reset_pulse_length            = 0x52,
+  switch_recovery_delay         = 0x53,
+  version                       = 0x80,
+  fuse_low                      = 0x81,
+  fuse_high                     = 0x82,
+  fuse_extended                 = 0x83,
+  internal_state                = 0x84,
 
-  REGISTER_INIT_EEPROM          = 0xFF,
-} __attribute__ ((__packed__));            // force smallest size i.e., uint_8t (GCC syntax)
+  init_eeprom                   = 0xFF,
+}; // __attribute__ ((__packed__));            // force smallest size i.e., uint_8t (GCC syntax)
 
 
 /*
    The shutdown levels
 */
-enum Shutdown_Levels {
-  SL_NORMAL                     = 0,
-  SL_RESERVED_0                 = bit(0),
-  SL_INITIATED                  = bit(1),
-  SL_EXT_V                      = bit(2),
-  SL_BUTTON                     = bit(3),
-  SL_RESERVED_4                 = bit(4),
+namespace Shutdown_Cause {
+// this enum is in its own namespace and not declared as a class to keep the implicit conversion
+// to int when using it (this allows bit operations on the values).
+enum Level {
+  none                          = 0,
+  reserved_0                    = bit(0),
+  rpi_initiated                 = bit(1),
+  ext_voltage                   = bit(2),
+  button                        = bit(3),
+  reserved_4                    = bit(4),
   // the following levels definitely trigger a shutdown
-  SL_RESERVED_5                 = bit(5),
-  SL_RESERVED_6                 = bit(6),
-  SL_BAT_V                      = bit(7),
-
+  reserved_5                    = bit(5),
+  reserved_6                    = bit(6),
+  bat_voltage                   = bit(7),
 } __attribute__ ((__packed__));            // force smallest size i.e., uint_8t (GCC syntax)
+}
