@@ -23,6 +23,7 @@ class ATTiny:
     REG_PRIMED             = 0x22
     REG_SHOULD_SHUTDOWN    = 0x23
     REG_FORCE_SHUTDOWN     = 0x24
+    REG_LED_OFF_MODE       = 0x25
     REG_RESTART_VOLTAGE    = 0x31
     REG_WARN_VOLTAGE       = 0x32
     REG_SHUTDOWN_VOLTAGE   = 0x33
@@ -74,6 +75,9 @@ class ATTiny:
 
     def set_force_shutdown(self, value):
         return self.set_8bit_value(self.REG_FORCE_SHUTDOWN, value)
+
+    def set_led_off_mode(self, value):
+        return self.set_8bit_value(self.REG_LED_OFF_MODE, value)
 
     def set_reset_configuration(self, value):
         return self.set_8bit_value(self.REG_RESET_CONFIG, value)
@@ -216,6 +220,9 @@ class ATTiny:
 
     def get_force_shutdown(self):
         return self.get_8bit_value(self.REG_FORCE_SHUTDOWN)
+
+    def get_led_off_mode(self):
+        return self.get_8bit_value(self.REG_LED_OFF_MODE)
 
     def get_reset_configuration(self):
         return self.get_8bit_value(self.REG_RESET_CONFIG)
