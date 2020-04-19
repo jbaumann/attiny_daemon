@@ -18,7 +18,7 @@ from attiny_i2c import ATTiny
 
 # Version information
 major = 2
-minor = 7
+minor = 8
 patch = 2
 
 # config file is in the same directory as the script:
