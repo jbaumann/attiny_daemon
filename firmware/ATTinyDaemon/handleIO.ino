@@ -122,7 +122,7 @@ void restart_raspberry() {
   should_shutdown = 0;
 
   ups_off();
-  delay(sw_recovery_delay); // wait for the switch circuit to revover
+  delay(switch_recovery_delay); // wait for the switch circuit to revover
   ups_on();
 }
 

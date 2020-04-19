@@ -30,12 +30,12 @@ const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
     They are ordered in a way that allows to later check for the severity of the state by
     e.g., "if(state <= WARN_STATE)"
 */
-enum State state = UNCLEAR_STATE;
+State state = State::unclear_state;
 
 /*
    This variable holds the register for the I2C communication
 */
-enum Register register_number;
+Register register_number;
 
 /*
    These variables hold the fuse settings. If we try to read the fuse settings over I2C without
@@ -48,34 +48,34 @@ uint8_t fuse_extended;
 
 /*
    These are the 8 bit registers (the register numbers are defined in ATTinyDaemon.h)
-   Important: The value 0xFF is no valid value and will be filtered on the RPi side
+   Important: The value 0xFFFF is no valid value and will be filtered on the RPi side
 */
-uint8_t timeout             =   60;  // timeout for the reset, will be placed in eeprom (should cover shutdown and reboot)
-uint8_t primed              =    0;  // 0 if turned off, 1 if primed, temporary
-uint8_t should_shutdown     =    0;  // 0, all is well, 1 shutdown has been initiated, 2 and larger should shutdown
-uint8_t force_shutdown      =    0;  // != 0, force shutdown if below shutdown_voltage
-uint8_t reset_configuration =    0;  // bit 0 (0 = 1 / 1 = 2) pulses, bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
-uint8_t led_off_mode        =    0;  // 0 LED behaves normally, 1 LED does not blink
+uint8_t timeout                  =   60;  // timeout for the reset, will be placed in eeprom (should cover shutdown and reboot)
+uint8_t primed                   =    0;  // 0 if turned off, 1 if primed, temporary
+uint8_t should_shutdown          = Shutdown_Cause::none; 
+uint8_t force_shutdown           =    0;  // != 0, force shutdown if below shutdown_voltage
+uint8_t reset_configuration      =    0;  // bit 0 (0 = 1 / 1 = 2) pulses, bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
+uint8_t led_off_mode             =    0;  // 0 LED behaves normally, 1 LED does not blink
 
 /*
    These are the 16 bit registers (the register numbers are defined in ATTinyDaemon.h).
-   The value 0xFFFF is no valid value and will be filtered on the RPi side
+   The value 0xFFFFFFFF is no valid value and will be filtered on the RPi side
 */
-uint16_t bat_voltage        =    0;   // the battery voltage, 3.3 should be low and 3.7 high voltage
-uint16_t bat_v_coefficient  = 1000;   // the multiplier for the measured battery voltage * 1000, integral non-linearity
-int16_t  bat_v_constant     =    0;   // the constant added to the measurement of the battery voltage * 1000, offset error
-uint16_t ext_voltage        =    0;   // the external voltage from Pi or other source
-uint16_t ext_v_coefficient  = 1000;   // the multiplier for the measured external voltage * 1000, integral non-linearity
-int16_t  ext_v_constant     =    0;   // the constant added to the measurement of the external voltage * 1000, offset error
-uint16_t restart_voltage    = 3900;   // the battery voltage at which the RPi will be started again
-uint16_t warn_voltage       = 3400;   // the battery voltage at which the RPi should should down
-uint16_t shutdown_voltage   = 3200;   // the battery voltage at which a hard shutdown is executed
-uint16_t seconds            =    0;   // seconds since last i2c access
-uint16_t temperature        =    0;   // the on-chip temperature
-uint16_t t_coefficient      = 1000;   // the multiplier for the measured temperature * 1000, the coefficient
-int16_t  t_constant         = -270;   // the constant added to the measurement as offset
-uint16_t reset_pulse_length =  200;   // the reset pulse length (normally 200 for a reset, 4000 for switching)
-uint16_t sw_recovery_delay  = 1000;   // the pause needed between two reset pulse for the circuit recovery
+uint16_t bat_voltage             =    0;   // the battery voltage, 3.3 should be low and 3.7 high voltage
+uint16_t bat_voltage_coefficient = 1000;   // the multiplier for the measured battery voltage * 1000, integral non-linearity
+int16_t  bat_voltage_constant    =    0;   // the constant added to the measurement of the battery voltage * 1000, offset error
+uint16_t ext_voltage             =    0;   // the external voltage from Pi or other source
+uint16_t ext_voltage_coefficient = 1000;   // the multiplier for the measured external voltage * 1000, integral non-linearity
+int16_t  ext_voltage_constant    =    0;   // the constant added to the measurement of the external voltage * 1000, offset error
+uint16_t restart_voltage         = 3900;   // the battery voltage at which the RPi will be started again
+uint16_t warn_voltage            = 3400;   // the battery voltage at which the RPi should should down
+uint16_t shutdown_voltage        = 3200;   // the battery voltage at which a hard shutdown is executed
+uint16_t seconds                 =    0;   // seconds since last i2c access
+uint16_t temperature             =    0;   // the on-chip temperature
+uint16_t temperature_coefficient = 1000;   // the multiplier for the measured temperature * 1000, the coefficient
+int16_t  temperature_constant    = -270;   // the constant added to the measurement as offset
+uint16_t reset_pulse_length      =  200;   // the reset pulse length (normally 200 for a reset, 4000 for switching)
+uint16_t switch_recovery_delay   = 1000;   // the pause needed between two reset pulse for the circuit recovery
 
 void setup() {
   reset_watchdog ();  // do this first in case WDT fires
@@ -92,7 +92,7 @@ void setup() {
 
   // EEPROM, read stored data or init
   uint8_t writtenBefore;
-  EEPROM.get(EEPROM_BASE_ADDRESS, writtenBefore);
+  EEPROM.get(EEPROM_Address::base, writtenBefore);
   if (writtenBefore != EEPROM_INIT_VALUE) {
     // no data has been written before, initialise EEPROM
     init_EEPROM();
@@ -118,17 +118,17 @@ ISR (PCINT0_vect) {
   if (seconds > timeout && primed == 0) {
     primed = 1;
     // could be set during the shutdown while the timeout has not yet been exceeded. We reset it.
-    should_shutdown = SL_NORMAL;
+    should_shutdown = Shutdown_Cause::none;
   } else {
     // signal the Raspberry that the button has been pressed.
-    if (should_shutdown != SL_INITIATED) {
-      should_shutdown |= SL_BUTTON;
+    if (should_shutdown != Shutdown_Cause::rpi_initiated) {
+      should_shutdown |= Shutdown_Cause::button;
     }
   }
 }
 
 void loop() {
-  if (state <= WARN_STATE) {
+  if (state <= State::warn_state) {
     if (primed != 0 || (seconds < timeout) ) {
       // start the regular blink if either primed is set or we are not yet in a timeout.
       // This means the LED stops blinking at the same time at which
@@ -141,8 +141,8 @@ void loop() {
   read_voltages();
   handle_state();
 
-  if (state <= WARN_STATE) {
-    if (should_shutdown > SL_INITIATED && (seconds < timeout)) {
+  if (state <= State::warn_state) {
+    if (should_shutdown > Shutdown_Cause::rpi_initiated && (seconds < timeout)) {
       // RPi should take action, possibly shut down. Signal by blinking 5 times
         blink_led(5, BLINK_TIME);
     }
@@ -150,34 +150,34 @@ void loop() {
 
   // we act only if primed is set
   if (primed != 0) {
-    if(state == WARN_TO_SHUTDOWN) {
+    if(state == State::warn_to_shutdown) {
       // immediately turn off the system if force_shutdown is set
       if (force_shutdown != 0) {
         ups_off();
       }
-      state = SHUTDOWN_STATE;
+      state = State::shutdown_state;
     }
 
-    if (state == SHUTDOWN_STATE) {
+    if (state == State::shutdown_state) {
       ledOff_buttonOff();
-    } else if (state == WARN_STATE) {
+    } else if (state == State::warn_state) {
       // The RPi has been warned using the should_shutdown variable
       // we simply let it shutdown even if it does not set SL_INITIATED
       reset_counter();
-    } else if (state == SHUTDOWN_TO_RUNNING) {
+    } else if (state == State::shutdown_to_running) {
       // we have recovered from a shutdown and are now at a safe voltage
       ups_on();
       reset_counter();
-      state = RUNNING_STATE;
-    } else if (state == WARN_TO_RUNNING) {
+      state = State::running_state;
+    } else if (state == State::warn_to_running) {
       // we have recovered from a warn state and are now at a safe voltage
-      state = RUNNING_STATE;
-    } else if (state == UNCLEAR_STATE) {
+      state = State::running_state;
+    } else if (state == State::unclear_state) {
       // we do nothing and wait until either a timeout occurs, the voltage
       // drops to warn_voltage or is higher than restart_voltage (see handle_state())
     }
 
-    if (state == RUNNING_STATE) {
+    if (state == State::running_state) {
       if (seconds > timeout) {
         // RPi has not accessed the I2C interface for more than timeout seconds.
         // We restart it. Signal restart by blinking ten times
@@ -188,7 +188,7 @@ void loop() {
     }
   }
 
-  if (state <= WARN_STATE) {
+  if (state <= State::warn_state) {
     // allow the button functionality as long as possible and even if not primed
     ledOff_buttonOn();
   }

@@ -54,7 +54,7 @@ unsigned char crc8_message_calc(uint8_t *msg, uint8_t len)
 void write_data_crc(uint8_t *msg, uint8_t len) {
   reg = CRC8INIT;
   uint8_t i;
-  crc8_bytecalc(register_number);
+  crc8_bytecalc((uint8_t) register_number);
   for (i = 0; i < len; i++) {
     crc8_bytecalc(msg[i]);
   }

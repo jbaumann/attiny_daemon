@@ -6,21 +6,21 @@
    before it writes.
 */
 void read_EEPROM_values() {
-  EEPROM.get(EEPROM_TIMEOUT_ADDRESS, timeout);
-  EEPROM.get(EEPROM_PRIMED_ADDRESS, primed);
-  EEPROM.get(EEPROM_RESTART_V_ADDRESS, restart_voltage);
-  EEPROM.get(EEPROM_WARN_V_ADDRESS, warn_voltage);
-  EEPROM.get(EEPROM_SHUTDOWN_V_ADDRESS, shutdown_voltage);
-  EEPROM.get(EEPROM_BAT_V_COEFFICIENT, ext_v_coefficient);
-  EEPROM.get(EEPROM_BAT_V_CONSTANT, ext_v_constant);
-  EEPROM.get(EEPROM_EXT_V_COEFFICIENT, ext_v_coefficient);
-  EEPROM.get(EEPROM_EXT_V_CONSTANT, ext_v_constant);
-  EEPROM.get(EEPROM_T_COEFFICIENT, t_coefficient);
-  EEPROM.get(EEPROM_T_CONSTANT, t_constant);
-  EEPROM.get(EEPROM_RESET_CONFIG, reset_configuration);
-  EEPROM.get(EEPROM_RESET_PULSE_LENGTH, reset_pulse_length);
-  EEPROM.get(EEPROM_SW_RECOVERY_DELAY, sw_recovery_delay);
-  EEPROM.get(EEPROM_LED_OFF_MODE, led_off_mode);
+  EEPROM.get(EEPROM_Address::timeout, timeout);
+  EEPROM.get(EEPROM_Address::primed, primed);
+  EEPROM.get(EEPROM_Address::restart_voltage, restart_voltage);
+  EEPROM.get(EEPROM_Address::warn_voltage, warn_voltage);
+  EEPROM.get(EEPROM_Address::shutdown_voltage, shutdown_voltage);
+  EEPROM.get(EEPROM_Address::bat_voltage_coefficient, bat_voltage_coefficient);
+  EEPROM.get(EEPROM_Address::bat_voltage_constant, bat_voltage_constant);
+  EEPROM.get(EEPROM_Address::ext_voltage_coefficient, ext_voltage_coefficient);
+  EEPROM.get(EEPROM_Address::ext_voltage_constant, ext_voltage_constant);
+  EEPROM.get(EEPROM_Address::temperature_coefficient, temperature_coefficient);
+  EEPROM.get(EEPROM_Address::temperature_constant, temperature_constant);
+  EEPROM.get(EEPROM_Address::reset_configuration, reset_configuration);
+  EEPROM.get(EEPROM_Address::reset_pulse_length, reset_pulse_length);
+  EEPROM.get(EEPROM_Address::switch_recovery_delay, switch_recovery_delay);
+  EEPROM.get(EEPROM_Address::led_off_mode, led_off_mode);
 }
 
 /*
@@ -35,21 +35,20 @@ void read_EEPROM_values() {
 */
 void init_EEPROM() {
   // put uses update(), thus no unnecessary writes
-  EEPROM.put(EEPROM_BASE_ADDRESS, EEPROM_INIT_VALUE);
-  EEPROM.put(EEPROM_TIMEOUT_ADDRESS, timeout);
-  EEPROM.put(EEPROM_PRIMED_ADDRESS, primed);
-  EEPROM.put(EEPROM_RESTART_V_ADDRESS, restart_voltage);
-  EEPROM.put(EEPROM_WARN_V_ADDRESS, warn_voltage);
-  EEPROM.put(EEPROM_SHUTDOWN_V_ADDRESS, shutdown_voltage);
-  EEPROM.put(EEPROM_BAT_V_COEFFICIENT, ext_v_coefficient);
-  EEPROM.put(EEPROM_BAT_V_CONSTANT, ext_v_constant);
-  EEPROM.put(EEPROM_EXT_V_COEFFICIENT, ext_v_coefficient);
-  EEPROM.put(EEPROM_EXT_V_CONSTANT, ext_v_constant);
-  EEPROM.put(EEPROM_T_COEFFICIENT, t_coefficient);
-  EEPROM.put(EEPROM_T_CONSTANT, t_constant);
-  EEPROM.put(EEPROM_RESET_CONFIG, reset_configuration);
-  EEPROM.put(EEPROM_RESET_PULSE_LENGTH, reset_pulse_length);
-  EEPROM.put(EEPROM_SW_RECOVERY_DELAY, sw_recovery_delay);
-  EEPROM.put(EEPROM_LED_OFF_MODE, led_off_mode);
-
+  EEPROM.put(EEPROM_Address::base, EEPROM_INIT_VALUE);
+  EEPROM.put(EEPROM_Address::timeout, timeout);
+  EEPROM.put(EEPROM_Address::primed, primed);
+  EEPROM.put(EEPROM_Address::restart_voltage, restart_voltage);
+  EEPROM.put(EEPROM_Address::warn_voltage, warn_voltage);
+  EEPROM.put(EEPROM_Address::shutdown_voltage, shutdown_voltage);
+  EEPROM.put(EEPROM_Address::bat_voltage_coefficient, bat_voltage_coefficient);
+  EEPROM.put(EEPROM_Address::bat_voltage_constant, bat_voltage_constant);
+  EEPROM.put(EEPROM_Address::ext_voltage_coefficient, ext_voltage_coefficient);
+  EEPROM.put(EEPROM_Address::ext_voltage_constant, ext_voltage_constant);
+  EEPROM.put(EEPROM_Address::temperature_coefficient, temperature_coefficient);
+  EEPROM.put(EEPROM_Address::temperature_constant, temperature_constant);
+  EEPROM.put(EEPROM_Address::reset_configuration, reset_configuration);
+  EEPROM.put(EEPROM_Address::reset_pulse_length, reset_pulse_length);
+  EEPROM.put(EEPROM_Address::switch_recovery_delay, switch_recovery_delay);
+  EEPROM.put(EEPROM_Address::led_off_mode, led_off_mode);
 }

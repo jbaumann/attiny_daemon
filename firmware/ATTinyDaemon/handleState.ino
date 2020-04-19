@@ -20,29 +20,29 @@
 void handle_state() {
     // Going down the states is done here, back to running only in the main loop and in handelI2C
   if (bat_voltage <= shutdown_voltage) {
-    state = WARN_TO_SHUTDOWN;
+    state = State::warn_to_shutdown;
   } else if (bat_voltage <= warn_voltage) {
-    state = WARN_STATE;
+    state = State::warn_state;
   } else if (bat_voltage <= restart_voltage) {
-    if (state == UNCLEAR_STATE && seconds > timeout) {
+    if (state == State::unclear_state && seconds > timeout) {
       // the RPi is not running, even after the timeout, so we assume that it
       // shut down, this means we come from a WARN_STATE or SHUTDOWN_STATE 
-      state = WARN_STATE;
+      state = State::warn_state;
     }
   } else { // we are at a safe voltage
  
     switch(state) {
-      case SHUTDOWN_STATE: 
-        state = SHUTDOWN_TO_RUNNING;
+      case State::shutdown_state: 
+        state = State::shutdown_to_running;
         break;
-      case WARN_TO_SHUTDOWN:
-        state = SHUTDOWN_TO_RUNNING;
+      case State::warn_to_shutdown:
+        state = State::shutdown_to_running;
         break;
-      case WARN_STATE: 
-        state = WARN_TO_RUNNING;
+      case State::warn_state: 
+        state = State::warn_to_running;
         break;
-      case UNCLEAR_STATE: 
-        state = RUNNING_STATE;
+      case State::unclear_state: 
+        state = State::running_state;
         break;
     }
   }
