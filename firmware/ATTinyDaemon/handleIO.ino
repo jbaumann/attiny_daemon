@@ -39,8 +39,8 @@ uint8_t PB_READ(uint8_t pin) {
 */
 void ledOff_buttonOn() {
   // switch back to monitoring button
-  pb_high(LED_BUTTON);              // Input pullup
   pb_input(LED_BUTTON);
+  pb_high(LED_BUTTON);              // Input pullup
 
   PCMSK |= bit(LED_BUTTON);         // set interrupt pin
   GIFR |= bit(PCIF);                // clear interrupts

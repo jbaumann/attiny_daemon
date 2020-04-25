@@ -195,13 +195,17 @@ void loop() {
 
   // go to deep sleep
   // taken in part from http://www.gammon.com.au/power
-  set_sleep_mode (SLEEP_MODE_PWR_DOWN);
-  noInterrupts ();           // timed sequence follows
+
+  // Explicitly shutting down the power domains (i.e. timer, ADC etc.) does not
+  // change the overall power consumption
+
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  noInterrupts();           // timed sequence follows
   reset_watchdog();
   sleep_enable();
   sleep_bod_disable();
-  interrupts ();             // guarantees next instruction executed
-  sleep_cpu ();
+  interrupts();             // guarantees next instruction executed
+  sleep_cpu();
   sleep_disable();
 }
 
