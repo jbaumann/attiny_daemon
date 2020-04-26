@@ -135,8 +135,9 @@ uint32_t read_adc(uint8_t num_measurements) {
   uint32_t result = 0;
   uint16_t highest_val = 0;
   uint16_t lowest_val = USHRT_MAX;
+  delay(2); // Wait for ADC to settle
+
   for (int i = 0; i < num_measurements; i++) {
-    delay(2); // Wait for ADC to settle
     ADCSRA |= bit(ADSC); // Start conversion
     loop_until_bit_is_clear(ADCSRA, ADSC); // wait for results
 
