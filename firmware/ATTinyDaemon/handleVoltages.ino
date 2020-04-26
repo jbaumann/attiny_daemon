@@ -69,6 +69,14 @@ void read_voltages() {
   // REFS2, REFS1, REFS0 == 0 selects Vcc as reference, MUX3, MUX2 == 1 selects band gap
   ADMUX = bit(MUX3) | bit(MUX2);
 
+  /*
+   Table 17-4 Note2 states:
+   After switching to internal voltage reference the ADC requires a settling time
+   of 1ms before measurements are stable. Conversions starting before this may not
+   be reliable. The ADC must be enabled during the settling time.
+  */
+  delay(2); // Wait for ADC to settle
+
   // Calculate Vcc (in mV); 1.126.400 = 1.1*1024*1000, see Ch. 17.11.1 of datasheet
   uint32_t temp_bat_voltage = 1126400L / read_adc(num_measurements);
 
@@ -124,33 +132,31 @@ void read_voltages() {
    This function takes num_measurements ADC measurements, throws away highest and
    lowest and averages the rest. If num_measurements is < 4, we simply average
    all measured values. This allows to get a more precise measurement.
-
-   Table 17-4 Note2 states:
-   After switching to internal voltage reference the ADC requires a settling time
-   of 1ms before measurements are stable. Conversions starting before this may not
-   be reliable. The ADC must be enabled during the settling time.
+   In addition a the first, extra measurement is always thrown away
 */
 uint32_t read_adc(uint8_t num_measurements) {
 
   uint32_t result = 0;
   uint16_t highest_val = 0;
   uint16_t lowest_val = USHRT_MAX;
-  delay(2); // Wait for ADC to settle
 
-  for (int i = 0; i < num_measurements; i++) {
+  // measure num_measurements + 1 times and throw away first measurement
+  for (int i = 0; i <= num_measurements; i++) {
     ADCSRA |= bit(ADSC); // Start conversion
     loop_until_bit_is_clear(ADCSRA, ADSC); // wait for results
 
     uint8_t low  = ADCL; // must read ADCL first - it then locks ADCH
     uint8_t high = ADCH; // unlocks both
 
-    uint16_t current_val = (high << 8) | low;
-    result += current_val;
-    if (current_val > highest_val) {
-      highest_val = current_val;
-    }
-    if (current_val < lowest_val) {
-      lowest_val = current_val;
+    if(i != 0) { // throw away the first measurement
+      uint16_t current_val = (high << 8) | low;
+      result += current_val;
+      if (current_val > highest_val) {
+        highest_val = current_val;
+      }
+      if (current_val < lowest_val) {
+        lowest_val = current_val;
+      }
     }
   }
   if (num_measurements > 3) {
