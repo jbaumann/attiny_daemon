@@ -11,7 +11,7 @@
 */
 const uint32_t MAJOR = 2;
 const uint32_t MINOR = 8;
-const uint32_t PATCH = 6;
+const uint32_t PATCH = 8;
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
@@ -91,19 +91,10 @@ void setup() {
   */
 
   // EEPROM, read stored data or init
-  uint8_t writtenBefore;
-  EEPROM.get(EEPROM_Address::base, writtenBefore);
-  if (writtenBefore != EEPROM_INIT_VALUE) {
-    // no data has been written before, initialise EEPROM
-    init_EEPROM();
-  } else {
-    read_EEPROM_values();
-  }
+  read_or_init_EEPROM();
 
   // Initialize I2C
-  Wire.begin(I2C_ADDRESS);
-  Wire.onRequest(request_event);
-  Wire.onReceive(receive_event);
+  init_I2C();
 }
 
 /*
@@ -128,77 +119,19 @@ ISR (PCINT0_vect) {
 }
 
 void loop() {
-  if (state <= State::warn_state) {
-    if (primed != 0 || (seconds < timeout) ) {
-      // start the regular blink if either primed is set or we are not yet in a timeout.
-      // This means the LED stops blinking at the same time at which
-      // the second button functionality is enabled.
-      // We do this here to get additional on-time for the LED during reading the voltages
-      ledOn_buttonOff();
-    }
-  }
-
-  read_voltages();
   handle_state();
+  handle_sleep();
+}
 
-  if (state <= State::warn_state) {
-    if (should_shutdown > Shutdown_Cause::rpi_initiated && (seconds < timeout)) {
-      // RPi should take action, possibly shut down. Signal by blinking 5 times
-        blink_led(5, BLINK_TIME);
-    }
-  }
-
-  // we act only if primed is set
-  if (primed != 0) {
-    if(state == State::warn_to_shutdown) {
-      // immediately turn off the system if force_shutdown is set
-      if (force_shutdown != 0) {
-        ups_off();
-      }
-      state = State::shutdown_state;
-    }
-
-    if (state == State::shutdown_state) {
-      ledOff_buttonOff();
-    } else if (state == State::warn_state) {
-      // The RPi has been warned using the should_shutdown variable
-      // we simply let it shutdown even if it does not set SL_INITIATED
-      reset_counter();
-    } else if (state == State::shutdown_to_running) {
-      // we have recovered from a shutdown and are now at a safe voltage
-      ups_on();
-      reset_counter();
-      state = State::running_state;
-    } else if (state == State::warn_to_running) {
-      // we have recovered from a warn state and are now at a safe voltage
-      state = State::running_state;
-    } else if (state == State::unclear_state) {
-      // we do nothing and wait until either a timeout occurs, the voltage
-      // drops to warn_voltage or is higher than restart_voltage (see handle_state())
-    }
-
-    if (state == State::running_state) {
-      if (seconds > timeout) {
-        // RPi has not accessed the I2C interface for more than timeout seconds.
-        // We restart it. Signal restart by blinking ten times
-        blink_led(10, BLINK_TIME / 2);
-        restart_raspberry();
-        reset_counter();
-      }
-    }
-  }
-
-  if (state <= State::warn_state) {
-    // allow the button functionality as long as possible and even if not primed
-    ledOff_buttonOn();
-  }
-
-  // go to deep sleep
-  // taken in part from http://www.gammon.com.au/power
-
-  // Explicitly shutting down the power domains (i.e. timer, ADC etc.) does not
-  // change the overall power consumption
-
+/*
+   handle_sleep() sends the ATTiny to deep sleep for 1, 2 or 8 seconds 
+   (determined in handle_watchdog()) depending on the state (normal, warn, shutdown).
+   Since we are going into SLEEP_MODE_PWR_DOWN all power domains are shut down and
+   only a very few wake-up sources are still active (USI Start Condition, Watchdog
+   Interrupt, INT0 and Pin Change). See data sheet ch. 7.1, p. 34.
+   Taken in part from http://www.gammon.com.au/power
+ */
+void handle_sleep() {
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   noInterrupts();           // timed sequence follows
   reset_watchdog();
@@ -206,7 +139,7 @@ void loop() {
   sleep_bod_disable();
   interrupts();             // guarantees next instruction executed
   sleep_cpu();
-  sleep_disable();
+  sleep_disable();  
 }
 
 /*

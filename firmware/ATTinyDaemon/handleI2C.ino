@@ -1,4 +1,13 @@
 /*
+   Initialize the I2C connection
+ */
+void init_I2C() {
+  Wire.begin(I2C_ADDRESS);
+  Wire.onRequest(request_event);
+  Wire.onReceive(receive_event);  
+}
+
+/*
    This method is called when either a register number is transferred (1 byte)
    or data is written to a register.
    When data is written we use a simple protocol to guarantee that the data has

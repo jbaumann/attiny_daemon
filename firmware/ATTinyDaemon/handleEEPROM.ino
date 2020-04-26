@@ -1,4 +1,19 @@
 /*
+   Read the EEPROM if it contains valid data, otherwise initialize it.
+ */
+
+void  read_or_init_EEPROM() {
+  uint8_t writtenBefore;
+  EEPROM.get(EEPROM_Address::base, writtenBefore);
+  if (writtenBefore != EEPROM_INIT_VALUE) {
+    // no data has been written before, initialise EEPROM
+    init_EEPROM();
+  } else {
+    read_EEPROM_values();
+  }
+}
+
+/*
    Read the values stored in the EEPROM. The addresses are defined in
    the header file. We use the modern get()-method that determines the
    object size itself, because the accompanying put()-method uses the
