@@ -22,10 +22,7 @@ const uint8_t BUFFER_SIZE = 8;
 uint8_t rbuf[BUFFER_SIZE];
 void receive_event(int bytes) {
 
-  // If we are in an unclear state, then a communication from the RPi moves us to running state
-  if (state == State::unclear_state) {
-    state = State::running_state;
-  }
+  i2c_triggered_state_change();
 
   uint8_t count = BUFFER_SIZE > bytes ? bytes : BUFFER_SIZE;
   for (int i = 0; i < count; i++) {
@@ -100,10 +97,12 @@ void receive_event(int bytes) {
         case Register::bat_voltage_coefficient:
           bat_voltage_coefficient = rbuf[1] | (rbuf[2] << 8);
           EEPROM.put(EEPROM_Address::bat_voltage_coefficient, bat_voltage_coefficient);
+          bat_voltage = 0;  // reset bat_voltage average
           break;
         case Register::bat_voltage_constant:
           bat_voltage_constant = rbuf[1] | (rbuf[2] << 8);
           EEPROM.put(EEPROM_Address::bat_voltage_constant, bat_voltage_constant);
+          bat_voltage = 0;  // reset bat_voltage average
           break;
         case Register::ext_voltage_coefficient:
           ext_voltage_coefficient = rbuf[1] | (rbuf[2] << 8);

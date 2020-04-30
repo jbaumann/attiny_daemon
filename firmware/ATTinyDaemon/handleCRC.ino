@@ -9,13 +9,11 @@
 const uint8_t CRC8INIT = 0x00;                         // The initalization value used for the CRC calculation
 const uint8_t CRC8POLY = 0x31;                         // The CRC8 polynome used: X^8+X^5+X^4+X^0
 
-uint8_t reg = CRC8INIT;                                // Register used for calculating the CRC
-
 /*
    This function adds the current byte of data to the existing CRC calculation in the
    variable reg.
 */
-unsigned char crc8_bytecalc(uint8_t data)
+unsigned char crc8_bytecalc(uint8_t data, uint8_t reg)
 {
   uint8_t i;                                           // we assume we have less than 255 bytes data
   uint8_t flag;                                        // flag for the MSB
@@ -38,12 +36,12 @@ unsigned char crc8_bytecalc(uint8_t data)
 */
 unsigned char crc8_message_calc(uint8_t *msg, uint8_t len)
 {
-  reg = CRC8INIT;
+  uint8_t reg = CRC8INIT;
   uint8_t i;
   for (i = 0; i < len; i++) {
-    crc8_bytecalc(msg[i]);      // calculate the CRC for the next byte of data and add it to reg
+    reg = crc8_bytecalc(msg[i], reg);      // calculate the CRC for the next byte of data and add it to reg
   }
-  return crc8_bytecalc(0);      // The calculation has to be continued for the bit length of the polynome with 0 values
+  return crc8_bytecalc(0, reg);      // The calculation has to be continued for the bit length of the polynome with 0 values
 }
 
 /*
@@ -52,13 +50,13 @@ unsigned char crc8_message_calc(uint8_t *msg, uint8_t len)
 */
 
 void write_data_crc(uint8_t *msg, uint8_t len) {
-  reg = CRC8INIT;
+  uint8_t reg = CRC8INIT;
   uint8_t i;
-  crc8_bytecalc((uint8_t) register_number);
+  reg = crc8_bytecalc((uint8_t) register_number, reg);
   for (i = 0; i < len; i++) {
-    crc8_bytecalc(msg[i]);
+    reg = crc8_bytecalc(msg[i], reg);
   }
-  uint8_t crc = crc8_bytecalc(0);
+  uint8_t crc = crc8_bytecalc(0, reg);
 
   Wire.write(msg, len);
   Wire.write(&crc, 1);
