@@ -11,7 +11,7 @@
 */
 const uint32_t MAJOR = 2;
 const uint32_t MINOR = 9;
-const uint32_t PATCH = 14;
+const uint32_t PATCH = 15;
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
@@ -159,7 +159,9 @@ void check_fuses() {
   fuse_high = boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS);
   fuse_extended = boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS);
 
-  if (fuse_low == 0xE2) {
+  // check low fuse, ignore the fuse settings for the startup time
+  if ( (fuse_low & FUSE_SUT0 & FUSE_SUT1)== 0xC2) {
+
     // everything set up perfectly, we are running at 8MHz
     return;
   }
