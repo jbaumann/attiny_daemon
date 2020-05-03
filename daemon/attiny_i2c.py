@@ -45,7 +45,8 @@ class ATTiny:
     def __init__(self, bus, address, time_const, num_retries):
         self._bus = bus
         self._address = address
-        self._time_const = time_const
+        self._time_const_read = time_const
+        self._time_const_write = time_const + 0.3
         self._num_retries = num_retries
 
     def addCrc(self, crc, n):
@@ -88,7 +89,7 @@ class ATTiny:
 
         arg_list = [value, crc]
         for x in range(self._num_retries):
-            time.sleep(self._time_const)
+            time.sleep(self._time_const_write)
             try:
                 self._bus.write_i2c_block_data(self._address, register, arg_list)
                 if (self.get_8bit_value(register)) == value:
@@ -139,7 +140,7 @@ class ATTiny:
         arg_list = [vals[0], vals[1], crc]
 
         for x in range(self._num_retries):
-            time.sleep(self._time_const)
+            time.sleep(self._time_const_write)
             try:
                 self._bus.write_i2c_block_data(self._address, register, arg_list)
                 if (self.get_16bit_value(register)) == value:
@@ -196,7 +197,7 @@ class ATTiny:
 
     def get_16bit_value(self, register):
         for x in range(self._num_retries):
-            time.sleep(self._time_const)
+            time.sleep(self._time_const_read)
             try:
                 read = self._bus.read_i2c_block_data(self._address, register, 3)
                 # we interpret every value as a 16-bit signed value
@@ -241,7 +242,7 @@ class ATTiny:
 
     def get_8bit_value(self, register):
         for x in range(self._num_retries):
-            time.sleep(self._time_const)
+            time.sleep(self._time_const_read)
             try:
                 read = self._bus.read_i2c_block_data(self._address, register, 2)
                 val = read[0]
@@ -255,7 +256,7 @@ class ATTiny:
 
     def get_version(self):
         for x in range(self._num_retries):
-            time.sleep(self._time_const)
+            time.sleep(self._time_const_read)
             try:
                 read = self._bus.read_i2c_block_data(self._address, self.REG_VERSION, 5)
                 if read[4] == self.calcCRC(self.REG_VERSION, read, 4):
