@@ -19,7 +19,8 @@ _port = 1883
 _client_id = ""
 _user = None
 _password = None
-_additional_info = '"hostname" : "myhost"'
+#_additional_info = '"hostname" : "myhost"'
+_additional_info = None
 
 # Settings specific to ATTiny_Daemon
 _time_const = 0.5   # used as a pause between i2c communications, the ATTiny is slow
@@ -27,6 +28,11 @@ _num_retries = 10   # the number of retries when reading from or writing to the 
 _i2c_address = 0x37 # the I2C address that is used for the ATTiny_Daemon
 
 ### Here begins the code
+
+def get_uptime():
+    with open('/proc/uptime', 'r') as f:
+        uptime_seconds = float(f.readline().split()[0])
+    return uptime_seconds
 
 # set up logging
 root_log = logging.getLogger()
@@ -39,11 +45,16 @@ attiny = ATTiny(bus, _i2c_address, _time_const, _num_retries)
 # access data, an error is signalled by a return value of 0xFFFFFFFF/4294967295
 temperature = str(attiny.get_temperature())
 voltage = str(attiny.get_bat_voltage())
+uptime = str(get_uptime())
 
 #build output
 json_string = '{"temperature" : ' + temperature  \
-              + ', "battery_voltage" : ' + voltage + ', ' \
-              + _additional_info + '}'
+              + ', "battery_voltage" : ' + voltage \
+              + ', "uptime" : ' + uptime;
+if _additional_info == None:
+    json_string = json_string + '}';
+else:
+    json_string = json_string + ', ' + _additional_info + '}'
 
 # build auth dict
 _auth = None
