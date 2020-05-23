@@ -1,4 +1,3 @@
-
 import logging
 import os
 import sys
@@ -42,11 +41,10 @@ class ATTiny:
 
     _POLYNOME = 0x31
 
-    def __init__(self, bus, address, time_const, num_retries):
-        self._bus = bus
+    def __init__(self, bus_number, address, time_const, num_retries):
+        self._bus_number = bus_number
         self._address = address
-        self._time_const_read = time_const
-        self._time_const_write = time_const + 0.3
+        self._time_const = time_const
         self._num_retries = num_retries
 
     def addCrc(self, crc, n):
@@ -89,14 +87,16 @@ class ATTiny:
 
         arg_list = [value, crc]
         for x in range(self._num_retries):
-            time.sleep(self._time_const_write)
+            bus = smbus.SMBus(self._bus_number)
+            time.sleep(self._time_const)
             try:
-                self._bus.write_i2c_block_data(self._address, register, arg_list)
+                bus.write_i2c_block_data(self._address, register, arg_list)
+                bus.close()
                 if (self.get_8bit_value(register)) == value:
                     return True
             except Exception as e:
                 logging.debug("Couldn't set 8 bit register " + hex(register) + ". Exception: " + str(e))
-        logging.warning("Couldn't set 8 bit register after " + str(self._num_retries) + " retries.")
+        logging.warning("Couldn't set 8 bit register after " + str(x) + " retries.")
         return False
 
     def set_restart_voltage(self, value):
@@ -140,14 +140,16 @@ class ATTiny:
         arg_list = [vals[0], vals[1], crc]
 
         for x in range(self._num_retries):
-            time.sleep(self._time_const_write)
+            bus = smbus.SMBus(self._bus_number)
+            time.sleep(self._time_const)
             try:
-                self._bus.write_i2c_block_data(self._address, register, arg_list)
+                bus.write_i2c_block_data(self._address, register, arg_list)
+                bus.close()
                 if (self.get_16bit_value(register)) == value:
                     return True
             except Exception as e:
                 logging.debug("Couldn't set 16 bit register " + hex(register) + ". Exception: " + str(e))
-        logging.warning("Couldn't set 16 bit register after " + str(self._num_retries) + " retries.")
+        logging.warning("Couldn't set 16 bit register after " + str(x) + " retries.")
         return False
 
     def get_last_access(self):
@@ -197,17 +199,19 @@ class ATTiny:
 
     def get_16bit_value(self, register):
         for x in range(self._num_retries):
-            time.sleep(self._time_const_read)
+            bus = smbus.SMBus(self._bus_number)
+            time.sleep(self._time_const)
             try:
-                read = self._bus.read_i2c_block_data(self._address, register, 3)
+                read = bus.read_i2c_block_data(self._address, register, 3)
                 # we interpret every value as a 16-bit signed value
                 val = int.from_bytes(read[0:2], byteorder='little', signed=True)
+                bus.close()
                 if read[2] == self.calcCRC(register, read, 2):
                     return val
                 logging.debug("Couldn't read 16 bit register " + hex(register) + " correctly.")
             except Exception as e:
                 logging.debug("Couldn't read 16 bit register " + hex(register) + ". Exception: " + str(e))
-        logging.warning("Couldn't read 16 bit register after " + str(self._num_retries) + " retries.")
+        logging.warning("Couldn't read 16 bit register after " + str(x) + " retries.")
         return 0xFFFFFFFF
 
     def get_timeout(self):
@@ -242,23 +246,27 @@ class ATTiny:
 
     def get_8bit_value(self, register):
         for x in range(self._num_retries):
-            time.sleep(self._time_const_read)
+            bus = smbus.SMBus(self._bus_number)
+            time.sleep(self._time_const)
             try:
-                read = self._bus.read_i2c_block_data(self._address, register, 2)
+                read = bus.read_i2c_block_data(self._address, register, 2)
                 val = read[0]
+                bus.close()
                 if read[1] == self.calcCRC(register, read, 1):
                     return val
                 logging.debug("Couldn't read register " + hex(register) + " correctly.")
             except Exception as e:
                 logging.debug("Couldn't read 8 bit register " + hex(register) + ". Exception: " + str(e))
-        logging.warning("Couldn't read 8 bit register after " + str(self._num_retries) + " retries.")
+        logging.warning("Couldn't read 8 bit register after " + str(x) + " retries.")
         return 0xFFFF
 
     def get_version(self):
         for x in range(self._num_retries):
-            time.sleep(self._time_const_read)
+            bus = smbus.SMBus(self._bus_number)
+            time.sleep(self._time_const)
             try:
-                read = self._bus.read_i2c_block_data(self._address, self.REG_VERSION, 5)
+                read = bus.read_i2c_block_data(self._address, self.REG_VERSION, 5)
+                bus.close()
                 if read[4] == self.calcCRC(self.REG_VERSION, read, 4):
                     major = read[2]
                     minor = read[1]
@@ -267,6 +275,6 @@ class ATTiny:
                 logging.debug("Couldn't read version information correctly.")
             except Exception as e:
                 logging.debug("Couldn't read version information. Exception: " + str(e))
-        logging.warning("Couldn't read version information after " + str(self._num_retries) + " retries.")
+        logging.warning("Couldn't read version information after " + str(x) + " retries.")
         return (0xFFFF, 0xFFFF, 0xFFFF)
 

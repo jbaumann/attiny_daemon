@@ -1,6 +1,5 @@
 #!/usr/bin/python3 -u
 
-import smbus
 import paho.mqtt.publish as publish
 import paho.mqtt.client as mqtt
 import logging
@@ -23,7 +22,7 @@ _password = None
 _additional_info = None
 
 # Settings specific to ATTiny_Daemon
-_time_const = 0.5   # used as a pause between i2c communications, the ATTiny is slow
+_time_const = 1.0   # used as a pause between i2c communications, the ATTiny is slow
 _num_retries = 10   # the number of retries when reading from or writing to the ATTiny_Daemon
 _i2c_address = 0x37 # the I2C address that is used for the ATTiny_Daemon
 
@@ -39,7 +38,7 @@ root_log = logging.getLogger()
 root_log.setLevel("INFO")
 
 # set up communication to the ATTiny_Daemon
-bus = smbus.SMBus(1)
+bus = 1
 attiny = ATTiny(bus, _i2c_address, _time_const, _num_retries)
 
 # access data, an error is signalled by a return value of 0xFFFFFFFF/4294967295

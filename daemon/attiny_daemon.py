@@ -4,7 +4,6 @@ import logging
 import os
 import sys
 import time
-import smbus
 import struct
 from typing import Tuple, Any
 from configparser import ConfigParser
@@ -19,13 +18,13 @@ from attiny_i2c import ATTiny
 # Version information
 major = 2
 minor = 9
-patch = 4
+patch = 12
 
 # config file is in the same directory as the script:
 _configfile_default = str(Path(__file__).parent.absolute()) + "/attiny_daemon.cfg"
 _shutdown_cmd = "sudo systemctl poweroff"  # sudo allows us to start as user 'pi'
-_reboot_cmd = "sudo systemctl reboot"      # sudo allows us to start as user 'pi'
-_time_const = 0.5  # used as a pause between i2c communications, the ATTiny is slow
+_reboot_cmd  = "sudo systemctl reboot"     # sudo allows us to start as user 'pi'
+_time_const  = 1.0 # used as a pause between i2c communications, the ATTiny is slow
 _num_retries = 10  # the number of retries when reading from or writing to the ATTiny
 
 # These are the different values reported back by the ATTiny depending on its config
@@ -54,7 +53,7 @@ minimum_boot_time = 30
 ### Code starts here.
 ### Here be dragons...
 
-bus = smbus.SMBus(1)
+bus = 1
 
 
 def main(*args):
@@ -72,7 +71,6 @@ def main(*args):
 
     if attiny.get_last_access() < 0:
         logging.error("Cannot access ATTiny")
-        log_geekworm_voltage()
         exit(1)
 
     (a_major, a_minor, a_patch) = attiny.get_version()
@@ -91,7 +89,6 @@ def main(*args):
             if should_shutdown == 0xFFFF:
                 # We have a big problem
                 logging.error("Lost connection to ATTiny.")
-                log_geekworm_voltage()
                 set_unprimed = True        # we still try to reset primed
                 exit(1)  # executes finally clause and lets the system restart the daemon
 
@@ -422,25 +419,6 @@ class Config(Mapping):
                 logging.debug("Writing Register " + hex(attiny_reg) + " to ATTiny")
                 attiny.set_16bit_value(attiny_reg, self._storage[voltage_type])
         return changed_config
-
-
-def read_geekworm():
-    try:
-        address = 0x36
-        read = bus.read_word_data(address, 2)
-        swapped = struct.unpack("<H", struct.pack(">H", read))[0]
-        voltage = swapped * 78.125 / 1000000
-        return voltage
-    except Exception:
-        return 0
-
-
-def log_geekworm_voltage():
-    gw_voltage = read_geekworm()
-    if gw_voltage == 0:
-        logging.error("Cannot access Geekworm")
-    else:
-        logging.info("Geekworm voltage is " + str(gw_voltage))
 
 
 if __name__ == '__main__':
