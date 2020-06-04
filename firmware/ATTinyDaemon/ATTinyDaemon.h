@@ -125,6 +125,7 @@ enum class Register : uint8_t {
   fuse_high                     = 0x82,
   fuse_extended                 = 0x83,
   internal_state                = 0x84,
+  uptime                        = 0x85,
 
   init_eeprom                   = 0xFF,
 }; // __attribute__ ((__packed__));            // force smallest size i.e., uint_8t (GCC syntax)

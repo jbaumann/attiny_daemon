@@ -225,6 +225,10 @@ void request_event() {
     case Register::internal_state:
       write_data_crc((uint8_t *)&state, sizeof(state));
       break;
+    case Register::uptime:
+      uint32_t uptime = millis();
+      write_data_crc((uint8_t *)&uptime, sizeof(uptime));
+      break;
   }
 
 

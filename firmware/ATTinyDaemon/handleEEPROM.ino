@@ -23,6 +23,7 @@ void  read_or_init_EEPROM() {
 void read_EEPROM_values() {
   EEPROM.get(EEPROM_Address::timeout, timeout);
   EEPROM.get(EEPROM_Address::primed, primed);
+  EEPROM.get(EEPROM_Address::force_shutdown, force_shutdown);  
   EEPROM.get(EEPROM_Address::restart_voltage, restart_voltage);
   EEPROM.get(EEPROM_Address::warn_voltage, warn_voltage);
   EEPROM.get(EEPROM_Address::shutdown_voltage, shutdown_voltage);
@@ -53,6 +54,7 @@ void init_EEPROM() {
   EEPROM.put(EEPROM_Address::base, EEPROM_INIT_VALUE);
   EEPROM.put(EEPROM_Address::timeout, timeout);
   EEPROM.put(EEPROM_Address::primed, primed);
+  EEPROM.put(EEPROM_Address::force_shutdown, force_shutdown);
   EEPROM.put(EEPROM_Address::restart_voltage, restart_voltage);
   EEPROM.put(EEPROM_Address::warn_voltage, warn_voltage);
   EEPROM.put(EEPROM_Address::shutdown_voltage, shutdown_voltage);

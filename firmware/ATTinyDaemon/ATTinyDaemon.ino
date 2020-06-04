@@ -11,7 +11,7 @@
 */
 const uint32_t MAJOR = 2;
 const uint32_t MINOR = 9;
-const uint32_t PATCH = 15;
+const uint32_t PATCH = 17;
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
