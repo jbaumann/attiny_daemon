@@ -18,7 +18,7 @@ from attiny_i2c import ATTiny
 # Version information
 major = 2
 minor = 9
-patch = 16
+patch = 17
 
 # config file is in the same directory as the script:
 _configfile_default = str(Path(__file__).parent.absolute()) + "/attiny_daemon.cfg"
@@ -89,7 +89,8 @@ def main(*args):
             if should_shutdown == 0xFFFF:
                 # We have a big problem
                 logging.error("Lost connection to ATTiny.")
-                set_unprimed = True        # we still try to reset primed
+                # disable to fasten restart
+                # set_unprimed = True        # we still try to reset primed
                 exit(1)  # executes finally clause and lets the system restart the daemon
 
             if should_shutdown > SL_INITIATED:
@@ -125,7 +126,7 @@ def main(*args):
             primed = False
         if primed == False:
             logging.info("Trying to reset primed flag")
-        attiny.set_primed(primed)
+            attiny.set_primed(primed)
 
 
 def parse_cmdline(args: Tuple[Any]) -> Namespace:

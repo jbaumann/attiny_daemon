@@ -37,6 +37,7 @@ class ATTiny:
     REG_FUSE_HIGH          = 0x82
     REG_FUSE_EXTENDED      = 0x83
     REG_INTERNAL_STATE     = 0x84
+    REG_UPTIME             = 0x85
     REG_INIT_EEPROM        = 0xFF
 
     _POLYNOME = 0x31
@@ -277,4 +278,20 @@ class ATTiny:
                 logging.debug("Couldn't read version information. Exception: " + str(e))
         logging.warning("Couldn't read version information after " + str(x) + " retries.")
         return (0xFFFF, 0xFFFF, 0xFFFF)
+
+    def get_uptime(self):
+        for x in range(self._num_retries):
+            bus = smbus.SMBus(self._bus_number)
+            time.sleep(self._time_const)
+            try:
+                read = bus.read_i2c_block_data(self._address, self.REG_UPTIME, 5)
+                bus.close()
+                if read[4] == self.calcCRC(self.REG_UPTIME, read, 4):
+                    uptime = int.from_bytes(read[0:3], byteorder='little', signed=False)
+                    return uptime
+                logging.debug("Couldn't read uptime information correctly.")
+            except Exception as e:
+                logging.debug("Couldn't read uptime information. Exception: " + str(e))
+        logging.warning("Couldn't read uptime information after " + str(x) + " retries.")
+        return 0xFFFFFFFFFFFF
 

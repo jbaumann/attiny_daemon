@@ -25,6 +25,8 @@ attiny = ATTiny(bus, _i2c_address, _time_const, _num_retries)
 version = str(major) + "." + str(minor) + "." + str(patch)
 logging.info("Current Version is " + version)
 
+logging.info("Uptime is " + str(attiny.get_uptime()))
+
 logging.info("Current temperature is " + str(attiny.get_temperature()) + " degrees Celsius.")
 
 logging.info("Current battery voltage is " + str(attiny.get_bat_voltage() / 1000) + "V.")
