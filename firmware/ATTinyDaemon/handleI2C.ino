@@ -22,6 +22,8 @@ const uint8_t BUFFER_SIZE = 8;
 uint8_t rbuf[BUFFER_SIZE];
 void receive_event(int bytes) {
 
+  disable_watchdog();
+  
   i2c_triggered_state_change();
 
   uint8_t count = BUFFER_SIZE > bytes ? bytes : BUFFER_SIZE;
@@ -225,9 +227,14 @@ void request_event() {
     case Register::internal_state:
       write_data_crc((uint8_t *)&state, sizeof(state));
       break;
-    case Register::uptime:
+    case Register::uptime: {
+      // without curly braces gcc produces faulty code... finding this took a long time
       uint32_t uptime = millis();
       write_data_crc((uint8_t *)&uptime, sizeof(uptime));
+      break;
+    }
+    case Register::mcu_status_register:
+      write_data_crc((uint8_t *)&mcusr_mirror, sizeof(mcusr_mirror));
       break;
   }
 

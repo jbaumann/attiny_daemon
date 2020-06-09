@@ -1,4 +1,9 @@
 /*
+ * The ATTiny datasheet I'm referencing is the ATTiny25/45/85 datasheet provided by Microchip. 
+ * Pages and Chapter numbers are for the revision Rev. 2586Q-08/13.
+ */
+
+/*
  * taken from http://www.gammon.com.au/power
  * We use the watchdog to wake us from deep sleep. The length of the
  * deep sleep depends on the current battery voltage. If above 
@@ -36,7 +41,22 @@ void reset_watchdog () {
   wdt_reset();
 }
 
-// watchdog interrupt
-ISR (WDT_vect) {
+/*
+ * Watchdog interrupt
+ * Here we disable the watchdog. It is not enough to call wdt_disable(), MCUSR has to be set to 0 as well
+ * on the ATTiny. Although this is not pointed out explicitly in the datasheet on p. 42 where
+ * disabling the watchdog is explained, on p. 44 there is an example C code that does exactly that, and
+ * additionally on p. 46 when explaining WDE it is mentioned in passing. 
+ */
+void disable_watchdog() {
+  
+  MCUSR = 0;
   wdt_disable();  // disable watchdog
+}
+
+/*
+ * This ISR will be called when the watchdog wakes up the system.
+ */
+ISR (WDT_vect) {
+  disable_watchdog();
 }

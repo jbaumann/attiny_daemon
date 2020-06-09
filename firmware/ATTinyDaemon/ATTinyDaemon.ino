@@ -11,7 +11,7 @@
 */
 const uint32_t MAJOR = 2;
 const uint32_t MINOR = 9;
-const uint32_t PATCH = 18;
+const uint32_t PATCH = 20;
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
@@ -77,7 +77,11 @@ int16_t  temperature_constant    = -270;   // the constant added to the measurem
 uint16_t reset_pulse_length      =  200;   // the reset pulse length (normally 200 for a reset, 4000 for switching)
 uint16_t switch_recovery_delay   = 1000;   // the pause needed between two reset pulse for the circuit recovery
 
+
+uint8_t mcusr_mirror = 0;
+
 void setup() {
+  mcusr_mirror = MCUSR;
   reset_watchdog ();  // do this first in case WDT fires
 
   check_fuses();      // verify that we can run with the fuse settings
