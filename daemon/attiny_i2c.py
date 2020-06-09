@@ -38,6 +38,7 @@ class ATTiny:
     REG_FUSE_EXTENDED      = 0x83
     REG_INTERNAL_STATE     = 0x84
     REG_UPTIME             = 0x85
+    REG_MCU_STATUS_REG     = 0x86
     REG_INIT_EEPROM        = 0xFF
 
     _POLYNOME = 0x31
@@ -245,6 +246,9 @@ class ATTiny:
     def get_internal_state(self):
         return self.get_8bit_value(self.REG_INTERNAL_STATE)
 
+    def get_mcu_status_register(self):
+        return self.get_8bit_value(self.REG_MCU_STATUS_REG)
+
     def get_8bit_value(self, register):
         for x in range(self._num_retries):
             bus = smbus.SMBus(self._bus_number)
@@ -255,7 +259,7 @@ class ATTiny:
                 bus.close()
                 if read[1] == self.calcCRC(register, read, 1):
                     return val
-                logging.debug("Couldn't read register " + hex(register) + " correctly.")
+                logging.debug("Couldn't read register " + hex(register) + " correctly: " + hex(val))
             except Exception as e:
                 logging.debug("Couldn't read 8 bit register " + hex(register) + ". Exception: " + str(e))
         logging.warning("Couldn't read 8 bit register after " + str(x) + " retries.")
