@@ -126,12 +126,18 @@ void restart_raspberry() {
   ups_on();
 }
 
+/*
+ * The following function executes one push on the switch of the UPS
+ */
 void push_switch(uint16_t pulse_time) {
   switch_pin_low();
   delay(pulse_time);
   switch_pin_high();
 }
 
+/*
+ * The following function turns the UPS off using the configuration information
+ */
 void ups_off() {
   if (ups_is_voltage_controlled()) {
     switch_pin_low();
@@ -148,6 +154,9 @@ void ups_off() {
   }
 }
 
+/*
+ * The following function turns the UPS on using the configuration information
+ */
 void ups_on() {
   if (ups_is_voltage_controlled()) {
     switch_pin_high();

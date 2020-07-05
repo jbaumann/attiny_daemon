@@ -7,7 +7,7 @@ void  read_or_init_EEPROM() {
   EEPROM.get(EEPROM_Address::base, writtenBefore);
   if (writtenBefore != EEPROM_INIT_VALUE) {
     // no data has been written before, initialise EEPROM
-    init_EEPROM();
+    write_EEPROM();
   } else {
     read_EEPROM_values();
   }
@@ -40,16 +40,14 @@ void read_EEPROM_values() {
 }
 
 /*
-   Initialize the EEPROM and set the values to the currently
+   Writes the EEPROM and set the values to the currently
    held values in our variables. This function is called when,
    in the setup() function, we determine that no valid EEPROM
    data can be read (by checking the EEPROM_INIT_VALUE).
    This method can also be used later from the Raspberry to
-   reinit the EEPROM, but individual values are written at once
-   whenever they are transmitted using I2C (see the function
-   receiveEvent()).
+   reinit the EEPROM, (see the function receiveEvent()).
 */
-void init_EEPROM() {
+void write_EEPROM() {
   // put uses update(), thus no unnecessary writes
   EEPROM.put(EEPROM_Address::base, EEPROM_INIT_VALUE);
   EEPROM.put(EEPROM_Address::timeout, timeout);

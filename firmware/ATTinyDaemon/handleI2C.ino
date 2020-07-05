@@ -4,7 +4,7 @@
 void init_I2C() {
   Wire.begin(I2C_ADDRESS);
   Wire.onRequest(request_event);
-  Wire.onReceive(receive_event);  
+  Wire.onReceive(receive_event);
 }
 
 /*
@@ -49,32 +49,37 @@ void receive_event(int bytes) {
       switch (register_number) {
         case Register::timeout:
           timeout = rbuf[1];
-          EEPROM.put(EEPROM_Address::timeout, timeout);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::timeout, timeout);
           break;
         case Register::primed:
           primed = rbuf[1];
-          EEPROM.put(EEPROM_Address::primed, primed);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::primed, primed);
           break;
         case Register::should_shutdown:
           should_shutdown = rbuf[1];
           break;
         case Register::force_shutdown:
           force_shutdown = rbuf[1];
-          EEPROM.put(EEPROM_Address::force_shutdown, force_shutdown);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::force_shutdown, force_shutdown);
           break;
         case Register::led_off_mode:
           led_off_mode = rbuf[1];
-          EEPROM.put(EEPROM_Address::led_off_mode, led_off_mode);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::led_off_mode, led_off_mode);
           break;          
         case Register::reset_configuration:
           reset_configuration = rbuf[1];
-          EEPROM.put(EEPROM_Address::reset_configuration, reset_configuration);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::reset_configuration, reset_configuration);
           break;
         case Register::init_eeprom:
           uint8_t init_eeprom = rbuf[1];
 
           if (init_eeprom != 0) {
-            init_EEPROM();
+            write_EEPROM();
           }
           break;
       }
@@ -86,49 +91,60 @@ void receive_event(int bytes) {
       switch (register_number) {
         case Register::restart_voltage:
           restart_voltage = rbuf[1] | (rbuf[2] << 8);
-          EEPROM.put(EEPROM_Address::restart_voltage, restart_voltage);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::restart_voltage, restart_voltage);
           break;
         case Register::warn_voltage:
           warn_voltage = rbuf[1] | (rbuf[2] << 8);
-          EEPROM.put(EEPROM_Address::warn_voltage, warn_voltage);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::warn_voltage, warn_voltage);
           break;
         case Register::shutdown_voltage:
           shutdown_voltage = rbuf[1] | (rbuf[2] << 8);
-          EEPROM.put(EEPROM_Address::shutdown_voltage, shutdown_voltage);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::shutdown_voltage, shutdown_voltage);
           break;
         case Register::bat_voltage_coefficient:
           bat_voltage_coefficient = rbuf[1] | (rbuf[2] << 8);
-          EEPROM.put(EEPROM_Address::bat_voltage_coefficient, bat_voltage_coefficient);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::bat_voltage_coefficient, bat_voltage_coefficient);
           bat_voltage = 0;  // reset bat_voltage average
           break;
         case Register::bat_voltage_constant:
           bat_voltage_constant = rbuf[1] | (rbuf[2] << 8);
-          EEPROM.put(EEPROM_Address::bat_voltage_constant, bat_voltage_constant);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::bat_voltage_constant, bat_voltage_constant);
           bat_voltage = 0;  // reset bat_voltage average
           break;
         case Register::ext_voltage_coefficient:
           ext_voltage_coefficient = rbuf[1] | (rbuf[2] << 8);
-          EEPROM.put(EEPROM_Address::ext_voltage_coefficient, ext_voltage_coefficient);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::ext_voltage_coefficient, ext_voltage_coefficient);
           break;
         case Register::ext_voltage_constant:
           ext_voltage_constant = rbuf[1] | (rbuf[2] << 8);
-          EEPROM.put(EEPROM_Address::ext_voltage_constant, ext_voltage_constant);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::ext_voltage_constant, ext_voltage_constant);
           break;
         case Register::temperature_coefficient:
           temperature_coefficient = rbuf[1] | (rbuf[2] << 8);
-          EEPROM.put(EEPROM_Address::temperature_coefficient, temperature_coefficient);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::temperature_coefficient, temperature_coefficient);
           break;
         case Register::temperature_constant:
           temperature_constant = rbuf[1] | (rbuf[2] << 8);
-          EEPROM.put(EEPROM_Address::temperature_constant, temperature_constant);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::temperature_constant, temperature_constant);
           break;
         case Register::reset_pulse_length:
           reset_pulse_length = rbuf[1] | (rbuf[2] << 8);
-          EEPROM.put(EEPROM_Address::reset_pulse_length, reset_pulse_length);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::reset_pulse_length, reset_pulse_length);
           break;
         case Register::switch_recovery_delay:
           switch_recovery_delay = rbuf[1] | (rbuf[2] << 8);
-          EEPROM.put(EEPROM_Address::switch_recovery_delay, switch_recovery_delay);
+          update_eeprom = 1;
+          // EEPROM.put(EEPROM_Address::switch_recovery_delay, switch_recovery_delay);
           break;
       }
     }
@@ -144,6 +160,9 @@ void receive_event(int bytes) {
    read data. The register_number contains the register to read.
 */
 void request_event() {
+  
+  disable_watchdog();
+
   /*
     Read from the register variable to know what to send back.
   */
@@ -237,7 +256,6 @@ void request_event() {
       write_data_crc((uint8_t *)&mcusr_mirror, sizeof(mcusr_mirror));
       break;
   }
-
 
   // we had a read operation and reset the counter
   reset_counter();

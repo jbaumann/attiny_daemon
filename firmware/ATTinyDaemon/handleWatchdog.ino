@@ -42,7 +42,6 @@ void reset_watchdog () {
 }
 
 /*
- * Watchdog interrupt
  * Here we disable the watchdog. It is not enough to call wdt_disable(), MCUSR has to be set to 0 as well
  * on the ATTiny. Although this is not pointed out explicitly in the datasheet on p. 42 where
  * disabling the watchdog is explained, on p. 44 there is an example C code that does exactly that, and

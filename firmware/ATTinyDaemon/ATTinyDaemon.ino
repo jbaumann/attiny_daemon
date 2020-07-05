@@ -11,7 +11,7 @@
 */
 const uint32_t MAJOR = 2;
 const uint32_t MINOR = 9;
-const uint32_t PATCH = 21;
+const uint32_t PATCH = 23;
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
@@ -77,8 +77,18 @@ int16_t  temperature_constant    = -270;   // the constant added to the measurem
 uint16_t reset_pulse_length      =  200;   // the reset pulse length (normally 200 for a reset, 4000 for switching)
 uint16_t switch_recovery_delay   = 1000;   // the pause needed between two reset pulse for the circuit recovery
 
-
+/*
+   This variable holds a copy of the mcusr register allowing is to inspect the cause for the
+   last reset.
+ */
 uint8_t mcusr_mirror = 0;
+
+/*
+   This variable signals that I2C registers that are stored in the EEPROM have been updated.
+   This happens in the I2C receive_event() function. Setting this variable leads to a call
+   to the write_EEPROM() function in the main loop.
+ */
+uint8_t update_eeprom = 0;
 
 void setup() {
   mcusr_mirror = MCUSR;
@@ -110,6 +120,9 @@ void setup() {
    to trigger a restart in the main loop.
 */
 ISR (PCINT0_vect) {
+
+  disable_watchdog();
+  
   if (seconds > timeout && primed == 0) {
     primed = 1;
     // could be set during the shutdown while the timeout has not yet been exceeded. We reset it.
@@ -124,6 +137,10 @@ ISR (PCINT0_vect) {
 
 void loop() {
   handle_state();
+  if(update_eeprom != 0) {
+    update_eeprom = 0;
+    write_EEPROM();
+  }
   handle_sleep();
 }
 
