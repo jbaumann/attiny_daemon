@@ -7,6 +7,7 @@
 #include <avr/power.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
+#include <avr/cpufunc.h>
 
 /*
    Flash size definition
@@ -21,6 +22,12 @@
 #define FLASH_8K
 #endif
 
+/*
+   The following macro guarantees volatile access to a variable i.e.,
+   forcing the compiler to load it from memory instead of a register.
+   Origin: https://www.embeddedrelated.com/showthread/comp.arch.embedded/212022-1.php
+ */
+#define volatile_access(v) *((volatile typeof((v)) *) &(v))
 
 /*
    Definition for the different pins

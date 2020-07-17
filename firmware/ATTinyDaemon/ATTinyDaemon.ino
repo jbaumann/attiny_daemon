@@ -11,7 +11,7 @@
 */
 const uint32_t MAJOR = 2;
 const uint32_t MINOR = 9;
-const uint32_t PATCH = 25;
+const uint32_t PATCH = 37;
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
@@ -30,12 +30,12 @@ const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
     They are ordered in a way that allows to later check for the severity of the state by
     e.g., "if(state <= WARN_STATE)"
 */
-State state = State::unclear_state;
+volatile State state = State::unclear_state;
 
 /*
-   This variable holds the register for the I2C communication
+   This variable holds the register for the I2C communication. Declaration in handleI2C.
 */
-Register register_number;
+extern Register register_number;
 
 /*
    These variables hold the fuse settings. If we try to read the fuse settings over I2C without
@@ -50,32 +50,32 @@ uint8_t fuse_extended;
    These are the 8 bit registers (the register numbers are defined in ATTinyDaemon.h)
    Important: The value 0xFFFF is no valid value and will be filtered on the RPi side
 */
-uint8_t timeout                  =   60;  // timeout for the reset, will be placed in eeprom (should cover shutdown and reboot)
-uint8_t primed                   =    0;  // 0 if turned off, 1 if primed, temporary
-uint8_t should_shutdown          = Shutdown_Cause::none; 
-uint8_t force_shutdown           =    0;  // != 0, force shutdown if below shutdown_voltage
-uint8_t reset_configuration      =    0;  // bit 0 (0 = 1 / 1 = 2) pulses, bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
-uint8_t led_off_mode             =    0;  // 0 LED behaves normally, 1 LED does not blink
+volatile uint8_t timeout                  =   60;  // timeout for the reset, will be placed in eeprom (should cover shutdown and reboot)
+volatile uint8_t primed                   =    0;  // 0 if turned off, 1 if primed, temporary
+volatile uint8_t should_shutdown          = Shutdown_Cause::none; 
+volatile uint8_t force_shutdown           =    0;  // != 0, force shutdown if below shutdown_voltage
+volatile uint8_t reset_configuration      =    0;  // bit 0 (0 = 1 / 1 = 2) pulses, bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
+volatile uint8_t led_off_mode             =    0;  // 0 LED behaves normally, 1 LED does not blink
 
 /*
    These are the 16 bit registers (the register numbers are defined in ATTinyDaemon.h).
    The value 0xFFFFFFFF is no valid value and will be filtered on the RPi side
 */
-uint16_t bat_voltage             =    0;   // the battery voltage, 3.3 should be low and 3.7 high voltage
-uint16_t bat_voltage_coefficient = 1000;   // the multiplier for the measured battery voltage * 1000, integral non-linearity
-int16_t  bat_voltage_constant    =    0;   // the constant added to the measurement of the battery voltage * 1000, offset error
-uint16_t ext_voltage             =    0;   // the external voltage from Pi or other source
-uint16_t ext_voltage_coefficient = 1000;   // the multiplier for the measured external voltage * 1000, integral non-linearity
-int16_t  ext_voltage_constant    =    0;   // the constant added to the measurement of the external voltage * 1000, offset error
-uint16_t restart_voltage         = 3900;   // the battery voltage at which the RPi will be started again
-uint16_t warn_voltage            = 3400;   // the battery voltage at which the RPi should should down
-uint16_t shutdown_voltage        = 3200;   // the battery voltage at which a hard shutdown is executed
-uint16_t seconds                 =    0;   // seconds since last i2c access
-uint16_t temperature             =    0;   // the on-chip temperature
-uint16_t temperature_coefficient = 1000;   // the multiplier for the measured temperature * 1000, the coefficient
-int16_t  temperature_constant    = -270;   // the constant added to the measurement as offset
-uint16_t reset_pulse_length      =  200;   // the reset pulse length (normally 200 for a reset, 4000 for switching)
-uint16_t switch_recovery_delay   = 1000;   // the pause needed between two reset pulse for the circuit recovery
+volatile uint16_t bat_voltage             =    0;   // the battery voltage, 3.3 should be low and 3.7 high voltage
+volatile uint16_t bat_voltage_coefficient = 1000;   // the multiplier for the measured battery voltage * 1000, integral non-linearity
+volatile int16_t  bat_voltage_constant    =    0;   // the constant added to the measurement of the battery voltage * 1000, offset error
+volatile uint16_t ext_voltage             =    0;   // the external voltage from Pi or other source
+volatile uint16_t ext_voltage_coefficient = 1000;   // the multiplier for the measured external voltage * 1000, integral non-linearity
+volatile int16_t  ext_voltage_constant    =    0;   // the constant added to the measurement of the external voltage * 1000, offset error
+volatile uint16_t restart_voltage         = 3900;   // the battery voltage at which the RPi will be started again
+volatile uint16_t warn_voltage            = 3400;   // the battery voltage at which the RPi should should down
+volatile uint16_t shutdown_voltage        = 3200;   // the battery voltage at which a hard shutdown is executed
+volatile uint16_t seconds                 =    0;   // seconds since last i2c access
+volatile uint16_t temperature             =    0;   // the on-chip temperature
+volatile uint16_t temperature_coefficient = 1000;   // the multiplier for the measured temperature * 1000, the coefficient
+volatile int16_t  temperature_constant    = -270;   // the constant added to the measurement as offset
+volatile uint16_t reset_pulse_length      =  200;   // the reset pulse length (normally 200 for a reset, 4000 for switching)
+volatile uint16_t switch_recovery_delay   = 1000;   // the pause needed between two reset pulse for the circuit recovery
 
 /*
    This variable holds a copy of the mcusr register allowing is to inspect the cause for the
@@ -88,8 +88,14 @@ uint8_t mcusr_mirror = 0;
    This happens in the I2C receive_event() function. Setting this variable leads to a call
    to the write_EEPROM() function in the main loop.
  */
-uint8_t update_eeprom = 0;
+volatile bool update_eeprom = false;
 
+/*
+   This variable signals that the bat voltage has to be reset since coefficient or constant
+   have been changed
+ */
+volatile uint8_t reset_bat_voltage = false;
+ 
 void setup() {
   mcusr_mirror = MCUSR;
   reset_watchdog ();  // do this first in case WDT fires
@@ -137,8 +143,8 @@ ISR (PCINT0_vect) {
 
 void loop() {
   handle_state();
-  if(update_eeprom != 0) {
-    update_eeprom = 0;
+  if(update_eeprom) {
+    update_eeprom = false;
     write_EEPROM();
   }
   handle_sleep();
@@ -166,9 +172,17 @@ void handle_sleep() {
 /*
    The function to reset the seconds counter. Externalized to allow for
    further functionality later on and to better communicate the intent.
+   Suffix Int means the function should be used in an interrupt, suffix
+   Safe means that it is safe to use anywhere.
 */
-void reset_counter() {
+void inline reset_counter_Int() {
   seconds = 0;
+}
+
+void inline reset_counter_Safe() {
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    reset_counter_Int();
+  }
 }
 
 /*

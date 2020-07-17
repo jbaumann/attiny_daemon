@@ -3,6 +3,9 @@
    sensors (X^8+X^5+X^4+X^0).
    A lot of implementations exist that are equally good. I took this one from
    https://www.mikrocontroller.net/topic/155115
+   The variables here don't need to be volatile because they are only accessed
+   during the interrupt in the I2C callback routines.
+
 */
 
 
@@ -32,7 +35,8 @@ unsigned char crc8_bytecalc(uint8_t data, uint8_t reg)
 }
 
 /*
-   This function calculates the CRC8 of a msg using the function crc8_bytecalc()
+   This function calculates the CRC8 of a msg using the function crc8_bytecalc().
+   This function is called only by receive_event() (handleI2C) during an interrupt.
 */
 unsigned char crc8_message_calc(uint8_t *msg, uint8_t len)
 {
@@ -47,6 +51,7 @@ unsigned char crc8_message_calc(uint8_t *msg, uint8_t len)
 /*
    This function calculates the CRC8 of a msg using the function crc8_bytecalc()
    and writes the message followed by the crc to I2C.
+   This function is called only by request_event() (handleI2C) during an interrupt. 
 */
 
 void write_data_crc(uint8_t *msg, uint8_t len) {

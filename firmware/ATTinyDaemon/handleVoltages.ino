@@ -55,9 +55,16 @@ void read_voltages() {
   ADMUX = bit(REFS1) | bit(MUX3) | bit(MUX2) | bit(MUX1) | bit(MUX0);
 
   uint32_t temp_temperature = read_adc(num_measurements);
-  temp_temperature *= temperature_coefficient;
 
-  temp_temperature = temp_temperature / 1000 + temperature_constant;
+  uint16_t temperature_coefficient_safe;
+  int16_t temperature_constant_safe;
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    temperature_coefficient_safe = temperature_coefficient;
+    temperature_constant_safe = temperature_constant;
+  }
+
+  temp_temperature *= temperature_coefficient_safe;
+  temp_temperature = temp_temperature / 1000 + temperature_constant_safe;
 
   //-- Measure Vcc ---------------------------------------------------------------------
   /*
@@ -81,8 +88,19 @@ void read_voltages() {
   uint32_t temp_bat_voltage = 1126400L / read_adc(num_measurements);
 
   // correct the measurement using coefficient and constant
-  temp_bat_voltage *= bat_voltage_coefficient;
-  temp_bat_voltage = temp_bat_voltage / 1000 + bat_voltage_constant;
+  uint16_t bat_voltage_coefficient_safe;
+  int16_t bat_voltage_constant_safe;
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    bat_voltage_coefficient_safe = bat_voltage_coefficient;
+    bat_voltage_constant_safe = bat_voltage_constant;
+    if(reset_bat_voltage == true) {
+      reset_bat_voltage = false;
+      bat_voltage = 0;
+    }
+  }
+
+  temp_bat_voltage *= bat_voltage_coefficient_safe;
+  temp_bat_voltage = temp_bat_voltage / 1000 + bat_voltage_constant_safe;
 
 
   //-- Measure EXT_V -------------------------------------------------------------------
@@ -95,9 +113,15 @@ void read_voltages() {
   temp_ext_voltage /= 1024;
 
   // correct the measurement using coefficient and constant
-  if((signed)temp_ext_voltage > ext_voltage_constant) {
-    temp_ext_voltage *= ext_voltage_coefficient;
-    temp_ext_voltage = temp_ext_voltage / 1000 + ext_voltage_constant;
+  uint16_t ext_voltage_coefficient_safe;
+  int16_t ext_voltage_constant_safe;
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    ext_voltage_coefficient_safe = ext_voltage_coefficient;
+    ext_voltage_constant_safe = ext_voltage_constant;
+  }
+  if((signed)temp_ext_voltage > ext_voltage_constant_safe) {
+    temp_ext_voltage *= ext_voltage_coefficient_safe;
+    temp_ext_voltage = temp_ext_voltage / 1000 + ext_voltage_constant_safe;
   } else {
     temp_ext_voltage = 0;
   }
@@ -121,7 +145,7 @@ void read_voltages() {
 
   // we use the following block to guarantee that the values are atomically set
   // even in the presence of interrupts from I2C
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
     bat_voltage = temp_bat_voltage;
     ext_voltage = temp_ext_voltage;
     temperature = temp_temperature;

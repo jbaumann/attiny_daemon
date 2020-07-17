@@ -122,8 +122,14 @@ void restart_raspberry() {
   should_shutdown = 0;
 
   ups_off();
-  delay(switch_recovery_delay); // wait for the switch circuit to revover
+  
+  uint16_t switch_recovery_delay_safe;
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    switch_recovery_delay_safe = switch_recovery_delay;
+  }
+  delay(switch_recovery_delay_safe); // wait for the switch circuit to revover
   ups_on();
+  
 }
 
 /*
@@ -131,7 +137,13 @@ void restart_raspberry() {
  */
 void push_switch(uint16_t pulse_time) {
   switch_pin_low();
-  delay(pulse_time);
+  
+  uint16_t pulse_time_safe;
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    pulse_time_safe = pulse_time;
+  }
+  delay(pulse_time_safe);
+  
   switch_pin_high();
 }
 
@@ -150,7 +162,12 @@ void ups_off() {
         return;
       }
     }
-    push_switch(reset_pulse_length);
+
+    uint16_t reset_pulse_length_safe;
+    ATOMIC_BLOCK(ATOMIC_FORCEON) {
+      reset_pulse_length_safe = reset_pulse_length;
+    }
+    push_switch(reset_pulse_length_safe);
   }
 }
 
@@ -169,6 +186,10 @@ void ups_on() {
         return;
       }
     }
-    push_switch(reset_pulse_length);
+    uint16_t reset_pulse_length_safe;
+    ATOMIC_BLOCK(ATOMIC_FORCEON) {
+      reset_pulse_length_safe = reset_pulse_length;
+    }
+    push_switch(reset_pulse_length_safe);
   }
 }

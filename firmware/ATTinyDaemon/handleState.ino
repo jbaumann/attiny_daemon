@@ -18,9 +18,13 @@
     the only information we might have is the current voltage and we are in the RUNNING_STATE.
 */
 void handle_state() {
+  uint16_t seconds_safe;
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    seconds_safe = seconds;
+  }
   // Turn the LED on
   if (state <= State::warn_state) {
-    if (primed != 0 || (seconds < timeout) ) {
+    if (primed != 0 || (seconds_safe < timeout) ) {
       // start the regular blink if either primed is set or we are not yet in a timeout.
       ledOn_buttonOff();
     }
@@ -32,7 +36,7 @@ void handle_state() {
   // If the button has been pressed or the bat_voltage is lower than the warn voltage
   // we blink the LED 5 times to signal that the RPi should shut down
   if (state <= State::warn_state) {
-    if (should_shutdown > Shutdown_Cause::rpi_initiated && (seconds < timeout)) {
+    if (should_shutdown > Shutdown_Cause::rpi_initiated && (seconds_safe < timeout)) {
       // RPi should take action, possibly shut down. Signal by blinking 5 times
       blink_led(5, BLINK_TIME);
     }
@@ -68,11 +72,11 @@ void act_on_state_change() {
   } else if (state == State::warn_state) {
     // The RPi has been warned using the should_shutdown variable
     // we simply let it shutdown even if it does not set SL_INITIATED
-    reset_counter();
+    reset_counter_Safe();
   } else if (state == State::shutdown_to_running) {
     // we have recovered from a shutdown and are now at a safe voltage
     ups_on();
-    reset_counter();
+    reset_counter_Safe();
     state = State::running_state;
   } else if (state == State::warn_to_running) {
     // we have recovered from a warn state and are now at a safe voltage
@@ -85,12 +89,17 @@ void act_on_state_change() {
   }
 
   if (state == State::running_state) {
-    if (seconds > timeout) {
+    uint16_t seconds_safe;
+    ATOMIC_BLOCK(ATOMIC_FORCEON) {
+      seconds_safe = seconds;
+    }
+
+    if (seconds_safe > timeout) {
       // RPi has not accessed the I2C interface for more than timeout seconds.
       // We restart it. Signal restart by blinking ten times
       blink_led(10, BLINK_TIME / 2);
       restart_raspberry();
-      reset_counter();
+      reset_counter_Safe();
     }
   }
 }
@@ -107,7 +116,12 @@ void voltage_dependent_state_change() {
   } else if (bat_voltage <= warn_voltage) {
     state = State::warn_state;
   } else if (bat_voltage <= restart_voltage) {
-    if (state == State::unclear_state && seconds > timeout) {
+    uint16_t seconds_safe;
+    ATOMIC_BLOCK(ATOMIC_FORCEON) {
+      seconds_safe = seconds;
+    }
+
+    if (state == State::unclear_state && seconds_safe > timeout) {
       // the RPi is not running, even after the timeout, so we assume that it
       // shut down, this means we come from a WARN_STATE or SHUTDOWN_STATE
       state = State::warn_state;
@@ -133,7 +147,7 @@ void voltage_dependent_state_change() {
 
 /*
    When we get an I2C communication then this might change our state (because now we
-   know the RPi is alive).
+   know the RPi is alive). Called only during an interrupt.
  */
 void i2c_triggered_state_change() {
   // If we are in an unclear state, then a communication from the RPi moves us to running state

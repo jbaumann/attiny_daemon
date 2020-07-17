@@ -1,4 +1,30 @@
 /*
+   EEPROM class that works with volatile values. We add atomic access
+   to guarantee that only valid data is written to and read from 
+   the EEPROM.
+ */
+struct MyEEPROMClass : EEPROMClass {
+    template< typename T > T &get( int idx, volatile T &t ){
+      T tmp;
+      EEPROMClass::get(idx, tmp);
+      ATOMIC_BLOCK(ATOMIC_FORCEON) {
+        t = tmp;
+      }      
+    };
+    template< typename T > const T &put( int idx, volatile T &t ){
+      T tmp;
+      ATOMIC_BLOCK(ATOMIC_FORCEON) {
+        tmp = t;
+      }
+      EEPROMClass::put(idx, tmp);     
+    };
+};
+static MyEEPROMClass MyEEPROM;
+
+
+
+
+/*
    Read the EEPROM if it contains valid data, otherwise initialize it.
  */
 
@@ -21,22 +47,22 @@ void  read_or_init_EEPROM() {
    before it writes.
 */
 void read_EEPROM_values() {
-  EEPROM.get(EEPROM_Address::timeout, timeout);
-  EEPROM.get(EEPROM_Address::primed, primed);
-  EEPROM.get(EEPROM_Address::force_shutdown, force_shutdown);  
-  EEPROM.get(EEPROM_Address::restart_voltage, restart_voltage);
-  EEPROM.get(EEPROM_Address::warn_voltage, warn_voltage);
-  EEPROM.get(EEPROM_Address::shutdown_voltage, shutdown_voltage);
-  EEPROM.get(EEPROM_Address::bat_voltage_coefficient, bat_voltage_coefficient);
-  EEPROM.get(EEPROM_Address::bat_voltage_constant, bat_voltage_constant);
-  EEPROM.get(EEPROM_Address::ext_voltage_coefficient, ext_voltage_coefficient);
-  EEPROM.get(EEPROM_Address::ext_voltage_constant, ext_voltage_constant);
-  EEPROM.get(EEPROM_Address::temperature_coefficient, temperature_coefficient);
-  EEPROM.get(EEPROM_Address::temperature_constant, temperature_constant);
-  EEPROM.get(EEPROM_Address::reset_configuration, reset_configuration);
-  EEPROM.get(EEPROM_Address::reset_pulse_length, reset_pulse_length);
-  EEPROM.get(EEPROM_Address::switch_recovery_delay, switch_recovery_delay);
-  EEPROM.get(EEPROM_Address::led_off_mode, led_off_mode);
+  MyEEPROM.get(EEPROM_Address::timeout, timeout);
+  MyEEPROM.get(EEPROM_Address::primed, primed);
+  MyEEPROM.get(EEPROM_Address::force_shutdown, force_shutdown);  
+  MyEEPROM.get(EEPROM_Address::restart_voltage, restart_voltage);
+  MyEEPROM.get(EEPROM_Address::warn_voltage, warn_voltage);
+  MyEEPROM.get(EEPROM_Address::shutdown_voltage, shutdown_voltage);
+  MyEEPROM.get(EEPROM_Address::bat_voltage_coefficient, bat_voltage_coefficient);
+  MyEEPROM.get(EEPROM_Address::bat_voltage_constant, bat_voltage_constant);
+  MyEEPROM.get(EEPROM_Address::ext_voltage_coefficient, ext_voltage_coefficient);
+  MyEEPROM.get(EEPROM_Address::ext_voltage_constant, ext_voltage_constant);
+  MyEEPROM.get(EEPROM_Address::temperature_coefficient, temperature_coefficient);
+  MyEEPROM.get(EEPROM_Address::temperature_constant, temperature_constant);
+  MyEEPROM.get(EEPROM_Address::reset_configuration, reset_configuration);
+  MyEEPROM.get(EEPROM_Address::reset_pulse_length, reset_pulse_length);
+  MyEEPROM.get(EEPROM_Address::switch_recovery_delay, switch_recovery_delay);
+  MyEEPROM.get(EEPROM_Address::led_off_mode, led_off_mode);
 }
 
 /*
@@ -45,25 +71,25 @@ void read_EEPROM_values() {
    in the setup() function, we determine that no valid EEPROM
    data can be read (by checking the EEPROM_INIT_VALUE).
    This method can also be used later from the Raspberry to
-   reinit the EEPROM, (see the function receiveEvent()).
+   update or reinit the EEPROM.
 */
 void write_EEPROM() {
   // put uses update(), thus no unnecessary writes
   EEPROM.put(EEPROM_Address::base, EEPROM_INIT_VALUE);
-  EEPROM.put(EEPROM_Address::timeout, timeout);
-  EEPROM.put(EEPROM_Address::primed, primed);
-  EEPROM.put(EEPROM_Address::force_shutdown, force_shutdown);
-  EEPROM.put(EEPROM_Address::restart_voltage, restart_voltage);
-  EEPROM.put(EEPROM_Address::warn_voltage, warn_voltage);
-  EEPROM.put(EEPROM_Address::shutdown_voltage, shutdown_voltage);
-  EEPROM.put(EEPROM_Address::bat_voltage_coefficient, bat_voltage_coefficient);
-  EEPROM.put(EEPROM_Address::bat_voltage_constant, bat_voltage_constant);
-  EEPROM.put(EEPROM_Address::ext_voltage_coefficient, ext_voltage_coefficient);
-  EEPROM.put(EEPROM_Address::ext_voltage_constant, ext_voltage_constant);
-  EEPROM.put(EEPROM_Address::temperature_coefficient, temperature_coefficient);
-  EEPROM.put(EEPROM_Address::temperature_constant, temperature_constant);
-  EEPROM.put(EEPROM_Address::reset_configuration, reset_configuration);
-  EEPROM.put(EEPROM_Address::reset_pulse_length, reset_pulse_length);
-  EEPROM.put(EEPROM_Address::switch_recovery_delay, switch_recovery_delay);
-  EEPROM.put(EEPROM_Address::led_off_mode, led_off_mode);
+  MyEEPROM.put(EEPROM_Address::timeout, timeout);
+  MyEEPROM.put(EEPROM_Address::primed, primed);
+  MyEEPROM.put(EEPROM_Address::force_shutdown, force_shutdown);
+  MyEEPROM.put(EEPROM_Address::restart_voltage, restart_voltage);
+  MyEEPROM.put(EEPROM_Address::warn_voltage, warn_voltage);
+  MyEEPROM.put(EEPROM_Address::shutdown_voltage, shutdown_voltage);
+  MyEEPROM.put(EEPROM_Address::bat_voltage_coefficient, bat_voltage_coefficient);
+  MyEEPROM.put(EEPROM_Address::bat_voltage_constant, bat_voltage_constant);
+  MyEEPROM.put(EEPROM_Address::ext_voltage_coefficient, ext_voltage_coefficient);
+  MyEEPROM.put(EEPROM_Address::ext_voltage_constant, ext_voltage_constant);
+  MyEEPROM.put(EEPROM_Address::temperature_coefficient, temperature_coefficient);
+  MyEEPROM.put(EEPROM_Address::temperature_constant, temperature_constant);
+  MyEEPROM.put(EEPROM_Address::reset_configuration, reset_configuration);
+  MyEEPROM.put(EEPROM_Address::reset_pulse_length, reset_pulse_length);
+  MyEEPROM.put(EEPROM_Address::switch_recovery_delay, switch_recovery_delay);
+  MyEEPROM.put(EEPROM_Address::led_off_mode, led_off_mode);
 }
