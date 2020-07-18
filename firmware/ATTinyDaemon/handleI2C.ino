@@ -5,6 +5,7 @@ void init_I2C() {
   Wire.begin(I2C_ADDRESS);
   Wire.onRequest(request_event);
   Wire.onReceive(receive_event);
+  Wire.onInterrupt(disable_watchdog);
 }
 
 /*
@@ -35,7 +36,7 @@ Register register_number;
 
 void receive_event(int bytes) {
 
-  disable_watchdog();
+  //disable_watchdog();
   
   i2c_triggered_state_change();
 
