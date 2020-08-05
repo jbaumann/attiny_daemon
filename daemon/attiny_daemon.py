@@ -17,8 +17,8 @@ from attiny_i2c import ATTiny
 
 # Version information
 major = 2
-minor = 9
-patch = 18
+minor = 10
+patch = 5
 
 # config file is in the same directory as the script:
 _configfile_default = str(Path(__file__).parent.absolute()) + "/attiny_daemon.cfg"
@@ -53,8 +53,6 @@ minimum_boot_time = 30
 ### Code starts here.
 ### Here be dragons...
 
-bus = 1
-
 
 def main(*args):
     # Startup of the daemon
@@ -67,7 +65,7 @@ def main(*args):
 
     logging.info("ATTiny Daemon version " + str(major) + "." + str(minor) + "." + str(patch))
 
-    attiny = ATTiny(bus, config[Config.I2C_ADDRESS], _time_const, _num_retries)
+    attiny = ATTiny(config[Config.I2C_BUS], config[Config.I2C_ADDRESS], _time_const, _num_retries)
 
     if attiny.get_last_access() < 0:
         logging.error("Cannot access ATTiny")
@@ -175,6 +173,7 @@ class SystemdHandler(logging.Handler):
 
 class Config(Mapping):
     DAEMON_SECTION = "attinydaemon"
+    I2C_BUS = 'i2c bus'
     I2C_ADDRESS = 'i2c address'
     TIMEOUT = 'timeout'
     SLEEPTIME = 'sleeptime'
@@ -193,6 +192,7 @@ class Config(Mapping):
     LOG_LEVEL = 'loglevel'
     BUTTON_FUNCTION = 'button function'
     RESET_CONFIG = 'reset configuration'
+    VEXT_SHUTDOWN = 'vext off is shutdown'
     RESET_PULSE_LENGTH = 'reset pulse length'
     SW_RECOVERY_DELAY = 'switch recovery delay'
 
@@ -200,6 +200,7 @@ class Config(Mapping):
     DEFAULT_CONFIG = {
         DAEMON_SECTION: {
             I2C_ADDRESS: '0x37',
+            I2C_BUS: '1',
             TIMEOUT: str(MAX_INT),
             SLEEPTIME: str(MAX_INT),
             PRIMED: 'False',
@@ -216,6 +217,7 @@ class Config(Mapping):
             RESTART_VOLTAGE: str(MAX_INT),
             BUTTON_FUNCTION: "nothing",
             RESET_CONFIG: "0",
+            VEXT_SHUTDOWN: 'False',
             RESET_PULSE_LENGTH: "200",
             SW_RECOVERY_DELAY: "1000",
             LOG_LEVEL: 'DEBUG'
@@ -256,6 +258,7 @@ class Config(Mapping):
 
         try:
             self._storage[self.I2C_ADDRESS] = int(self.parser.get(self.DAEMON_SECTION, self.I2C_ADDRESS), 0)
+            self._storage[self.I2C_BUS] = self.parser.getint(self.DAEMON_SECTION, self.I2C_BUS)
             self._storage[self.TIMEOUT] = self.parser.getint(self.DAEMON_SECTION, self.TIMEOUT)
             self._storage[self.SLEEPTIME] = self.parser.getint(self.DAEMON_SECTION, self.SLEEPTIME)
             self._storage[self.PRIMED] = self.parser.getboolean(self.DAEMON_SECTION, self.PRIMED)
@@ -272,6 +275,7 @@ class Config(Mapping):
             self._storage[self.RESTART_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.RESTART_VOLTAGE)
             self._storage[self.BUTTON_FUNCTION] = self.parser.get(self.DAEMON_SECTION, self.BUTTON_FUNCTION)
             self._storage[self.RESET_CONFIG] = self.parser.getint(self.DAEMON_SECTION, self.RESET_CONFIG)
+            self._storage[self.VEXT_SHUTDOWN] = self.parser.getboolean(self.DAEMON_SECTION, self.VEXT_SHUTDOWN)
             self._storage[self.RESET_PULSE_LENGTH] = self.parser.getint(self.DAEMON_SECTION, self.RESET_PULSE_LENGTH)
             self._storage[self.SW_RECOVERY_DELAY] = self.parser.getint(self.DAEMON_SECTION, self.SW_RECOVERY_DELAY)
             logging.getLogger().setLevel(self.parser.get(self.DAEMON_SECTION, self.LOG_LEVEL))
@@ -312,12 +316,13 @@ class Config(Mapping):
         attiny_reset_configuration = attiny.get_reset_configuration()
         attiny_reset_pulse_length = attiny.get_reset_pulse_length()
         attiny_switch_recovery_delay = attiny.get_switch_recovery_delay()
+        attiny_vext_off_is_shutdown = attiny.get_vext_off_is_shutdown()
 
 
         if self._storage[self.TIMEOUT] == self.MAX_INT:
             # timeout was not set in the config file
             # we will get timeout, primed, reset configuration, 
-            # reset pulse length, switch recovery delay and 
+            # reset pulse length, switch recovery delay, vext_is_shutdown and 
             # force_shutdown from the ATTiny
             logging.debug("Getting Timeout from ATTiny")
             self._storage[self.PRIMED] = attiny_primed
@@ -327,6 +332,7 @@ class Config(Mapping):
             self._storage[self.RESET_CONFIG] = attiny_reset_configuration
             self._storage[self.RESET_PULSE_LENGTH] = attiny_reset_pulse_length
             self._storage[self.SW_RECOVERY_DELAY] = attiny_switch_recovery_delay
+            self._storage[self.VEXT_SHUTDOWN] = attiny_vext_off_is_shutdown
 
             self.parser.set(self.DAEMON_SECTION, self.TIMEOUT,
                             str(self._storage[self.TIMEOUT]))
@@ -342,6 +348,8 @@ class Config(Mapping):
                             str(self._storage[self.RESET_PULSE_LENGTH]))
             self.parser.set(self.DAEMON_SECTION, self.SW_RECOVERY_DELAY,
                             str(self._storage[self.SW_RECOVERY_DELAY]))
+            self.parser.set(self.DAEMON_SECTION, self.VEXT_SHUTDOWN,
+                            str(self._storage[self.SW_VEXT_SHUTDOWN]))
             changed_config = True
         else:
             if attiny_timeout != self._storage[self.TIMEOUT]:
@@ -365,6 +373,10 @@ class Config(Mapping):
             if attiny_switch_recovery_delay != self._storage[self.SW_RECOVERY_DELAY]:
                 logging.debug("Writing Switch Recovery Delay to ATTiny")
                 attiny.set_switch_recovery_delay(self._storage[self.SW_RECOVERY_DELAY])
+
+            if attiny_vext_off_is_shutdown != self._storage[self.VEXT_SHUTDOWN]:
+                logging.debug("Writing Vext off is Shutdown to ATTiny")
+                attiny.set_vext_off_is_shutdown(self._storage[self.VEXT_SHUTDOWN])
 
         # check for max_int and only set if sleeptime is set to that value
         if self._storage[self.SLEEPTIME] == self.MAX_INT:

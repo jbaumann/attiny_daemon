@@ -11,35 +11,36 @@ from collections.abc import Mapping
 from pathlib import Path
 
 class ATTiny:
-    REG_LAST_ACCESS        = 0x01
-    REG_BAT_VOLTAGE        = 0x11
-    REG_EXT_VOLTAGE        = 0x12
-    REG_BAT_V_COEFFICIENT  = 0x13
-    REG_BAT_V_CONSTANT     = 0x14
-    REG_EXT_V_COEFFICIENT  = 0x15
-    REG_EXT_V_CONSTANT     = 0x16
-    REG_TIMEOUT            = 0x21
-    REG_PRIMED             = 0x22
-    REG_SHOULD_SHUTDOWN    = 0x23
-    REG_FORCE_SHUTDOWN     = 0x24
-    REG_LED_OFF_MODE       = 0x25
-    REG_RESTART_VOLTAGE    = 0x31
-    REG_WARN_VOLTAGE       = 0x32
-    REG_SHUTDOWN_VOLTAGE   = 0x33
-    REG_TEMPERATURE        = 0x41
-    REG_T_COEFFICIENT      = 0x42
-    REG_T_CONSTANT         = 0x43
-    REG_RESET_CONFIG       = 0x51
-    REG_RESET_PULSE_LENGTH = 0x52
-    REG_SW_RECOVERY_DELAY  = 0x53
-    REG_VERSION            = 0x80
-    REG_FUSE_LOW           = 0x81
-    REG_FUSE_HIGH          = 0x82
-    REG_FUSE_EXTENDED      = 0x83
-    REG_INTERNAL_STATE     = 0x84
-    REG_UPTIME             = 0x85
-    REG_MCU_STATUS_REG     = 0x86
-    REG_INIT_EEPROM        = 0xFF
+    REG_LAST_ACCESS          = 0x01
+    REG_BAT_VOLTAGE          = 0x11
+    REG_EXT_VOLTAGE          = 0x12
+    REG_BAT_V_COEFFICIENT    = 0x13
+    REG_BAT_V_CONSTANT       = 0x14
+    REG_EXT_V_COEFFICIENT    = 0x15
+    REG_EXT_V_CONSTANT       = 0x16
+    REG_TIMEOUT              = 0x21
+    REG_PRIMED               = 0x22
+    REG_SHOULD_SHUTDOWN      = 0x23
+    REG_FORCE_SHUTDOWN       = 0x24
+    REG_LED_OFF_MODE         = 0x25
+    REG_RESTART_VOLTAGE      = 0x31
+    REG_WARN_VOLTAGE         = 0x32
+    REG_SHUTDOWN_VOLTAGE     = 0x33
+    REG_TEMPERATURE          = 0x41
+    REG_T_COEFFICIENT        = 0x42
+    REG_T_CONSTANT           = 0x43
+    REG_RESET_CONFIG         = 0x51
+    REG_RESET_PULSE_LENGTH   = 0x52
+    REG_SW_RECOVERY_DELAY    = 0x53
+    REG_VEXT_OFF_IS_SHUTDOWN = 0x54
+    REG_VERSION              = 0x80
+    REG_FUSE_LOW             = 0x81
+    REG_FUSE_HIGH            = 0x82
+    REG_FUSE_EXTENDED        = 0x83
+    REG_INTERNAL_STATE       = 0x84
+    REG_UPTIME               = 0x85
+    REG_MCU_STATUS_REG       = 0x86
+    REG_INIT_EEPROM          = 0xFF
 
     _POLYNOME = 0x31
 
@@ -82,6 +83,9 @@ class ATTiny:
 
     def set_reset_configuration(self, value):
         return self.set_8bit_value(self.REG_RESET_CONFIG, value)
+
+    def set_vext_off_is_shutdown(self, value):
+        return self.set_8bit_value(self.REG_VEXT_OFF_IS_SHUTDOWN, value)
 
     def set_8bit_value(self, register, value):
         crc = self.addCrc(0, register)
@@ -233,6 +237,9 @@ class ATTiny:
 
     def get_reset_configuration(self):
         return self.get_8bit_value(self.REG_RESET_CONFIG)
+
+    def get_vext_off_is_shutdown(self):
+        return self.get_8bit_value(self.REG_VEXT_OFF_IS_SHUTDOWN)
 
     def get_fuse_low(self):
         return self.get_8bit_value(self.REG_FUSE_LOW)
