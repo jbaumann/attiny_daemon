@@ -89,12 +89,17 @@ void act_on_state_change() {
   }
 
   if (state == State::running_state) {
-    uint16_t seconds_safe;
-    ATOMIC_BLOCK(ATOMIC_FORCEON) {
-      seconds_safe = seconds;
+    bool should_restart = false;
+
+    if(vext_off_is_shutdown) {
+      should_restart = ext_voltage < MIN_POWER_LEVEL;
+    } else {
+      ATOMIC_BLOCK(ATOMIC_FORCEON) {
+        should_restart = seconds > timeout;
+      }
     }
 
-    if (seconds_safe > timeout) {
+    if (should_restart) {
       // RPi has not accessed the I2C interface for more than timeout seconds.
       // We restart it. Signal restart by blinking ten times
       blink_led(10, BLINK_TIME / 2);

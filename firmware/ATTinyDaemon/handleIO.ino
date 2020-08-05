@@ -93,16 +93,16 @@ void switch_pin_low() {
 */
 
 boolean ups_is_voltage_controlled() {
-  return ((reset_configuration & 0x1) == 0);
+  return ((reset_configuration & Reset_Configuration::Value::two_pulses) == 0);
 }
 boolean ups_is_switched() {
-  return (reset_configuration & 0x1);
+  return (reset_configuration & Reset_Configuration::Value::two_pulses);
 }
 boolean ups_no_check_voltage() {
-  return ((reset_configuration & 0x2) == 0);
+  return ((reset_configuration & Reset_Configuration::Value::check_ext_voltage) == 0);
 }
 boolean ups_check_voltage() {
-  return (reset_configuration & 0x2);
+  return (reset_configuration & Reset_Configuration::Value::check_ext_voltage);
 }
 
 /*

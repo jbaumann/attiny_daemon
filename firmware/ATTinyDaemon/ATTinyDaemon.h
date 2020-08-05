@@ -95,6 +95,7 @@ enum EEPROM_Address {
   reset_pulse_length            = 23,      // uint16_t
   switch_recovery_delay         = 25,      // uint16_t
   led_off_mode                  = 27,      // uint8_t
+  vext_off_is_shutdown          = 28,      // uint8_t
 } __attribute__ ((__packed__));            // force smallest size i.e., uint_8t (GCC syntax)
 }
 
@@ -127,6 +128,7 @@ enum class Register : uint8_t {
   reset_configuration           = 0x51,
   reset_pulse_length            = 0x52,
   switch_recovery_delay         = 0x53,
+  vext_off_is_shutdown          = 0x54,
   version                       = 0x80,
   fuse_low                      = 0x81,
   fuse_high                     = 0x82,
@@ -156,5 +158,19 @@ enum Level {
   reserved_5                    = bit(5),
   reserved_6                    = bit(6),
   bat_voltage                   = bit(7),
+} __attribute__ ((__packed__));            // force smallest size i.e., uint_8t (GCC syntax)
+}
+
+/*
+   The values for the Reset Configuration
+ */
+namespace Reset_Configuration {
+// this enum is in its own namespace and not declared as a class to keep the implicit conversion
+// to int when using it (this allows bit operations on the values).
+enum Value {
+  // bit 0 (0 = 1 / 1 = 2) pulses, bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
+  none                          = 0,
+  two_pulses                    = bit(0),
+  check_ext_voltage             = bit(1),
 } __attribute__ ((__packed__));            // force smallest size i.e., uint_8t (GCC syntax)
 }

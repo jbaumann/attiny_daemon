@@ -10,8 +10,8 @@
    Our version number - used by the daemon to ensure that the major number is equal between firmware and daemon
 */
 const uint32_t MAJOR = 2;
-const uint32_t MINOR = 9;
-const uint32_t PATCH = 37;
+const uint32_t MINOR = 10;
+const uint32_t PATCH = 3;
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
@@ -56,7 +56,7 @@ volatile uint8_t should_shutdown          = Shutdown_Cause::none;
 volatile uint8_t force_shutdown           =    0;  // != 0, force shutdown if below shutdown_voltage
 volatile uint8_t reset_configuration      =    0;  // bit 0 (0 = 1 / 1 = 2) pulses, bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
 volatile uint8_t led_off_mode             =    0;  // 0 LED behaves normally, 1 LED does not blink
-
+volatile uint8_t vext_off_is_shutdown     =    0;  // 0 normal timeout is used, 1 shutdown only if Vext is 0V
 /*
    These are the 16 bit registers (the register numbers are defined in ATTinyDaemon.h).
    The value 0xFFFFFFFF is no valid value and will be filtered on the RPi side

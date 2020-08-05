@@ -79,16 +79,24 @@ void receive_event(int bytes) {
         case Register::led_off_mode:
           led_off_mode = rbuf[1];
           update_eeprom = true;
-          break;          
+          break;
         case Register::reset_configuration:
           reset_configuration = rbuf[1];
+          update_eeprom = true;
+          break;
+        case Register::vext_off_is_shutdown:
+          vext_off_is_shutdown = rbuf[1];
+          if(vext_off_is_shutdown) {
+            // we have to check the external voltage when depending on its value
+            reset_configuration |= Reset_Configuration::Value::check_ext_voltage;
+          }
           update_eeprom = true;
           break;
         case Register::init_eeprom:
           uint8_t init_eeprom = rbuf[1];
 
           if (init_eeprom != 0) {
-            write_EEPROM();
+            update_eeprom = true;
           }
           break;
       }
@@ -199,6 +207,9 @@ void request_event() {
       break;
     case Register::led_off_mode:
       write_data_crc((uint8_t *)&led_off_mode, sizeof(led_off_mode));
+      break;      
+    case Register::vext_off_is_shutdown:
+      write_data_crc((uint8_t *)&vext_off_is_shutdown, sizeof(vext_off_is_shutdown));
       break;      
     case Register::restart_voltage:
       write_data_crc((uint8_t *)&restart_voltage, sizeof(restart_voltage));
