@@ -119,7 +119,9 @@ void voltage_dependent_state_change() {
   if (bat_voltage <= shutdown_voltage) {
     state = State::warn_to_shutdown;
   } else if (bat_voltage <= warn_voltage) {
-    state = State::warn_state;
+    if(state < State::warn_state) {
+      state = State::warn_state;      
+    }
   } else if (bat_voltage <= restart_voltage) {
     uint16_t seconds_safe;
     ATOMIC_BLOCK(ATOMIC_FORCEON) {
