@@ -42,13 +42,10 @@ void handle_state() {
     }
   }
 
-  // we act only if primed is set
-  if (primed != 0) {
-    act_on_state_change();
-  }
+  act_on_state_change();
 
   // Turn LED off
-  if (state <= State::warn_state) {
+  if (state <= State::warn_to_shutdown) {
     // allow the button functionality as long as possible and even if not primed
     ledOff_buttonOn();
   }
@@ -61,9 +58,12 @@ void handle_state() {
 void act_on_state_change() {
   if (state == State::warn_to_shutdown) {
     // immediately turn off the system if force_shutdown is set
-    if (force_shutdown != 0) {
-      ups_off();
+    if (primed != 0) {
+      if (force_shutdown != 0) {
+        ups_off();
+      }
     }
+
     state = State::shutdown_state;
   }
 
@@ -75,7 +75,9 @@ void act_on_state_change() {
     reset_counter_Safe();
   } else if (state == State::shutdown_to_running) {
     // we have recovered from a shutdown and are now at a safe voltage
-    ups_on();
+    if (primed != 0) {
+      ups_on();
+    }
     reset_counter_Safe();
     state = State::running_state;
   } else if (state == State::warn_to_running) {
@@ -100,10 +102,13 @@ void act_on_state_change() {
     }
 
     if (should_restart) {
-      // RPi has not accessed the I2C interface for more than timeout seconds.
-      // We restart it. Signal restart by blinking ten times
-      blink_led(10, BLINK_TIME / 2);
-      restart_raspberry();
+      if (primed != 0) {
+        // RPi has not accessed the I2C interface for more than timeout seconds.
+        // We restart it. Signal restart by blinking ten times
+        blink_led(10, BLINK_TIME / 2);
+        restart_raspberry();
+      }
+
       reset_counter_Safe();
     }
   }
