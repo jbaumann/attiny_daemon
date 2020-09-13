@@ -61,6 +61,8 @@ void read_EEPROM_values() {
   MyEEPROM.get(EEPROM_Address::temperature_constant, temperature_constant);
   MyEEPROM.get(EEPROM_Address::reset_configuration, reset_configuration);
   MyEEPROM.get(EEPROM_Address::reset_pulse_length, reset_pulse_length);
+  MyEEPROM.get(EEPROM_Address::pulse_length_on, pulse_length_on);
+  MyEEPROM.get(EEPROM_Address::pulse_length_off, pulse_length_off);
   MyEEPROM.get(EEPROM_Address::switch_recovery_delay, switch_recovery_delay);
   MyEEPROM.get(EEPROM_Address::led_off_mode, led_off_mode);
   MyEEPROM.get(EEPROM_Address::vext_off_is_shutdown, vext_off_is_shutdown);
@@ -91,6 +93,8 @@ void write_EEPROM() {
   MyEEPROM.put(EEPROM_Address::temperature_constant, temperature_constant);
   MyEEPROM.put(EEPROM_Address::reset_configuration, reset_configuration);
   MyEEPROM.put(EEPROM_Address::reset_pulse_length, reset_pulse_length);
+  MyEEPROM.put(EEPROM_Address::pulse_length_on, pulse_length_on);
+  MyEEPROM.put(EEPROM_Address::pulse_length_off, pulse_length_off);
   MyEEPROM.put(EEPROM_Address::switch_recovery_delay, switch_recovery_delay);
   MyEEPROM.put(EEPROM_Address::led_off_mode, led_off_mode);
   MyEEPROM.put(EEPROM_Address::vext_off_is_shutdown, vext_off_is_shutdown);

@@ -10,8 +10,8 @@
    Our version number - used by the daemon to ensure that the major number is equal between firmware and daemon
 */
 const uint32_t MAJOR = 2;
-const uint32_t MINOR = 10;
-const uint32_t PATCH = 5;
+const uint32_t MINOR = 11;
+const uint32_t PATCH = 2;
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
@@ -75,6 +75,8 @@ volatile uint16_t temperature             =    0;   // the on-chip temperature
 volatile uint16_t temperature_coefficient = 1000;   // the multiplier for the measured temperature * 1000, the coefficient
 volatile int16_t  temperature_constant    = -270;   // the constant added to the measurement as offset
 volatile uint16_t reset_pulse_length      =  200;   // the reset pulse length (normally 200 for a reset, 4000 for switching)
+volatile uint16_t pulse_length_on         =    0;   // if set is used as the pulse_length for turning the UPS on (for switched UPS)
+volatile uint16_t pulse_length_off        =    0;   // if set is used as the pulse_length for turning the UPS off (for switched UPS)
 volatile uint16_t switch_recovery_delay   = 1000;   // the pause needed between two reset pulse for the circuit recovery
 
 /*

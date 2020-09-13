@@ -5,7 +5,7 @@ void init_I2C() {
   Wire.begin(I2C_ADDRESS);
   Wire.onRequest(request_event);
   Wire.onReceive(receive_event);
-  Wire.onInterrupt(disable_watchdog);
+//  Wire.onInterrupt(disable_watchdog);
 }
 
 /*
@@ -36,7 +36,7 @@ Register register_number;
 
 void receive_event(int bytes) {
 
-  //disable_watchdog();
+  disable_watchdog();
   
   i2c_triggered_state_change();
 
@@ -148,6 +148,14 @@ void receive_event(int bytes) {
           reset_pulse_length = rbuf[1] | (rbuf[2] << 8);
           update_eeprom = true;
           break;
+        case Register::pulse_length_on:
+          pulse_length_on = rbuf[1] | (rbuf[2] << 8);
+          update_eeprom = true;
+          break;
+        case Register::pulse_length_off:
+          pulse_length_off = rbuf[1] | (rbuf[2] << 8);
+          update_eeprom = true;
+          break;
         case Register::switch_recovery_delay:
           switch_recovery_delay = rbuf[1] | (rbuf[2] << 8);
           update_eeprom = true;
@@ -234,7 +242,13 @@ void request_event() {
       break;
     case Register::reset_pulse_length:
       write_data_crc((uint8_t *)&reset_pulse_length, sizeof(reset_pulse_length));
-      break;      
+      break;
+    case Register::pulse_length_on:
+      write_data_crc((uint8_t *)&pulse_length_on, sizeof(pulse_length_on));
+      break;
+    case Register::pulse_length_off:
+      write_data_crc((uint8_t *)&pulse_length_off, sizeof(pulse_length_off));
+      break;
     case Register::switch_recovery_delay:
       write_data_crc((uint8_t *)&switch_recovery_delay, sizeof(switch_recovery_delay));
       break;
