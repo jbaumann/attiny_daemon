@@ -3,9 +3,9 @@ Are you desperately searching for an UPS for Raspberry that doesn't cost twice a
 
 Then search no further, you have come to the right place.
 
-# Hardware and Software for a Raspberry UPS based on the Geekworm UPS Hat and the Geekworm UPS 2 HAT 
+# The Intelligence for a Raspberry UPS based on different UPS implementations
 
-This repository contains all the information for a tiny add-on PCB that turns the non-functioning Geekworm UPS HAT or the Geekworm UPS 2 HAT (or any other UPS that allows to be turned off and on using a button or by pulling a pin to low) into a real UPS with a large number of additional features, including automatic shutdown and restart, temperature measurements of the battery, communication over I2C and an external button that can provide arbitrary functionality. The solution consists of three parts, the hardware based on an ATTiny85, the firmware for the ATTiny (earlier versions also support the ATTiny45, but its flash is too small to hold all the functionality), and a systemd daemon written in Python with the accompying systemd unit file.
+This repository contains all the information for a tiny add-on PCB that turns many non-functioning (e.g., Geekworm UPS HAT 1-3 or the GeeekPi UPS or even your own simple hardware implementation that allows to be turned off and on using a button or by pulling a pin to low) into a real UPS with a large number of additional features, including automatic shutdown and restart, temperature measurements of the battery, communication over I2C and an external button that can provide arbitrary functionality. The solution consists of three parts, the hardware based on an ATTiny85, the firmware for the ATTiny (earlier versions also support the ATTiny45, but its flash is too small to hold all the functionality), and a systemd daemon written in Python with the accompying systemd unit file.
 
 Oh, and if at any one time you ask yourself, "why the heck has he implemented this feature?", the answer is most probably "because we can..."
 
@@ -32,8 +32,11 @@ But if you have the spare money or need the additional functionality and do not 
 ### Geekworm UPS Hat
 An example for one UPS that is very moderately priced and can be bought on AliExpress or Banggood (or even Ebay and Amazon) is the GeekWorm UPS Hat for the Raspberry Pi. At around 12€ it sounds fantastic, until you test it and realize that when power is cut and restored afterwards, the battery is no longer charged. You have to manually turn the system off and on again using a little button mounted on the side of the HAT. This absolutely disqualifies this as a UPS on its own. But with the ATTiny_Daemon this is a good basis for a full-fledged UPS.
 
-### Geekworm UPS 2 Hat
-Geekworm produced a new version of their UPS supporting higher currents for the newer Raspberry Pis. It costs a bit more (around 22€), offers a much nicer PCB with a lot of added functionality that makes it, in principle, very attractive as a UPS. It still has the problem that it does not restart the Raspberry automatically when primary power is reestablished. This means that on its own it is not a usable UPS. But with the ATTiny_Daemon this is currently the best basis for a full-fledged UPS.
+### Geekworm UPS v1.1, UPS 2, UPS 3 Hat
+Geekworm produced different new versions of their UPS supporting higher currents for the newer Raspberry Pis. They cost a bit more (the newest around 28€), offers a much nicer PCB with a lot of added functionality that makes it, in principle, very attractive as a UPS. It still has the problem that it does not restart the Raspberry automatically when primary power is reestablished. This means that on its own it is not a usable UPS. But with the ATTiny_Daemon this is currently a good basis for a full-fledged UPS.
+
+### GeeekPi UPS
+GeeekPi offers a UPS pcb that comes not as a HAT, but as a PCB that is mounted **under** the RPi and makes the necessary contact using Pogo Pins. You can install up to 2 18650 Li-Ion batteries, and it has a very high quality. Still, it does not turn on or off automatically and as such is not directly usable. This means that on its own it is not a usable UPS. But with the ATTiny_Daemon this is currently a good basis for a full-fledged UPS.
 
 ### Others
 Well, to cut a long story short, having evaluated a lot of different solutions, and to quote a very good song, even if totally out of context, "i still haven't found what i'm looking for"...
