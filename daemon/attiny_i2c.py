@@ -33,6 +33,8 @@ class ATTiny:
     REG_RESET_PULSE_LENGTH   = 0x52
     REG_SW_RECOVERY_DELAY    = 0x53
     REG_VEXT_OFF_IS_SHUTDOWN = 0x54
+    REG_PULSE_LENGTH_ON      = 0x55
+    REG_PULSE_LENGTH_OFF     = 0x56
     REG_VERSION              = 0x80
     REG_FUSE_LOW             = 0x81
     REG_FUSE_HIGH            = 0x82
@@ -138,6 +140,12 @@ class ATTiny:
     def set_switch_recovery_delay(self, value):
         return self.set_16bit_value(self.REG_SW_RECOVERY_DELAY, value)
 
+    def set_pulse_length_on(self, value):
+        return self.set_16bit_value(self.REG_PULSE_LENGTH_ON, value)
+
+    def set_pulse_length_off(self, value):
+        return self.set_16bit_value(self.REG_PULSE_LENGTH_OFF, value)
+
     def set_16bit_value(self, register, value):
         # we interpret every value as a 16-bit signed value
         vals = value.to_bytes(2, byteorder='little', signed=True)
@@ -202,6 +210,12 @@ class ATTiny:
 
     def get_switch_recovery_delay(self):
         return self.get_16bit_value(self.REG_SW_RECOVERY_DELAY)
+
+    def get_pulse_length_on(self):
+        return self.get_16bit_value(self.REG_PULSE_LENGTH_ON)
+
+    def get_pulse_length_off(self):
+        return self.get_16bit_value(self.REG_PULSE_LENGTH_OFF)
 
     def get_16bit_value(self, register):
         for x in range(self._num_retries):

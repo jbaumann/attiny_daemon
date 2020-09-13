@@ -17,8 +17,8 @@ from attiny_i2c import ATTiny
 
 # Version information
 major = 2
-minor = 10
-patch = 5
+minor = 11
+patch = 3
 
 # config file is in the same directory as the script:
 _configfile_default = str(Path(__file__).parent.absolute()) + "/attiny_daemon.cfg"
@@ -194,6 +194,8 @@ class Config(Mapping):
     RESET_CONFIG = 'reset configuration'
     VEXT_SHUTDOWN = 'vext off is shutdown'
     RESET_PULSE_LENGTH = 'reset pulse length'
+    PULSE_LENGTH_ON = 'pulse length on'
+    PULSE_LENGTH_OFF = 'pulse length off'
     SW_RECOVERY_DELAY = 'switch recovery delay'
 
     MAX_INT = sys.maxsize
@@ -219,6 +221,8 @@ class Config(Mapping):
             RESET_CONFIG: "0",
             VEXT_SHUTDOWN: 'False',
             RESET_PULSE_LENGTH: "200",
+            PULSE_LENGTH_ON: "0",
+            PULSE_LENGTH_OFF: "0",
             SW_RECOVERY_DELAY: "1000",
             LOG_LEVEL: 'DEBUG'
         }
@@ -277,6 +281,8 @@ class Config(Mapping):
             self._storage[self.RESET_CONFIG] = self.parser.getint(self.DAEMON_SECTION, self.RESET_CONFIG)
             self._storage[self.VEXT_SHUTDOWN] = self.parser.getboolean(self.DAEMON_SECTION, self.VEXT_SHUTDOWN)
             self._storage[self.RESET_PULSE_LENGTH] = self.parser.getint(self.DAEMON_SECTION, self.RESET_PULSE_LENGTH)
+            self._storage[self.PULSE_LENGTH_ON] = self.parser.getint(self.DAEMON_SECTION, self.PULSE_LENGTH_ON)
+            self._storage[self.PULSE_LENGTH_OFF] = self.parser.getint(self.DAEMON_SECTION, self.PULSE_LENGTH_OFF)
             self._storage[self.SW_RECOVERY_DELAY] = self.parser.getint(self.DAEMON_SECTION, self.SW_RECOVERY_DELAY)
             logging.getLogger().setLevel(self.parser.get(self.DAEMON_SECTION, self.LOG_LEVEL))
             logging.debug("config variables are set")
@@ -315,6 +321,8 @@ class Config(Mapping):
         attiny_led_off_mode = attiny.get_led_off_mode()
         attiny_reset_configuration = attiny.get_reset_configuration()
         attiny_reset_pulse_length = attiny.get_reset_pulse_length()
+        attiny_pulse_length_on = attiny.get_pulse_length_on()
+        attiny_pulse_length_off = attiny.get_pulse_length_off()
         attiny_switch_recovery_delay = attiny.get_switch_recovery_delay()
         attiny_vext_off_is_shutdown = attiny.get_vext_off_is_shutdown()
 
@@ -322,7 +330,8 @@ class Config(Mapping):
         if self._storage[self.TIMEOUT] == self.MAX_INT:
             # timeout was not set in the config file
             # we will get timeout, primed, reset configuration, 
-            # reset pulse length, switch recovery delay, vext_is_shutdown and 
+            # reset pulse length, pulse length on, pulse length off,
+            # switch recovery delay, vext_is_shutdown and
             # force_shutdown from the ATTiny
             logging.debug("Getting Timeout from ATTiny")
             self._storage[self.PRIMED] = attiny_primed
@@ -331,6 +340,8 @@ class Config(Mapping):
             self._storage[self.LED_OFF_MODE] = attiny_led_off_mode
             self._storage[self.RESET_CONFIG] = attiny_reset_configuration
             self._storage[self.RESET_PULSE_LENGTH] = attiny_reset_pulse_length
+            self._storage[self.PULSE_LENGTH_ON] = attiny_pulse_length_on
+            self._storage[self.PULSE_LENGTH_OFF] = attiny_pulse_length_off
             self._storage[self.SW_RECOVERY_DELAY] = attiny_switch_recovery_delay
             self._storage[self.VEXT_SHUTDOWN] = attiny_vext_off_is_shutdown
 
@@ -346,10 +357,14 @@ class Config(Mapping):
                             str(self._storage[self.RESET_CONFIG]))
             self.parser.set(self.DAEMON_SECTION, self.RESET_PULSE_LENGTH,
                             str(self._storage[self.RESET_PULSE_LENGTH]))
+            self.parser.set(self.DAEMON_SECTION, self.PULSE_LENGTH_ON,
+                            str(self._storage[self.PULSE_LENGTH_ON]))
+            self.parser.set(self.DAEMON_SECTION, self.PULSE_LENGTH_OFF,
+                            str(self._storage[self.PULSE_LENGTH_OFF]))
             self.parser.set(self.DAEMON_SECTION, self.SW_RECOVERY_DELAY,
                             str(self._storage[self.SW_RECOVERY_DELAY]))
             self.parser.set(self.DAEMON_SECTION, self.VEXT_SHUTDOWN,
-                            str(self._storage[self.SW_VEXT_SHUTDOWN]))
+                            str(self._storage[self.VEXT_SHUTDOWN]))
             changed_config = True
         else:
             if attiny_timeout != self._storage[self.TIMEOUT]:
@@ -370,10 +385,15 @@ class Config(Mapping):
             if attiny_reset_pulse_length != self._storage[self.RESET_PULSE_LENGTH]:
                 logging.debug("Writing Reset Pulse Length to ATTiny")
                 attiny.set_reset_pulse_length(self._storage[self.RESET_PULSE_LENGTH])
+            if attiny_pulse_length_on != self._storage[self.PULSE_LENGTH_ON]:
+                logging.debug("Writing Pulse Length On to ATTiny")
+                attiny.set_pulse_length_on(self._storage[self.PULSE_LENGTH_ON])
+            if attiny_pulse_length_off != self._storage[self.PULSE_LENGTH_OFF]:
+                logging.debug("Writing Pulse Length Off to ATTiny")
+                attiny.set_pulse_length_off(self._storage[self.PULSE_LENGTH_OFF])
             if attiny_switch_recovery_delay != self._storage[self.SW_RECOVERY_DELAY]:
                 logging.debug("Writing Switch Recovery Delay to ATTiny")
                 attiny.set_switch_recovery_delay(self._storage[self.SW_RECOVERY_DELAY])
-
             if attiny_vext_off_is_shutdown != self._storage[self.VEXT_SHUTDOWN]:
                 logging.debug("Writing Vext off is Shutdown to ATTiny")
                 attiny.set_vext_off_is_shutdown(self._storage[self.VEXT_SHUTDOWN])
