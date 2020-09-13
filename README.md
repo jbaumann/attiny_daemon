@@ -42,7 +42,7 @@ GeeekPi offers a UPS pcb that comes not as a HAT, but as a PCB that is mounted *
 Well, to cut a long story short, having evaluated a lot of different solutions, and to quote a very good song, even if totally out of context, "i still haven't found what i'm looking for"...
 
 # Possible Solutions
-### Make your Own
+### Design your Own
 One solution would be to create our own solution, starting by designing the charging circuit for the battery, using a nice boost converter, adding an intelligent controller that can be programmed and re-programmed for different needs, create a schematic, PCB and let it be manufactured by one of the PCB manufacturers. I believe such a design could get to a price of around 25€, not counting the hours to be invested. I might, at some later point, come back to this approach.
 ### Use cheap components cobbled together
 Actually, Peter Scargill started something like that in a [blog article](https://tech.scargill.net/more-uninterruptable-thoughts/) and the [follow-up](https://tech.scargill.net/the-kitchen-sink/), but he got sick and never picked up where he left. It seems that it worked pretty well, but has the single disadvantage that it is no HAT for the Raspberry and thus very far from a plug&play solution.
