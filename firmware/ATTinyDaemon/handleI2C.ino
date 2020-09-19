@@ -70,7 +70,12 @@ void receive_event(int bytes) {
           update_eeprom = true;
           break;
         case Register::should_shutdown:
-          should_shutdown = rbuf[1];
+          // normally simply bit-or the info from the RPi, but allow 0 to reset all conditions
+          if(rbuf[1] == 0) {
+            should_shutdown = 0;
+          } else {
+            should_shutdown |= rbuf[1];
+          }
           break;
         case Register::force_shutdown:
           force_shutdown = rbuf[1];

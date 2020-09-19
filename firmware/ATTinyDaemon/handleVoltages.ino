@@ -135,12 +135,6 @@ void read_voltages() {
     // This allows us to average out short voltage spikes caused by
     // the Raspberry's different loads.
     temp_bat_voltage = (temp_bat_voltage + bat_voltage * 9) / 10;
-
-    if (state == State::warn_state && should_shutdown != Shutdown_Cause::rpi_initiated) {
-      should_shutdown |= Shutdown_Cause::bat_voltage;
-    } else {
-      should_shutdown &= ~Shutdown_Cause::bat_voltage;
-    }
   }
 
   // we use the following block to guarantee that the values are atomically set

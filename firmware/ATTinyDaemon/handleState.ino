@@ -34,11 +34,15 @@ void handle_state() {
   voltage_dependent_state_change();
 
   // If the button has been pressed or the bat_voltage is lower than the warn voltage
-  // we blink the LED 5 times to signal that the RPi should shut down
+  // we blink the LED 5 times to signal that the RPi should shut down, if it has not
+  // already signalled that it is doing so
   if (state <= State::warn_state) {
-    if (should_shutdown > Shutdown_Cause::rpi_initiated && (seconds_safe < timeout)) {
-      // RPi should take action, possibly shut down. Signal by blinking 5 times
-      blink_led(5, BLINK_TIME);
+    // we first check whether the Raspberry is already in the shutdown process
+    if(!(should_shutdown & Shutdown_Cause::rpi_initiated)) {
+      if (should_shutdown > Shutdown_Cause::rpi_initiated && (seconds_safe < timeout)) {
+        // RPi should take action, possibly shut down. Signal by blinking 5 times
+        blink_led(5, BLINK_TIME);
+      }
     }
   }
 
@@ -56,6 +60,8 @@ void handle_state() {
    Act on the current state
  */
 void act_on_state_change() {
+  // This is placed before the general check of all stages as to
+  // not duplicate the code of the shutdown_state
   if (state == State::warn_to_shutdown) {
     // immediately turn off the system if force_shutdown is set
     if (primed != 0) {
@@ -63,7 +69,6 @@ void act_on_state_change() {
         ups_off();
       }
     }
-
     state = State::shutdown_state;
   }
 
@@ -72,6 +77,7 @@ void act_on_state_change() {
   } else if (state == State::warn_state) {
     // The RPi has been warned using the should_shutdown variable
     // we simply let it shutdown even if it does not set SL_INITIATED
+
     reset_counter_Safe();
   } else if (state == State::shutdown_to_running) {
     // we have recovered from a shutdown and are now at a safe voltage
@@ -80,11 +86,13 @@ void act_on_state_change() {
     }
     reset_counter_Safe();
     state = State::running_state;
+    should_shutdown = Shutdown_Cause::none;
   } else if (state == State::warn_to_running) {
     // we have recovered from a warn state and are now at a safe voltage
     // we switch to State::running_state and let that state (below) handle 
     // the restart
     state = State::running_state;
+    should_shutdown = Shutdown_Cause::none;
   } else if (state == State::unclear_state) {
     // we do nothing and wait until either a timeout occurs, the voltage
     // drops to warn_voltage or is higher than restart_voltage (see handle_state())
@@ -128,6 +136,7 @@ void voltage_dependent_state_change() {
   } else if (bat_voltage <= warn_voltage) {
     if(state < State::warn_state) {
       state = State::warn_state;
+      should_shutdown |= Shutdown_Cause::bat_voltage;
     }
   } else if (bat_voltage <= restart_voltage) {
     uint16_t seconds_safe;

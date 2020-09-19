@@ -11,7 +11,7 @@
 */
 const uint32_t MAJOR = 2;
 const uint32_t MINOR = 11;
-const uint32_t PATCH = 2;
+const uint32_t PATCH = 13;
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
@@ -137,9 +137,7 @@ ISR (PCINT0_vect) {
     should_shutdown = Shutdown_Cause::none;
   } else {
     // signal the Raspberry that the button has been pressed.
-    if (should_shutdown != Shutdown_Cause::rpi_initiated) {
-      should_shutdown |= Shutdown_Cause::button;
-    }
+    should_shutdown |= Shutdown_Cause::button;
   }
 }
 

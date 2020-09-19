@@ -119,7 +119,7 @@ boolean ups_check_voltage() {
    Additionally, should_shutdown is cleared.
 */
 void restart_raspberry() {
-  should_shutdown = 0;
+  should_shutdown = Shutdown_Cause::none;
 
   ups_off();
   
