@@ -84,15 +84,15 @@ enum EEPROM_Address {
   force_shutdown                =  3,      // uint8_t
   restart_voltage               =  4,      // uint16_t
   warn_voltage                  =  6,      // uint16_t
-  shutdown_voltage              =  8,      // uint16_t
+  ups_shutdown_voltage          =  8,      // uint16_t
   bat_voltage_coefficient       = 10,      // uint16_t
   bat_voltage_constant          = 12,      // uint16_t
   ext_voltage_coefficient       = 14,      // uint16_t
   ext_voltage_constant          = 16,      // uint16_t
   temperature_coefficient       = 18,      // uint16_t
   temperature_constant          = 20,      // uint16_t
-  reset_configuration           = 22,      // uint8_t
-  reset_pulse_length            = 23,      // uint16_t
+  ups_configuration             = 22,      // uint8_t
+  pulse_length                  = 23,      // uint16_t
   pulse_length_on               = 25,      // uint16_t
   pulse_length_off              = 27,      // uint16_t
   switch_recovery_delay         = 29,      // uint16_t
@@ -123,12 +123,12 @@ enum class Register : uint8_t {
   led_off_mode                  = 0x25,
   restart_voltage               = 0x31,
   warn_voltage                  = 0x32,
-  shutdown_voltage              = 0x33,
+  ups_shutdown_voltage          = 0x33,
   temperature                   = 0x41,
   temperature_coefficient       = 0x42,
   temperature_constant          = 0x43,
-  reset_configuration           = 0x51,
-  reset_pulse_length            = 0x52,
+  ups_configuration             = 0x51,
+  pulse_length                  = 0x52,
   switch_recovery_delay         = 0x53,
   vext_off_is_shutdown          = 0x54,
   pulse_length_on               = 0x55,
@@ -166,9 +166,9 @@ enum Level {
 }
 
 /*
-   The values for the Reset Configuration
+   The values for the UPS Configuration
  */
-namespace Reset_Configuration {
+namespace UPS_Configuration {
 // this enum is in its own namespace and not declared as a class to keep the implicit conversion
 // to int when using it (this allows bit operations on the values).
 enum Value {

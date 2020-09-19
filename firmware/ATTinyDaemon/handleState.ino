@@ -127,18 +127,26 @@ void act_on_state_change() {
    Change the state dependent on the freshly read battery voltage
 */
 void voltage_dependent_state_change() {
+  uint16_t ups_shutdown_voltage_safe, warn_voltage_safe, restart_voltage_safe;
+
   read_voltages();
 
-  if (bat_voltage <= shutdown_voltage) {
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    ups_shutdown_voltage_safe = ups_shutdown_voltage;
+    warn_voltage_safe = warn_voltage;
+    restart_voltage_safe = restart_voltage;
+  }
+
+  if (bat_voltage <= ups_shutdown_voltage_safe) {
     if(state < State::warn_to_shutdown) {
       state = State::warn_to_shutdown;
     }
-  } else if (bat_voltage <= warn_voltage) {
+  } else if (bat_voltage <= warn_voltage_safe) {
     if(state < State::warn_state) {
       state = State::warn_state;
       should_shutdown |= Shutdown_Cause::bat_voltage;
     }
-  } else if (bat_voltage <= restart_voltage) {
+  } else if (bat_voltage <= restart_voltage_safe) {
     uint16_t seconds_safe;
     ATOMIC_BLOCK(ATOMIC_FORCEON) {
       seconds_safe = seconds;

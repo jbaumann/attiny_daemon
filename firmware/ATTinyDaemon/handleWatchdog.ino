@@ -14,14 +14,14 @@
 void reset_watchdog () {
   uint8_t wd_value;
 
-  uint16_t bat_voltage_safe, shutdown_voltage_safe, warn_voltage_safe;
+  uint16_t bat_voltage_safe, ups_shutdown_voltage_safe, warn_voltage_safe;
   ATOMIC_BLOCK(ATOMIC_FORCEON) {
     bat_voltage_safe = bat_voltage;
-    shutdown_voltage_safe = shutdown_voltage;
+    ups_shutdown_voltage_safe = ups_shutdown_voltage;
     warn_voltage_safe = warn_voltage;
   }
 
-  if (bat_voltage_safe <= shutdown_voltage_safe) {
+  if (bat_voltage_safe <= ups_shutdown_voltage_safe) {
     // either startup or low power (includes bat_voltage == 0)
     // If we are starting then this gives us enough time to
     // initialize everything without any problems    

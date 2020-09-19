@@ -93,16 +93,16 @@ void switch_pin_low() {
 */
 
 boolean ups_is_voltage_controlled() {
-  return ((reset_configuration & Reset_Configuration::Value::two_pulses) == 0);
+  return ((ups_configuration & UPS_Configuration::Value::two_pulses) == 0);
 }
 boolean ups_is_switched() {
-  return (reset_configuration & Reset_Configuration::Value::two_pulses);
+  return (ups_configuration & UPS_Configuration::Value::two_pulses);
 }
 boolean ups_no_check_voltage() {
-  return ((reset_configuration & Reset_Configuration::Value::check_ext_voltage) == 0);
+  return ((ups_configuration & UPS_Configuration::Value::check_ext_voltage) == 0);
 }
 boolean ups_check_voltage() {
-  return (reset_configuration & Reset_Configuration::Value::check_ext_voltage);
+  return (ups_configuration & UPS_Configuration::Value::check_ext_voltage);
 }
 
 /*
@@ -169,7 +169,7 @@ void ups_off() {
       if(pulse_length_off != 0) {
         pulse_length_safe = pulse_length_off;
       } else {
-        pulse_length_safe = reset_pulse_length;
+        pulse_length_safe = pulse_length;
       }
     }
     push_switch(pulse_length_safe);
@@ -197,7 +197,7 @@ void ups_on() {
       if(pulse_length_on != 0) {
         pulse_length_safe = pulse_length_on;
       } else {
-        pulse_length_safe = reset_pulse_length;
+        pulse_length_safe = pulse_length;
       }
     }
     push_switch(pulse_length_safe);

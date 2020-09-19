@@ -85,15 +85,15 @@ void receive_event(int bytes) {
           led_off_mode = rbuf[1];
           update_eeprom = true;
           break;
-        case Register::reset_configuration:
-          reset_configuration = rbuf[1];
+        case Register::ups_configuration:
+          ups_configuration = rbuf[1];
           update_eeprom = true;
           break;
         case Register::vext_off_is_shutdown:
           vext_off_is_shutdown = rbuf[1];
           if(vext_off_is_shutdown) {
             // we have to check the external voltage when depending on its value
-            reset_configuration |= Reset_Configuration::Value::check_ext_voltage;
+            ups_configuration |= UPS_Configuration::Value::check_ext_voltage;
           }
           update_eeprom = true;
           break;
@@ -119,8 +119,8 @@ void receive_event(int bytes) {
           warn_voltage = rbuf[1] | (rbuf[2] << 8);
           update_eeprom = true;
           break;
-        case Register::shutdown_voltage:
-          shutdown_voltage = rbuf[1] | (rbuf[2] << 8);
+        case Register::ups_shutdown_voltage:
+          ups_shutdown_voltage = rbuf[1] | (rbuf[2] << 8);
           update_eeprom = true;
           break;
         case Register::bat_voltage_coefficient:
@@ -149,8 +149,8 @@ void receive_event(int bytes) {
           temperature_constant = rbuf[1] | (rbuf[2] << 8);
           update_eeprom = true;
           break;
-        case Register::reset_pulse_length:
-          reset_pulse_length = rbuf[1] | (rbuf[2] << 8);
+        case Register::pulse_length:
+          pulse_length = rbuf[1] | (rbuf[2] << 8);
           update_eeprom = true;
           break;
         case Register::pulse_length_on:
@@ -230,8 +230,8 @@ void request_event() {
     case Register::warn_voltage:
       write_data_crc((uint8_t *)&warn_voltage, sizeof(warn_voltage));
       break;
-    case Register::shutdown_voltage:
-      write_data_crc((uint8_t *)&shutdown_voltage, sizeof(shutdown_voltage));
+    case Register::ups_shutdown_voltage:
+      write_data_crc((uint8_t *)&ups_shutdown_voltage, sizeof(ups_shutdown_voltage));
       break;
     case Register::temperature:
       write_data_crc((uint8_t *)&temperature, sizeof(temperature));
@@ -242,11 +242,11 @@ void request_event() {
     case Register::temperature_constant:
       write_data_crc((uint8_t *)&temperature_constant, sizeof(temperature_constant));
       break;
-    case Register::reset_configuration:
-      write_data_crc((uint8_t *)&reset_configuration, sizeof(reset_configuration));
+    case Register::ups_configuration:
+      write_data_crc((uint8_t *)&ups_configuration, sizeof(ups_configuration));
       break;
-    case Register::reset_pulse_length:
-      write_data_crc((uint8_t *)&reset_pulse_length, sizeof(reset_pulse_length));
+    case Register::pulse_length:
+      write_data_crc((uint8_t *)&pulse_length, sizeof(pulse_length));
       break;
     case Register::pulse_length_on:
       write_data_crc((uint8_t *)&pulse_length_on, sizeof(pulse_length_on));

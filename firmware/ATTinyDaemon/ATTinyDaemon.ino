@@ -11,7 +11,7 @@
 */
 const uint32_t MAJOR = 2;
 const uint32_t MINOR = 11;
-const uint32_t PATCH = 13;
+const uint32_t PATCH = 15;
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
@@ -54,7 +54,7 @@ volatile uint8_t timeout                  =   60;  // timeout for the reset, wil
 volatile uint8_t primed                   =    0;  // 0 if turned off, 1 if primed, temporary
 volatile uint8_t should_shutdown          = Shutdown_Cause::none; 
 volatile uint8_t force_shutdown           =    0;  // != 0, force shutdown if below shutdown_voltage
-volatile uint8_t reset_configuration      =    0;  // bit 0 (0 = 1 / 1 = 2) pulses, bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
+volatile uint8_t ups_configuration        =    0;  // bit 0 (0 = 1 / 1 = 2) pulses, bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
 volatile uint8_t led_off_mode             =    0;  // 0 LED behaves normally, 1 LED does not blink
 volatile uint8_t vext_off_is_shutdown     =    0;  // 0 normal timeout is used, 1 shutdown only if Vext is 0V
 /*
@@ -69,12 +69,12 @@ volatile uint16_t ext_voltage_coefficient = 1000;   // the multiplier for the me
 volatile int16_t  ext_voltage_constant    =    0;   // the constant added to the measurement of the external voltage * 1000, offset error
 volatile uint16_t restart_voltage         = 3900;   // the battery voltage at which the RPi will be started again
 volatile uint16_t warn_voltage            = 3400;   // the battery voltage at which the RPi should should down
-volatile uint16_t shutdown_voltage        = 3200;   // the battery voltage at which a hard shutdown is executed
+volatile uint16_t ups_shutdown_voltage    = 3200;   // the battery voltage at which a hard shutdown is executed
 volatile uint16_t seconds                 =    0;   // seconds since last i2c access
 volatile uint16_t temperature             =    0;   // the on-chip temperature
 volatile uint16_t temperature_coefficient = 1000;   // the multiplier for the measured temperature * 1000, the coefficient
 volatile int16_t  temperature_constant    = -270;   // the constant added to the measurement as offset
-volatile uint16_t reset_pulse_length      =  200;   // the reset pulse length (normally 200 for a reset, 4000 for switching)
+volatile uint16_t pulse_length            =  200;   // the ups pulse length (normally 200 for a reset, 4000 for switching)
 volatile uint16_t pulse_length_on         =    0;   // if set is used as the pulse_length for turning the UPS on (for switched UPS)
 volatile uint16_t pulse_length_off        =    0;   // if set is used as the pulse_length for turning the UPS off (for switched UPS)
 volatile uint16_t switch_recovery_delay   = 1000;   // the pause needed between two reset pulse for the circuit recovery
