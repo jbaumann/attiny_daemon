@@ -18,7 +18,7 @@ from attiny_i2c import ATTiny
 # Version information
 major = 2
 minor = 11
-patch = 3
+patch = 11
 
 # config file is in the same directory as the script:
 _configfile_default = str(Path(__file__).parent.absolute()) + "/attiny_daemon.cfg"
@@ -187,13 +187,13 @@ class Config(Mapping):
     FORCE_SHUTDOWN = 'force shutdown'
     LED_OFF_MODE = 'led off mode'
     WARN_VOLTAGE = 'warn voltage'
-    SHUTDOWN_VOLTAGE = 'shutdown voltage'
+    UPS_SHUTDOWN_VOLTAGE = 'ups shutdown voltage'
     RESTART_VOLTAGE = 'restart voltage'
     LOG_LEVEL = 'loglevel'
     BUTTON_FUNCTION = 'button function'
-    RESET_CONFIG = 'reset configuration'
+    UPS_CONFIG = 'ups configuration'
     VEXT_SHUTDOWN = 'vext off is shutdown'
-    RESET_PULSE_LENGTH = 'reset pulse length'
+    PULSE_LENGTH = 'pulse length'
     PULSE_LENGTH_ON = 'pulse length on'
     PULSE_LENGTH_OFF = 'pulse length off'
     SW_RECOVERY_DELAY = 'switch recovery delay'
@@ -215,12 +215,12 @@ class Config(Mapping):
             FORCE_SHUTDOWN: 'True',
             LED_OFF_MODE: 'False',
             WARN_VOLTAGE: str(MAX_INT),
-            SHUTDOWN_VOLTAGE: str(MAX_INT),
+            UPS_SHUTDOWN_VOLTAGE: str(MAX_INT),
             RESTART_VOLTAGE: str(MAX_INT),
             BUTTON_FUNCTION: "nothing",
-            RESET_CONFIG: "0",
+            UPS_CONFIG: "0",
             VEXT_SHUTDOWN: 'False',
-            RESET_PULSE_LENGTH: "200",
+            PULSE_LENGTH: "200",
             PULSE_LENGTH_ON: "0",
             PULSE_LENGTH_OFF: "0",
             SW_RECOVERY_DELAY: "1000",
@@ -275,12 +275,12 @@ class Config(Mapping):
             self._storage[self.FORCE_SHUTDOWN] = self.parser.getboolean(self.DAEMON_SECTION, self.FORCE_SHUTDOWN)
             self._storage[self.LED_OFF_MODE] = self.parser.getboolean(self.DAEMON_SECTION, self.LED_OFF_MODE)
             self._storage[self.WARN_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.WARN_VOLTAGE)
-            self._storage[self.SHUTDOWN_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.SHUTDOWN_VOLTAGE)
+            self._storage[self.UPS_SHUTDOWN_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.UPS_SHUTDOWN_VOLTAGE)
             self._storage[self.RESTART_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.RESTART_VOLTAGE)
             self._storage[self.BUTTON_FUNCTION] = self.parser.get(self.DAEMON_SECTION, self.BUTTON_FUNCTION)
-            self._storage[self.RESET_CONFIG] = self.parser.getint(self.DAEMON_SECTION, self.RESET_CONFIG)
+            self._storage[self.UPS_CONFIG] = self.parser.getint(self.DAEMON_SECTION, self.UPS_CONFIG)
             self._storage[self.VEXT_SHUTDOWN] = self.parser.getboolean(self.DAEMON_SECTION, self.VEXT_SHUTDOWN)
-            self._storage[self.RESET_PULSE_LENGTH] = self.parser.getint(self.DAEMON_SECTION, self.RESET_PULSE_LENGTH)
+            self._storage[self.PULSE_LENGTH] = self.parser.getint(self.DAEMON_SECTION, self.PULSE_LENGTH)
             self._storage[self.PULSE_LENGTH_ON] = self.parser.getint(self.DAEMON_SECTION, self.PULSE_LENGTH_ON)
             self._storage[self.PULSE_LENGTH_OFF] = self.parser.getint(self.DAEMON_SECTION, self.PULSE_LENGTH_OFF)
             self._storage[self.SW_RECOVERY_DELAY] = self.parser.getint(self.DAEMON_SECTION, self.SW_RECOVERY_DELAY)
@@ -319,8 +319,8 @@ class Config(Mapping):
         attiny_timeout = attiny.get_timeout()
         attiny_force_shutdown = attiny.get_force_shutdown()
         attiny_led_off_mode = attiny.get_led_off_mode()
-        attiny_reset_configuration = attiny.get_reset_configuration()
-        attiny_reset_pulse_length = attiny.get_reset_pulse_length()
+        attiny_ups_configuration = attiny.get_ups_configuration()
+        attiny_pulse_length = attiny.get_pulse_length()
         attiny_pulse_length_on = attiny.get_pulse_length_on()
         attiny_pulse_length_off = attiny.get_pulse_length_off()
         attiny_switch_recovery_delay = attiny.get_switch_recovery_delay()
@@ -329,8 +329,8 @@ class Config(Mapping):
 
         if self._storage[self.TIMEOUT] == self.MAX_INT:
             # timeout was not set in the config file
-            # we will get timeout, primed, reset configuration, 
-            # reset pulse length, pulse length on, pulse length off,
+            # we will get timeout, primed, ups configuration, 
+            # pulse length, pulse length on, pulse length off,
             # switch recovery delay, vext_is_shutdown and
             # force_shutdown from the ATTiny
             logging.debug("Getting Timeout from ATTiny")
@@ -338,8 +338,8 @@ class Config(Mapping):
             self._storage[self.TIMEOUT] = attiny_timeout
             self._storage[self.FORCE_SHUTDOWN] = attiny_force_shutdown
             self._storage[self.LED_OFF_MODE] = attiny_led_off_mode
-            self._storage[self.RESET_CONFIG] = attiny_reset_configuration
-            self._storage[self.RESET_PULSE_LENGTH] = attiny_reset_pulse_length
+            self._storage[self.UPS_CONFIG] = attiny_ups_configuration
+            self._storage[self.PULSE_LENGTH] = attiny_pulse_length
             self._storage[self.PULSE_LENGTH_ON] = attiny_pulse_length_on
             self._storage[self.PULSE_LENGTH_OFF] = attiny_pulse_length_off
             self._storage[self.SW_RECOVERY_DELAY] = attiny_switch_recovery_delay
@@ -353,10 +353,10 @@ class Config(Mapping):
                             str(self._storage[self.FORCE_SHUTDOWN]))
             self.parser.set(self.DAEMON_SECTION, self.LED_OFF_MODE,
                             str(self._storage[self.LED_OFF_MODE]))
-            self.parser.set(self.DAEMON_SECTION, self.RESET_CONFIG,
-                            str(self._storage[self.RESET_CONFIG]))
-            self.parser.set(self.DAEMON_SECTION, self.RESET_PULSE_LENGTH,
-                            str(self._storage[self.RESET_PULSE_LENGTH]))
+            self.parser.set(self.DAEMON_SECTION, self.UPS_CONFIG,
+                            str(self._storage[self.UPS_CONFIG]))
+            self.parser.set(self.DAEMON_SECTION, self.PULSE_LENGTH,
+                            str(self._storage[self.PULSE_LENGTH]))
             self.parser.set(self.DAEMON_SECTION, self.PULSE_LENGTH_ON,
                             str(self._storage[self.PULSE_LENGTH_ON]))
             self.parser.set(self.DAEMON_SECTION, self.PULSE_LENGTH_OFF,
@@ -379,12 +379,12 @@ class Config(Mapping):
             if attiny_led_off_mode != self._storage[self.LED_OFF_MODE]:
                 logging.debug("Writing LED_Off_Mode to ATTiny")
                 attiny.set_led_off_mode(self._storage[self.LED_OFF_MODE])
-            if attiny_reset_configuration != self._storage[self.RESET_CONFIG]:
-                logging.debug("Writing Reset Configuration to ATTiny")
-                attiny.set_reset_configuration(self._storage[self.RESET_CONFIG])
-            if attiny_reset_pulse_length != self._storage[self.RESET_PULSE_LENGTH]:
-                logging.debug("Writing Reset Pulse Length to ATTiny")
-                attiny.set_reset_pulse_length(self._storage[self.RESET_PULSE_LENGTH])
+            if attiny_ups_configuration != self._storage[self.UPS_CONFIG]:
+                logging.debug("Writing UPS Configuration to ATTiny")
+                attiny.set_ups_configuration(self._storage[self.UPS_CONFIG])
+            if attiny_pulse_length != self._storage[self.PULSE_LENGTH]:
+                logging.debug("Writing Pulse Length to ATTiny")
+                attiny.set_pulse_length(self._storage[self.PULSE_LENGTH])
             if attiny_pulse_length_on != self._storage[self.PULSE_LENGTH_ON]:
                 logging.debug("Writing Pulse Length On to ATTiny")
                 attiny.set_pulse_length_on(self._storage[self.PULSE_LENGTH_ON])
@@ -410,7 +410,7 @@ class Config(Mapping):
         if self._sync_Voltage(self.WARN_VOLTAGE, attiny, attiny.REG_WARN_VOLTAGE):
             changed_config = True
 
-        if self._sync_Voltage(self.SHUTDOWN_VOLTAGE, attiny, attiny.REG_SHUTDOWN_VOLTAGE):
+        if self._sync_Voltage(self.UPS_SHUTDOWN_VOLTAGE, attiny, attiny.REG_UPS_SHUTDOWN_VOLTAGE):
             changed_config = True
 
         if self._sync_Voltage(self.RESTART_VOLTAGE, attiny, attiny.REG_RESTART_VOLTAGE):

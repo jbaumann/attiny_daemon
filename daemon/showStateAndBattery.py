@@ -33,12 +33,13 @@ states = {
 
 state = attiny.get_internal_state()
 logging.info("Current state is " + hex(state) + ": " + states[state])
+logging.info("Current should_shutdown value is " + hex(attiny.should_shutdown()))
 
 # access data
 logging.info("Current battery voltage is " + str(attiny.get_bat_voltage() / 1000) + "V.")
 logging.info("Current external voltage is " + str(attiny.get_ext_voltage() / 1000) + "V.")
 
 logging.info("Current warn voltage is " + str(attiny.get_warn_voltage() / 1000) + "V.")
-logging.info("Current shutdown voltage is " + str(attiny.get_shutdown_voltage() / 1000) + "V.")
+logging.info("Current ups shutdown voltage is " + str(attiny.get_ups_shutdown_voltage() / 1000) + "V.")
 logging.info("Current restart voltage is " + str(attiny.get_restart_voltage() / 1000) + "V.")
 

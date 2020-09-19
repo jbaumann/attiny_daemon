@@ -25,12 +25,12 @@ class ATTiny:
     REG_LED_OFF_MODE         = 0x25
     REG_RESTART_VOLTAGE      = 0x31
     REG_WARN_VOLTAGE         = 0x32
-    REG_SHUTDOWN_VOLTAGE     = 0x33
+    REG_UPS_SHUTDOWN_VOLTAGE = 0x33
     REG_TEMPERATURE          = 0x41
     REG_T_COEFFICIENT        = 0x42
     REG_T_CONSTANT           = 0x43
-    REG_RESET_CONFIG         = 0x51
-    REG_RESET_PULSE_LENGTH   = 0x52
+    REG_UPS_CONFIG           = 0x51
+    REG_PULSE_LENGTH         = 0x52
     REG_SW_RECOVERY_DELAY    = 0x53
     REG_VEXT_OFF_IS_SHUTDOWN = 0x54
     REG_PULSE_LENGTH_ON      = 0x55
@@ -83,8 +83,8 @@ class ATTiny:
     def set_led_off_mode(self, value):
         return self.set_8bit_value(self.REG_LED_OFF_MODE, value)
 
-    def set_reset_configuration(self, value):
-        return self.set_8bit_value(self.REG_RESET_CONFIG, value)
+    def set_ups_configuration(self, value):
+        return self.set_8bit_value(self.REG_UPS_CONFIG, value)
 
     def set_vext_off_is_shutdown(self, value):
         return self.set_8bit_value(self.REG_VEXT_OFF_IS_SHUTDOWN, value)
@@ -113,8 +113,8 @@ class ATTiny:
     def set_warn_voltage(self, value):
         return self.set_16bit_value(self.REG_WARN_VOLTAGE, value)
 
-    def set_shutdown_voltage(self, value):
-        return self.set_16bit_value(self.REG_SHUTDOWN_VOLTAGE, value)
+    def set_ups_shutdown_voltage(self, value):
+        return self.set_16bit_value(self.REG_UPS_SHUTDOWN_VOLTAGE, value)
 
     def set_bat_v_coefficient(self, value):
         return self.set_16bit_value(self.REG_BAT_V_COEFFICIENT, value)
@@ -134,8 +134,8 @@ class ATTiny:
     def set_ext_v_constant(self, value):
         return self.set_16bit_value(self.REG_EXT_V_CONSTANT, value)
 
-    def set_reset_pulse_length(self, value):
-        return self.set_16bit_value(self.REG_RESET_PULSE_LENGTH, value)
+    def set_pulse_length(self, value):
+        return self.set_16bit_value(self.REG_PULSE_LENGTH, value)
 
     def set_switch_recovery_delay(self, value):
         return self.set_16bit_value(self.REG_SW_RECOVERY_DELAY, value)
@@ -193,8 +193,8 @@ class ATTiny:
     def get_warn_voltage(self):
         return self.get_16bit_value(self.REG_WARN_VOLTAGE)
 
-    def get_shutdown_voltage(self):
-        return self.get_16bit_value(self.REG_SHUTDOWN_VOLTAGE)
+    def get_ups_shutdown_voltage(self):
+        return self.get_16bit_value(self.REG_UPS_SHUTDOWN_VOLTAGE)
 
     def get_temperature(self):
         return self.get_16bit_value(self.REG_TEMPERATURE)
@@ -205,8 +205,8 @@ class ATTiny:
     def get_t_constant(self):
         return self.get_16bit_value(self.REG_T_CONSTANT)
 
-    def get_reset_pulse_length(self):
-        return self.get_16bit_value(self.REG_RESET_PULSE_LENGTH)
+    def get_pulse_length(self):
+        return self.get_16bit_value(self.REG_PULSE_LENGTH)
 
     def get_switch_recovery_delay(self):
         return self.get_16bit_value(self.REG_SW_RECOVERY_DELAY)
@@ -249,8 +249,8 @@ class ATTiny:
     def get_led_off_mode(self):
         return self.get_8bit_value(self.REG_LED_OFF_MODE)
 
-    def get_reset_configuration(self):
-        return self.get_8bit_value(self.REG_RESET_CONFIG)
+    def get_ups_configuration(self):
+        return self.get_8bit_value(self.REG_UPS_CONFIG)
 
     def get_vext_off_is_shutdown(self):
         return self.get_8bit_value(self.REG_VEXT_OFF_IS_SHUTDOWN)
