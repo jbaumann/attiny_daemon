@@ -10,8 +10,8 @@
    Our version number - used by the daemon to ensure that the major number is equal between firmware and daemon
 */
 const uint32_t MAJOR = 2;
-const uint32_t MINOR = 11;
-const uint32_t PATCH = 15;
+const uint32_t MINOR = 12;
+const uint32_t PATCH = 1;
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 

@@ -48,7 +48,7 @@ void ledOff_buttonOn() {
 }
 
 void ledOn_buttonOff() {
-  if(led_off_mode) {
+  if(led_off_mode > (volatile unsigned char) state) {
     return;
   }
   GIMSK &= ~(bit(PCIE));            // disable pin change interrupts
