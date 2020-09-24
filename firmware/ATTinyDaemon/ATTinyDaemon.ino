@@ -11,7 +11,7 @@
 */
 const uint32_t MAJOR = 2;
 const uint32_t MINOR = 12;
-const uint32_t PATCH = 1;
+const uint32_t PATCH = 2;
 
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
@@ -225,8 +225,8 @@ void check_fuses() {
 /*
    Blink the led n times for blink_length 
  */
-void blink_led(int n, int blink_length) {
-    for (int i = 0; i < n; i++) {
+void blink_led(uint8_t n, uint8_t blink_length) {
+    for (uint8_t i = 0; i < n; i++) {
       ledOn_buttonOff();
       delay(blink_length);
       ledOff_buttonOn();
