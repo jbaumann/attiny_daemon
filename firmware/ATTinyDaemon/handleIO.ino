@@ -106,6 +106,18 @@ boolean ups_check_voltage() {
 }
 
 /*
+   Functions that abstract the extraction of the number of additional pulses
+   from the ups_configuration
+ */
+uint8_t ups_additional_off_pulses() {
+  return (ups_configuration & 0b00110000) >> 4;
+}
+
+uint8_t ups_additional_on_pulses() {
+  return (ups_configuration & 0b11000000) >> 6;
+}
+
+/*
    restartRaspberry() executes a reset of the RPI using either
    a pulse or a switching sequence, depending on reset_configuration:
    bit 0 (0 = voltage level / 1 = switched) UPS control
@@ -165,7 +177,7 @@ void ups_off() {
 
     uint16_t pulse_length_safe;
     ATOMIC_BLOCK(ATOMIC_FORCEON) {
-      // if pulse_length_off is set, use it. Otherwise fall back to reset_pulse_length
+      // if pulse_length_off is set, use it. Otherwise fall back to pulse_length
       if(pulse_length_off != 0) {
         pulse_length_safe = pulse_length_off;
       } else {
@@ -173,6 +185,19 @@ void ups_off() {
       }
     }
     push_switch(pulse_length_safe);
+
+    uint8_t additional_pulses = ups_additional_off_pulses();
+
+    uint16_t switch_recovery_delay_safe;
+    ATOMIC_BLOCK(ATOMIC_FORCEON) {
+      switch_recovery_delay_safe = switch_recovery_delay;
+    }
+
+    for(uint8_t i = 0; i < additional_pulses; i++) {
+      delay(switch_recovery_delay_safe / SW_TO_PULSE_DIV); // we wait a shorter time for multiple pulses
+      push_switch(pulse_length_safe);
+    }
+
   }
 }
 
@@ -193,7 +218,7 @@ void ups_on() {
     }
     uint16_t pulse_length_safe;
     ATOMIC_BLOCK(ATOMIC_FORCEON) {
-      // if pulse_length_on is set, use it. Otherwise fall back to reset_pulse_length
+      // if pulse_length_on is set, use it. Otherwise fall back to pulse_length
       if(pulse_length_on != 0) {
         pulse_length_safe = pulse_length_on;
       } else {
@@ -202,6 +227,16 @@ void ups_on() {
     }
     push_switch(pulse_length_safe);
 
-    
+    uint8_t additional_pulses = ups_additional_on_pulses();
+
+    uint16_t switch_recovery_delay_safe;
+    ATOMIC_BLOCK(ATOMIC_FORCEON) {
+      switch_recovery_delay_safe = switch_recovery_delay;
+    }
+
+    for(uint8_t i = 0; i < additional_pulses; i++) {
+      delay(switch_recovery_delay_safe / SW_TO_PULSE_DIV); // we wait a shorter time for multiple pulses
+      push_switch(pulse_length_safe);
+    }
   }
 }

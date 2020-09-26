@@ -2,6 +2,8 @@
    EEPROM class that works with volatile values. We add atomic access
    to guarantee that only valid data is written to and read from 
    the EEPROM.
+   We use int as the type for the index since the EEPROM size of the
+   ATTiny85 is 512 bytes.
  */
 struct MyEEPROMClass : EEPROMClass {
     template< typename T > T &get( int idx, volatile T &t ){

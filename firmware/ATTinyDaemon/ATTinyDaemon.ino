@@ -55,7 +55,7 @@ volatile uint8_t primed                   =    0;  // 0 if turned off, 1 if prim
 volatile uint8_t should_shutdown          = Shutdown_Cause::none; 
 volatile uint8_t force_shutdown           =    0;  // != 0, force shutdown if below shutdown_voltage
 volatile uint8_t ups_configuration        =    0;  // bit 0 (0 = 1 / 1 = 2) pulses, bit 1 (0 = don't check / 1 = check) external voltage (only if 2 pulses)
-volatile uint8_t led_off_mode             =    0;  // 0 LED behaves normally, 1 LED does not blink
+volatile uint8_t led_off_mode             =    0;  // 0 LED behaves normally, higher values blink LED only in warn state
 volatile uint8_t vext_off_is_shutdown     =    0;  // 0 normal timeout is used, 1 shutdown only if Vext is 0V
 /*
    These are the 16 bit registers (the register numbers are defined in ATTinyDaemon.h).
