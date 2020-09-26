@@ -17,8 +17,8 @@ from attiny_i2c import ATTiny
 
 # Version information
 major = 2
-minor = 11
-patch = 11
+minor = 12
+patch = 0
 
 # config file is in the same directory as the script:
 _configfile_default = str(Path(__file__).parent.absolute()) + "/attiny_daemon.cfg"
@@ -213,7 +213,7 @@ class Config(Mapping):
             T_COEFFICIENT: str(MAX_INT),
             T_CONSTANT: str(MAX_INT),
             FORCE_SHUTDOWN: 'True',
-            LED_OFF_MODE: 'False',
+            LED_OFF_MODE: '0',
             WARN_VOLTAGE: str(MAX_INT),
             UPS_SHUTDOWN_VOLTAGE: str(MAX_INT),
             RESTART_VOLTAGE: str(MAX_INT),
@@ -273,12 +273,12 @@ class Config(Mapping):
             self._storage[self.T_COEFFICIENT] = self.parser.getint(self.DAEMON_SECTION, self.T_COEFFICIENT)
             self._storage[self.T_CONSTANT] = self.parser.getint(self.DAEMON_SECTION, self.T_CONSTANT)
             self._storage[self.FORCE_SHUTDOWN] = self.parser.getboolean(self.DAEMON_SECTION, self.FORCE_SHUTDOWN)
-            self._storage[self.LED_OFF_MODE] = self.parser.getboolean(self.DAEMON_SECTION, self.LED_OFF_MODE)
+            self._storage[self.LED_OFF_MODE] = self.parser.getint(self.DAEMON_SECTION, self.LED_OFF_MODE)
             self._storage[self.WARN_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.WARN_VOLTAGE)
             self._storage[self.UPS_SHUTDOWN_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.UPS_SHUTDOWN_VOLTAGE)
             self._storage[self.RESTART_VOLTAGE] = self.parser.getint(self.DAEMON_SECTION, self.RESTART_VOLTAGE)
             self._storage[self.BUTTON_FUNCTION] = self.parser.get(self.DAEMON_SECTION, self.BUTTON_FUNCTION)
-            self._storage[self.UPS_CONFIG] = self.parser.getint(self.DAEMON_SECTION, self.UPS_CONFIG)
+            self._storage[self.UPS_CONFIG] = int(self.parser.get(self.DAEMON_SECTION, self.UPS_CONFIG), 0)
             self._storage[self.VEXT_SHUTDOWN] = self.parser.getboolean(self.DAEMON_SECTION, self.VEXT_SHUTDOWN)
             self._storage[self.PULSE_LENGTH] = self.parser.getint(self.DAEMON_SECTION, self.PULSE_LENGTH)
             self._storage[self.PULSE_LENGTH_ON] = self.parser.getint(self.DAEMON_SECTION, self.PULSE_LENGTH_ON)
