@@ -40,12 +40,13 @@ logging.info("Current warn voltage is " + str(attiny.get_warn_voltage() / 1000) 
 logging.info("Current ups shutdown voltage is " + str(attiny.get_ups_shutdown_voltage() / 1000) + "V.")
 logging.info("Current restart voltage is " + str(attiny.get_restart_voltage() / 1000) + "V.")
 
-logging.info("Current ups configuration is " + str(attiny.get_ups_configuration()))
+logging.info("Current ups configuration is " + hex(attiny.get_ups_configuration()))
 logging.info("Current pulse length is " + str(attiny.get_pulse_length()))
 logging.info("Current pulse length on is " + str(attiny.get_pulse_length_on()))
 logging.info("Current pulse length off is " + str(attiny.get_pulse_length_off()))
 logging.info("Current switch recovery delay is " + str(attiny.get_switch_recovery_delay()))
 
+logging.info("Current led off mode is " + str(attiny.get_led_off_mode()))
 
 logging.info("Low fuse is " + hex(attiny.get_fuse_low()))
 logging.info("High fuse is " + hex(attiny.get_fuse_high()))
