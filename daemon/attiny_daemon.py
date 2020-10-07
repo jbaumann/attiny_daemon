@@ -18,7 +18,7 @@ from attiny_i2c import ATTiny
 # Version information
 major = 2
 minor = 12
-patch = 0
+patch = 3
 
 # config file is in the same directory as the script:
 _configfile_default = str(Path(__file__).parent.absolute()) + "/attiny_daemon.cfg"
@@ -78,6 +78,8 @@ def main(*args):
         logging.error("Daemon and Firmware major version mismatch. This might lead to serious problems. Check both versions.")
 
     config.merge_and_sync_values(attiny)
+
+    logging.info("Merging completed")
 
     # loop until stopped or error
     set_unprimed = False
