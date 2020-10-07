@@ -39,31 +39,38 @@ uint8_t PB_READ(uint8_t pin) {
 */
 void ledOff_buttonOn() {
   // switch back to monitoring button
-  pb_high(LED_BUTTON);              // Input pullup
-  pb_input(LED_BUTTON);
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    pb_high(LED_BUTTON);              // First high to guarantee no spurious interrups
+    pb_input(LED_BUTTON);
 
-  PCMSK |= bit(LED_BUTTON);         // set interrupt pin
-  GIFR |= bit(PCIF);                // clear interrupts
-  GIMSK |= bit(PCIE);               // enable pin change interrupts
+    PCMSK |= bit(LED_BUTTON);         // set interrupt pin
+    GIFR |= bit(PCIF);                // clear interrupts
+    GIMSK |= bit(PCIE);               // enable pin change interrupts
+  }
 }
 
 void ledOn_buttonOff() {
   if(led_off_mode > (volatile unsigned char) state) {
     return;
   }
-  GIMSK &= ~(bit(PCIE));            // disable pin change interrupts
-  GIFR &= ~(bit(PCIF));             // clear interrupts
-  PCMSK &= ~(bit(LED_BUTTON));      // set interrupt pin
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    GIMSK &= ~(bit(PCIE));            // disable pin change interrupts
+    GIFR &= ~(bit(PCIF));             // clear interrupts
+    PCMSK &= ~(bit(LED_BUTTON));      // disable interrupt pin
 
-  pb_output(LED_BUTTON);
-  pb_low(LED_BUTTON);
+    pb_output(LED_BUTTON);
+    pb_low(LED_BUTTON);
+  }
+
 }
 
 void ledOff_buttonOff() {
   // Go to high impedance and turn off the pin change interrupts
-  GIMSK &= ~(bit(PCIE));            // disable pin change interrupts
-  pb_input(LED_BUTTON);
-  pb_low(LED_BUTTON);
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    GIMSK &= ~(bit(PCIE));            // disable pin change interrupts
+    pb_input(LED_BUTTON);
+    pb_low(LED_BUTTON);
+  }
 }
 
 /*
@@ -77,14 +84,18 @@ void ledOff_buttonOff() {
 */
 void switch_pin_high() {
   // Input with Pullup
-  pb_high(PIN_SWITCH);
-  pb_input(PIN_SWITCH);
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    pb_input(PIN_SWITCH);
+    pb_low(PIN_SWITCH);
+  }
 }
 
 void switch_pin_low() {
   // Turn off pullup, then to output
-  pb_low(PIN_SWITCH);
-  pb_output(PIN_SWITCH);
+  ATOMIC_BLOCK(ATOMIC_FORCEON) {
+    pb_low(PIN_SWITCH);
+    pb_output(PIN_SWITCH);
+  }
 }
 
 /*
