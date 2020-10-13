@@ -52,7 +52,7 @@ const uint8_t PIN_RESET         =   PB5;    // Reset pin (used as an alternative
    Basic constants
 */
 const uint8_t  BLINK_TIME       =    100;  // time in milliseconds for the LED to blink
-const uint16_t MIN_POWER_LEVEL  =   4750;  // the voltage level seen as "ON" at the external voltage after a reset
+const uint16_t MIN_POWER_LEVEL  =   4700;  // the voltage level seen as "ON" at the external voltage after a reset
 const uint8_t  NUM_MEASUREMENTS =      5;  // the number of ADC measurements we average, should be larger than 4
 const uint8_t  SW_TO_PULSE_DIV  =      4;  // The divisor from switch_delay_revocery to delay between multiple pulses
 
