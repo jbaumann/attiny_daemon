@@ -75,18 +75,21 @@ void ledOff_buttonOff() {
 
 /*
    The following two methods switch the PIN_SWITCH to high and low,
-   respectively. The high state is implemented using the pullup resistor
-   of the ATTiny. This might be changed to an active high output later.
+   respectively. The high state is currently implemented as tri-state,
+   since the button on the UPS switch has to have some form of pullup.
+   An alternative would be to use the pullup resistor
+   of the ATTiny, and another alternative could be an active output.
    For the Geekworm UPS this is irrelevant because the EN pin we are driving
    takes around 5nA and the two 150K resistors pulling the pin to GND take
-   another 10-15uA. The low state is implemented by simply pulling the output
-   low.
+   another 10-15uA.
+   The low state is implemented by simply pulling the output low.
 */
 void switch_pin_high() {
   // Input with Pullup
   ATOMIC_BLOCK(ATOMIC_FORCEON) {
     pb_input(PIN_SWITCH);
-    pb_low(PIN_SWITCH);
+    pb_low(PIN_SWITCH);   // switch to tri-state (Hi-Z)
+    // pb_high(PIN_SWITCH);   // switch to high state using pullup
   }
 }
 
