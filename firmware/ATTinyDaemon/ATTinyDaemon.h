@@ -10,6 +10,13 @@
 #include <avr/cpufunc.h>
 
 /*
+   Our version number - used by the daemon to ensure that the major number is equal between firmware and daemon
+*/
+const uint32_t MAJOR = 2;
+const uint32_t MINOR = 12;
+const uint32_t PATCH = 8;
+
+/*
    Flash size definition
    used to decide which implementation fits into the flash
    We define FLASH_4K (ATTiny45) and FLASH_8K (ATTiny85 and larger)
@@ -26,7 +33,7 @@
    The following macro guarantees volatile access to a variable i.e.,
    forcing the compiler to load it from memory instead of a register.
    Origin: https://www.embeddedrelated.com/showthread/comp.arch.embedded/212022-1.php
- */
+*/
 #define volatile_access(v) *((volatile typeof((v)) *) &(v))
 
 /*
@@ -101,7 +108,17 @@ enum EEPROM_Address {
 } __attribute__ ((__packed__));            // force smallest size i.e., uint_8t (GCC syntax)
 }
 
-const uint8_t EEPROM_INIT_VALUE = 0x42;
+/* 
+   We create an EEPROM init value from the lower bits of the minor version number (BITS_FOR_MINOR)
+   and use the remaining bits for the lower bits of the major number (BITS_FOR_MAJOR).
+   This way, whenever the minor or major version changes, the eeprom will be initialized again to
+   ensure that everything works without problems.
+*/
+const uint8_t BITS_FOR_MINOR = 5;
+const uint8_t BITS_FOR_MAJOR = CHAR_BIT - BITS_FOR_MINOR;
+const uint8_t MINOR_PART = MINOR & ((1<<BITS_FOR_MINOR)-1);
+const uint8_t MAJOR_PART = (MAJOR & BITS_FOR_MAJOR) << BITS_FOR_MINOR; 
+const uint8_t EEPROM_INIT_VALUE = MAJOR_PART | MINOR_PART;
 
 /*
    I2C interface and register definitions
