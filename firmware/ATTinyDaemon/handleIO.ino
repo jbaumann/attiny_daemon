@@ -38,6 +38,7 @@ uint8_t PB_READ(uint8_t pin) {
    It is used when we go into deep sleep to save as much power as possible.
 */
 void ledOff_buttonOn() {
+#if !defined SERIAL_DEBUG
   // switch back to monitoring button
   ATOMIC_BLOCK(ATOMIC_FORCEON) {
     pb_high(LED_BUTTON);              // First high to guarantee no spurious interrups
@@ -47,9 +48,11 @@ void ledOff_buttonOn() {
     GIFR |= bit(PCIF);                // clear interrupts
     GIMSK |= bit(PCIE);               // enable pin change interrupts
   }
+#endif
 }
 
 void ledOn_buttonOff() {
+#if !defined SERIAL_DEBUG
   if(led_off_mode > (volatile unsigned char) state) {
     return;
   }
@@ -61,16 +64,18 @@ void ledOn_buttonOff() {
     pb_output(LED_BUTTON);
     pb_low(LED_BUTTON);
   }
-
+#endif
 }
 
 void ledOff_buttonOff() {
+#if !defined SERIAL_DEBUG
   // Go to high impedance and turn off the pin change interrupts
   ATOMIC_BLOCK(ATOMIC_FORCEON) {
     GIMSK &= ~(bit(PCIE));            // disable pin change interrupts
     pb_input(LED_BUTTON);
     pb_low(LED_BUTTON);
   }
+#endif
 }
 
 /*

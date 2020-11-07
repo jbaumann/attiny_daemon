@@ -6,6 +6,9 @@
    it accordingly by writing the bootloader to burn the related fuses.
 */
 
+/*
+   Store major and minor version and the patch level in a constant
+ */
 const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
 /*
@@ -95,6 +98,12 @@ void setup() {
   mcusr_mirror = MCUSR;
   reset_watchdog ();  // do this first in case WDT fires
 
+#if defined SERIAL_DEBUG
+  initTXPin();
+  useCliSeiForStrings(false);
+  Serial.println(F("In setup()"));
+#endif
+
   check_fuses();      // verify that we can run with the fuse settings
 
   /*
@@ -140,6 +149,7 @@ void loop() {
     update_eeprom = false;
     write_EEPROM();
   }
+
   handle_sleep();
 }
 
@@ -183,6 +193,10 @@ void inline reset_counter_Safe() {
    an endless loop if not correct.
 */
 void check_fuses() {  
+#if defined SERIAL_DEBUG
+  Serial.println(F("In check_fuses()"));
+#endif
+
   fuse_low = boot_lock_fuse_bits_get(GET_LOW_FUSE_BITS);
   fuse_high = boot_lock_fuse_bits_get(GET_HIGH_FUSE_BITS);
   fuse_extended = boot_lock_fuse_bits_get(GET_EXTENDED_FUSE_BITS);
@@ -205,6 +219,10 @@ void check_fuses() {
   }
   // fuses have been changed, but not to the needed frequency. We send an SOS.
   
+#if defined SERIAL_DEBUG
+  Serial.println(F("Wrong fuse settings"));
+#endif
+
   while (1) {
     blink_led(3, BLINK_TIME / 2);
     delay(BLINK_TIME / 2);

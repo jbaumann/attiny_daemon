@@ -10,11 +10,16 @@
 #include <avr/cpufunc.h>
 
 /*
+   If SERIAL_DEBUG is set, then serial debug data will be written to PB4, the pin to which the LED is connected
+ */
+//#define SERIAL_DEBUG
+
+/*
    Our version number - used by the daemon to ensure that the major number is equal between firmware and daemon
 */
 const uint32_t MAJOR = 2;
-const uint32_t MINOR = 12;
-const uint32_t PATCH = 8;
+const uint32_t MINOR = 13;
+const uint32_t PATCH = 5;
 
 /*
    Flash size definition
@@ -54,6 +59,12 @@ const uint8_t PIN_SWITCH        =   PB1;    // pin used for pushing the switch (
 const uint8_t PIN_RESET         =   PB5;    // Reset pin (used as an alternative direct way to reset the RPi)
 // The following pin definition is needed as a define statement to allow the macro expansion in handleVoltages.ino
 #define EXT_VOLTAGE                ADC3    // ADC number, used to measure external or RPi voltage (Ax, ADCx or x)
+
+
+#if defined SERIAL_DEBUG
+#  include <ATtinySerialOut.h>
+#  include <avr/pgmspace.h>
+#endif
 
 /*
    Basic constants

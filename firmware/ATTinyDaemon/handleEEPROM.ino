@@ -31,6 +31,10 @@ static MyEEPROMClass MyEEPROM;
  */
 
 void  read_or_init_EEPROM() {
+#if defined SERIAL_DEBUG
+  Serial.println(F("In read_or_init_EEPROM"));
+#endif
+
   uint8_t writtenBefore;
   EEPROM.get(EEPROM_Address::base, writtenBefore);
   if (writtenBefore != EEPROM_INIT_VALUE) {

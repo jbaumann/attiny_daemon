@@ -29,6 +29,15 @@ void handle_state() {
       ledOn_buttonOff();
     }
   }
+#if defined SERIAL_DEBUG
+  Serial.println(F("In handleState()"));
+  Serial.print(F("Bat: "));
+  Serial.print(bat_voltage);
+  Serial.print(F("mV, S: "));
+  Serial.print(uint8_t(state), HEX);
+  Serial.print(F(", ss: "));
+  Serial.println(should_shutdown, HEX);
+#endif
 
   // change the state depending on the current battery voltage
   voltage_dependent_state_change();
@@ -47,6 +56,16 @@ void handle_state() {
   }
 
   act_on_state_change();
+
+#if defined SERIAL_DEBUG
+  Serial.println(F("After act_on_state_change()"));
+  Serial.print(F("Bat: "));
+  Serial.print(bat_voltage);
+  Serial.print(F("mV, S: "));
+  Serial.print(uint8_t(state), HEX);
+  Serial.print(F(", ss: "));
+  Serial.println(should_shutdown, HEX);
+#endif
 
   // Turn LED off
   if (state <= State::warn_to_shutdown) {
