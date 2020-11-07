@@ -1,4 +1,4 @@
-#include <USIWire.h>
+#include <Wire.h>
 #include <util/atomic.h>
 #include <EEPROM.h>
 #include <limits.h>
