@@ -61,8 +61,8 @@ volatile uint16_t bat_voltage             =    0;   // the battery voltage, 3.3 
 volatile uint16_t bat_voltage_coefficient = 1000;   // the multiplier for the measured battery voltage * 1000, integral non-linearity
 volatile int16_t  bat_voltage_constant    =    0;   // the constant added to the measurement of the battery voltage * 1000, offset error
 volatile uint16_t ext_voltage             =    0;   // the external voltage from Pi or other source
-volatile uint16_t ext_voltage_coefficient = 1000;   // the multiplier for the measured external voltage * 1000, integral non-linearity
-volatile int16_t  ext_voltage_constant    =    0;   // the constant added to the measurement of the external voltage * 1000, offset error
+volatile uint16_t ext_voltage_coefficient = 2000;   // the multiplier for the measured external voltage * 1000, integral non-linearity
+volatile int16_t  ext_voltage_constant    =  700;   // the constant added to the measurement of the external voltage * 1000, offset error
 volatile uint16_t restart_voltage         = 3900;   // the battery voltage at which the RPi will be started again
 volatile uint16_t warn_voltage            = 3400;   // the battery voltage at which the RPi should should down
 volatile uint16_t ups_shutdown_voltage    = 3200;   // the battery voltage at which a hard shutdown is executed
@@ -97,6 +97,9 @@ volatile uint8_t reset_bat_voltage = false;
 void setup() {
   mcusr_mirror = MCUSR;
   reset_watchdog ();  // do this first in case WDT fires
+
+  // pull the switch pin to high to ensure that we do not turn off the UPS by accident
+  switch_pin_high();
 
 #if defined SERIAL_DEBUG
   initTXPin();

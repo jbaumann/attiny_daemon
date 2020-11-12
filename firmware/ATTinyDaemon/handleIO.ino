@@ -1,4 +1,9 @@
 /*
+ * The ATTiny datasheet I'm referencing is the ATTiny25/45/85 datasheet provided by Microchip.
+ * Pages and Chapter numbers are for the revision Rev. 2586Q-08/13.
+ */
+
+/*
    Functions for setting the pin mode and output level of the pins.
    These will be unrolled by the compiler, so no additional overhead on the heap
 */
@@ -33,6 +38,8 @@ uint8_t PB_READ(uint8_t pin) {
    and changing to output low when turning on the LED (ledOn_buttonOff()).
    Switching between these modes turns the LED on and off, and when the LED
    is turned off button presses are registered.
+   This works even with deep sleep modes since we are using a pin change interrupt
+   on this pin to check the button (see datasheet Ch.10.4.1 on p.57).
    The third method ledOff_buttonOff() turns off both LED and button sensing
    by channging LED_BUTTON to high impedance input and turning off the interrupt.
    It is used when we go into deep sleep to save as much power as possible.
@@ -80,21 +87,25 @@ void ledOff_buttonOff() {
 
 /*
    The following two methods switch the PIN_SWITCH to high and low,
-   respectively. The high state is currently implemented as tri-state,
-   since the button on the UPS switch has to have some form of pullup.
-   An alternative would be to use the pullup resistor
-   of the ATTiny, and another alternative could be an active output.
-   For the Geekworm UPS this is irrelevant because the EN pin we are driving
-   takes around 5nA and the two 150K resistors pulling the pin to GND take
-   another 10-15uA.
-   The low state is implemented by simply pulling the output low.
+   respectively.
+   The low state is implemented as active low output, in this mode
+   the pin can drive up to 5mA (Table 21.2 p.161).
+   When the ATTiny goes into deep sleep then input pins that are not
+   enabled as interrupt pins, even with pull-up, are clamped to
+   ground (see datasheet Ch.10.4.1 on p.57).
+   Thus the high state has to be implemented as active high output.
+   In this mode the pin can drive the same 5mA, which should be
+   more than enough for the high-impedance EN pins used for
+   switching the UPS. For instance, the Geekworm UPSv1 has two
+   150K resistors pulling to Vcc resulting in 10-15uA needed to
+   drive the pin (the EN pin with 5nA is irrelevant compared to
+   that).
 */
 void switch_pin_high() {
-  // Input with Pullup
   ATOMIC_BLOCK(ATOMIC_FORCEON) {
-    pb_input(PIN_SWITCH);
-    pb_low(PIN_SWITCH);   // switch to tri-state (Hi-Z)
-    // pb_high(PIN_SWITCH);   // switch to high state using pullup
+    // output high
+    pb_high(PIN_SWITCH);
+    pb_output(PIN_SWITCH);
   }
 }
 
