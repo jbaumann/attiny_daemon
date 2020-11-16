@@ -136,7 +136,7 @@ ISR (PCINT0_vect) {
 
   disable_watchdog();
   
-  if (seconds > timeout && primed == 0) {
+  if (seconds > timeout && primed != 1) {
     primed = 1;
     // could be set during the shutdown while the timeout has not yet been exceeded. We reset it.
     should_shutdown = Shutdown_Cause::none;

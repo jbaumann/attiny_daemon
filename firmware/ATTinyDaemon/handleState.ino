@@ -24,7 +24,7 @@ void handle_state() {
   }
   // Turn the LED on
   if (state <= State::warn_state) {
-    if (primed != 0 || (seconds_safe < timeout) ) {
+    if (primed == 1 || (seconds_safe < timeout) ) {
       // start the regular blink if either primed is set or we are not yet in a timeout.
       ledOn_buttonOff();
     }
@@ -83,7 +83,7 @@ void act_on_state_change() {
   // not duplicate the code of the shutdown_state
   if (state == State::warn_to_shutdown) {
     // immediately turn off the system if force_shutdown is set
-    if (primed != 0) {
+    if (primed == 1) {
       if (force_shutdown != 0) {
         ups_off();
       }
@@ -100,7 +100,7 @@ void act_on_state_change() {
     reset_counter_Safe();
   } else if (state == State::shutdown_to_running) {
     // we have recovered from a shutdown and are now at a safe voltage
-    if (primed != 0) {
+    if (primed == 1) {
       ups_on();
     }
     reset_counter_Safe();
@@ -129,7 +129,7 @@ void act_on_state_change() {
     }
 
     if (should_restart) {
-      if (primed != 0) {
+      if (primed == 1) {
         // RPi has not accessed the I2C interface for more than timeout seconds.
         // We restart it. Signal restart by blinking ten times
         blink_led(10, BLINK_TIME / 2);

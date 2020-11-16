@@ -18,7 +18,8 @@ struct MyEEPROMClass : EEPROMClass {
       ATOMIC_BLOCK(ATOMIC_FORCEON) {
         tmp = t;
       }
-      EEPROMClass::put(idx, tmp);     
+      EEPROMClass::put(idx, tmp);
+      return (T &)t;
     };
 };
 static MyEEPROMClass MyEEPROM;
