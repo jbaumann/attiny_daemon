@@ -19,7 +19,7 @@
 */
 const uint32_t MAJOR = 2;
 const uint32_t MINOR = 13;
-const uint32_t PATCH = 5;
+const uint32_t PATCH = 7;
 
 /*
    Flash size definition
