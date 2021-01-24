@@ -17,9 +17,9 @@
 /*
    Our version number - used by the daemon to ensure that the major number is equal between firmware and daemon
 */
-const uint32_t MAJOR = 2;
-const uint32_t MINOR = 13;
-const uint32_t PATCH = 7;
+static const uint32_t MAJOR = 2;
+static const uint32_t MINOR = 13;
+static const uint32_t PATCH = 14;
 
 /*
    Flash size definition
@@ -54,11 +54,11 @@ const uint32_t PATCH = 7;
    7  SCK    ADC1 PCINT2  PB2   INT0
    8  VCC
 */
-const uint8_t LED_BUTTON        =   PB4;    // combined led/button pin
-const uint8_t PIN_SWITCH        =   PB1;    // pin used for pushing the switch (the normal way to reset the RPi)
-const uint8_t PIN_RESET         =   PB5;    // Reset pin (used as an alternative direct way to reset the RPi)
+static const uint8_t LED_BUTTON        =   PB4;    // combined led/button pin
+static const uint8_t PIN_SWITCH        =   PB1;    // pin used for pushing the switch (the normal way to reset the RPi)
+static const uint8_t PIN_RESET         =   PB5;    // Reset pin (used as an alternative direct way to reset the RPi)
 // The following pin definition is needed as a define statement to allow the macro expansion in handleVoltages.ino
-#define EXT_VOLTAGE                ADC3    // ADC number, used to measure external or RPi voltage (Ax, ADCx or x)
+#define EXT_VOLTAGE                        ADC3    // ADC number, used to measure external or RPi voltage (Ax, ADCx or x)
 
 
 #if defined SERIAL_DEBUG
@@ -69,10 +69,10 @@ const uint8_t PIN_RESET         =   PB5;    // Reset pin (used as an alternative
 /*
    Basic constants
 */
-const uint8_t  BLINK_TIME       =    100;  // time in milliseconds for the LED to blink
-const uint16_t MIN_POWER_LEVEL  =   4700;  // the voltage level seen as "ON" at the external voltage after a reset
-const uint8_t  NUM_MEASUREMENTS =      5;  // the number of ADC measurements we average, should be larger than 4
-const uint8_t  SW_TO_PULSE_DIV  =      4;  // The divisor from switch_delay_revocery to delay between multiple pulses
+static const uint8_t  BLINK_TIME       =    100;  // time in milliseconds for the LED to blink
+static const uint16_t MIN_POWER_LEVEL  =   4700;  // the voltage level seen as "ON" at the external voltage after a reset
+static const uint8_t  NUM_MEASUREMENTS =      5;  // the number of ADC measurements we average, should be larger than 4
+static const uint8_t  SW_TO_PULSE_DIV  =      4;  // The divisor from switch_delay_revocery to delay between multiple pulses
 
 /*
    Values modelling the different states the system can be in
@@ -125,16 +125,16 @@ enum EEPROM_Address {
    This way, whenever the minor or major version changes, the eeprom will be initialized again to
    ensure that everything works without problems.
 */
-const uint8_t BITS_FOR_MINOR = 5;
-const uint8_t BITS_FOR_MAJOR = CHAR_BIT - BITS_FOR_MINOR;
-const uint8_t MINOR_PART = MINOR & ((1<<BITS_FOR_MINOR)-1);
-const uint8_t MAJOR_PART = (MAJOR & BITS_FOR_MAJOR) << BITS_FOR_MINOR; 
-const uint8_t EEPROM_INIT_VALUE = MAJOR_PART | MINOR_PART;
+static const uint8_t BITS_FOR_MINOR    = 5;
+static const uint8_t BITS_FOR_MAJOR    = CHAR_BIT - BITS_FOR_MINOR;
+static const uint8_t MINOR_PART        = MINOR & ((1<<BITS_FOR_MINOR)-1);
+static const uint8_t MAJOR_PART        = (MAJOR & BITS_FOR_MAJOR) << BITS_FOR_MINOR;
+static const uint8_t EEPROM_INIT_VALUE = MAJOR_PART | MINOR_PART;
 
 /*
    I2C interface and register definitions
 */
-const uint8_t I2C_ADDRESS       = 0x37;
+static const uint8_t I2C_ADDRESS       = 0x37;
 
 enum class Register : uint8_t {
   last_access                   = 0x01,

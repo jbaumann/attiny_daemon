@@ -9,7 +9,7 @@
 /*
    Store major and minor version and the patch level in a constant
  */
-const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
+static const uint32_t prog_version = (MAJOR << 16) | (MINOR << 8) | PATCH;
 
 /*
    The state variable encapsulates the all-over state of the system (ATTiny and RPi
@@ -93,7 +93,7 @@ volatile bool update_eeprom = false;
    have been changed
  */
 volatile uint8_t reset_bat_voltage = false;
- 
+
 void setup() {
   mcusr_mirror = MCUSR;
   reset_watchdog ();  // do this first in case WDT fires

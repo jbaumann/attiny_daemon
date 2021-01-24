@@ -5,11 +5,10 @@ void init_I2C() {
 #if defined SERIAL_DEBUG
   Serial.println(F("In init_I2C()"));
 #endif
-
+  Wire.end();
   Wire.begin(I2C_ADDRESS);
   Wire.onRequest(request_event);
   Wire.onReceive(receive_event);
-//  Wire.onInterrupt(disable_watchdog);
 }
 
 /*

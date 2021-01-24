@@ -47,7 +47,7 @@ void handle_state() {
   // already signalled that it is doing so
   if (state <= State::warn_state) {
     // we first check whether the Raspberry is already in the shutdown process
-    if(!(should_shutdown & Shutdown_Cause::rpi_initiated)) {
+    if (!(should_shutdown & Shutdown_Cause::rpi_initiated)) {
       if (should_shutdown > Shutdown_Cause::rpi_initiated && (seconds_safe < timeout)) {
         // RPi should take action, possibly shut down. Signal by blinking 5 times
         blink_led(5, BLINK_TIME);
@@ -77,7 +77,7 @@ void handle_state() {
 
 /*
    Act on the current state
- */
+*/
 void act_on_state_change() {
   // This is placed before the general check of all stages as to
   // not duplicate the code of the shutdown_state
@@ -108,7 +108,7 @@ void act_on_state_change() {
     should_shutdown = Shutdown_Cause::none;
   } else if (state == State::warn_to_running) {
     // we have recovered from a warn state and are now at a safe voltage
-    // we switch to State::running_state and let that state (below) handle 
+    // we switch to State::running_state and let that state (below) handle
     // the restart
     state = State::running_state;
     should_shutdown = Shutdown_Cause::none;
@@ -119,15 +119,21 @@ void act_on_state_change() {
 
   if (state == State::running_state) {
     bool should_restart = false;
+    bool reset_i2c_bus = false;
 
-    if(vext_off_is_shutdown) {
+    if (vext_off_is_shutdown) {
       should_restart = ext_voltage < MIN_POWER_LEVEL;
     } else {
       ATOMIC_BLOCK(ATOMIC_FORCEON) {
         should_restart = seconds > timeout;
+        reset_i2c_bus = seconds > (timeout / 2);
       }
     }
 
+    // reset bus until we get connection again or until time is out
+    if (reset_i2c_bus) {
+      init_I2C();
+    }
     if (should_restart) {
       if (primed == 1) {
         // RPi has not accessed the I2C interface for more than timeout seconds.
@@ -157,11 +163,11 @@ void voltage_dependent_state_change() {
   }
 
   if (bat_voltage <= ups_shutdown_voltage_safe) {
-    if(state < State::warn_to_shutdown) {
+    if (state < State::warn_to_shutdown) {
       state = State::warn_to_shutdown;
     }
   } else if (bat_voltage <= warn_voltage_safe) {
-    if(state < State::warn_state) {
+    if (state < State::warn_state) {
       state = State::warn_state;
       should_shutdown |= Shutdown_Cause::bat_voltage;
     }
@@ -198,10 +204,10 @@ void voltage_dependent_state_change() {
 /*
    When we get an I2C communication then this might change our state (because now we
    know the RPi is alive). Called only during an interrupt.
- */
+*/
 void i2c_triggered_state_change() {
   // If we are in an unclear state, then a communication from the RPi moves us to running state
   if (state == State::unclear_state) {
     state = State::running_state;
-  }  
+  }
 }

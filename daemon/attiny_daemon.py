@@ -11,14 +11,15 @@ from argparse import ArgumentParser, Namespace
 from collections.abc import Mapping
 from pathlib import Path
 from attiny_i2c import ATTiny
+#from attiny_i2c_new import ATTiny
 
 ### Global configuration of the daemon. You should know what you do if you change
 ### these values.
 
 # Version information
 major = 2
-minor = 12
-patch = 3
+minor = 13
+patch = 1
 
 # config file is in the same directory as the script:
 _configfile_default = str(Path(__file__).parent.absolute()) + "/attiny_daemon.cfg"
@@ -82,6 +83,7 @@ def main(*args):
     logging.info("Merging completed")
 
     # loop until stopped or error
+    fast_exit = False
     set_unprimed = False
     try:
         while True:
@@ -91,6 +93,7 @@ def main(*args):
                 logging.error("Lost connection to ATTiny.")
                 # disable to fasten restart
                 # set_unprimed = True        # we still try to reset primed
+                fast_exit = True
                 exit(1)  # executes finally clause and lets the system restart the daemon
 
             if should_shutdown > SL_INITIATED:
@@ -120,13 +123,15 @@ def main(*args):
     except Exception as e:
         logging.error("An exception occurred: '" + str(e) + "' Exiting...")
     finally:
-        # will not be executed on SIGTERM, leaving primed set to the config value
-        primed = config[Config.PRIMED]
-        if args.nodaemon or set_unprimed:
-            primed = False
-        if primed == False:
-            logging.info("Trying to reset primed flag")
-            attiny.set_primed(primed)
+        if fast_exit == False:
+            # will not be executed on SIGTERM, leaving primed set to the config value
+            primed = config[Config.PRIMED]
+            if args.nodaemon or set_unprimed:
+                primed = False
+            if primed == False:
+                logging.info("Trying to reset primed flag")
+                attiny.set_primed(primed)
+            del attiny
 
 
 def parse_cmdline(args: Tuple[Any]) -> Namespace:
