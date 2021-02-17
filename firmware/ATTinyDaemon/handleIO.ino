@@ -269,4 +269,6 @@ void ups_on() {
       push_switch(pulse_length_safe);
     }
   }
+  // we restart I2C since the RPi has just been turned on (again)
+  init_I2C();
 }
