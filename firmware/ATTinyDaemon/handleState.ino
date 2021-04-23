@@ -135,14 +135,19 @@ void act_on_state_change() {
       init_I2C();
     }
     if (should_restart) {
-      if (primed == 1) {
+      if (primed > 0) {
         // RPi has not accessed the I2C interface for more than timeout seconds.
         // We restart it. Signal restart by blinking ten times
         blink_led(10, BLINK_TIME / 2);
         restart_raspberry();
-      }
 
-      reset_counter_Safe();
+        // Primed has been set by the button press, we use the restart time
+        // for debouncing
+        if(primed == 2) {
+          primed = 0;
+        }
+        reset_counter_Safe();
+      }
     }
   }
 }
