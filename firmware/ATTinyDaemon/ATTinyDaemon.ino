@@ -135,7 +135,7 @@ void setup() {
 ISR (PCINT0_vect) {
 
   disable_watchdog();
-  
+  /*
   if (seconds > timeout && primed == 0) {
     primed = 2;
     // could be set during the shutdown while the timeout has not yet been exceeded. We reset it.
@@ -144,6 +144,8 @@ ISR (PCINT0_vect) {
     // signal the Raspberry that the button has been pressed.
     should_shutdown |= Shutdown_Cause::button;
   }
+  */
+  should_shutdown |= Shutdown_Cause::button;
 }
 
 void loop() {
