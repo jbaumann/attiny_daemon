@@ -40,6 +40,7 @@ shutdown_levels = {
     button_level: "Button has been pressed. Reacting according to configuration.",
     # >16: Definitely shut down
     2**7: "Battery is at warn level. Shutting down.",
+    (2**7 + 2): "Battery is at warn level, we cannot shut down. Trying again. Please verify 'sudo' works without password.",
 }
 # Here we store the button functions that are called depending on the configuration
 button_functions = {
