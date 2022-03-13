@@ -18,8 +18,8 @@
    Our version number - used by the daemon to ensure that the major number is equal between firmware and daemon
 */
 static const uint32_t MAJOR = 2;
-static const uint32_t MINOR = 13;
-static const uint32_t PATCH = 15;
+static const uint32_t MINOR = 14;
+static const uint32_t PATCH = 0;
 
 /*
    Flash size definition
