@@ -1,5 +1,5 @@
 /*
-   These method calculate an 8-bit CRC based on the polynome used for Dallas / Maxim
+   These methods calculate an 8-bit CRC based on the polynome used for Dallas / Maxim
    sensors (X^8+X^5+X^4+X^0).
    A lot of implementations exist that are equally good. I took this one from
    https://www.mikrocontroller.net/topic/155115

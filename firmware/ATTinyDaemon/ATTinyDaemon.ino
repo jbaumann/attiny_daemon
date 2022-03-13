@@ -43,6 +43,13 @@ uint8_t fuse_high;
 uint8_t fuse_extended;
 
 /*
+   This variable contains information whether a reset has been tried already. This stops
+   infinite resets every timeout seconds. Pressing the button resets this value as well
+   as resetting the timeout (resetting the timeout means the RPi is alive).
+ */
+volatile bool tried_reset = false;
+
+/*
    These are the 8 bit registers (the register numbers are defined in ATTinyDaemon.h)
    Important: The value 0xFFFF is no valid value and will be filtered on the RPi side
 */
@@ -146,6 +153,7 @@ ISR (PCINT0_vect) {
   }
   */
   should_shutdown |= Shutdown_Cause::button;
+  tried_reset = false;
 }
 
 void loop() {
@@ -184,6 +192,8 @@ void handle_sleep() {
    Safe means that it is safe to use anywhere.
 */
 void inline reset_counter_Int() {
+  // the RPi is alive
+  tried_reset = false;
   seconds = 0;
 }
 
