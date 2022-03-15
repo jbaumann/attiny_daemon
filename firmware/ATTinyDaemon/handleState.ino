@@ -50,7 +50,7 @@ void handle_state() {
     if (!(should_shutdown & Shutdown_Cause::rpi_initiated)) {
       if (should_shutdown > Shutdown_Cause::rpi_initiated && (seconds_safe < timeout)) {
         // RPi should take action, possibly shut down. Signal by blinking 5 times
-        blink_led(5, BLINK_TIME);
+        blink_led(3, BLINK_TIME);
       }
     }
   }
@@ -221,4 +221,5 @@ void i2c_triggered_state_change() {
   if (state == State::unclear_state) {
     state = State::running_state;
   }
+  tried_reset = false;
 }

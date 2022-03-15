@@ -192,8 +192,6 @@ void handle_sleep() {
    Safe means that it is safe to use anywhere.
 */
 void inline reset_counter_Int() {
-  // the RPi is alive
-  tried_reset = false;
   seconds = 0;
 }
 
