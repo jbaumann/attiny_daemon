@@ -62,6 +62,10 @@ void receive_event(int bytes) {
   {
     // If there is more than 1 byte, then the master is writing to the slave
     if (bytes == 3) {
+      // turn off warnings for unhandled enumeration values
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wswitch"
+
       // write an 8 bit register
       switch (register_number) {
         case Register::timeout:
@@ -101,18 +105,26 @@ void receive_event(int bytes) {
           update_eeprom = true;
           break;
         case Register::init_eeprom:
+        {
           uint8_t init_eeprom = rbuf[1];
 
           if (init_eeprom != 0) {
             update_eeprom = true;
           }
           break;
+        }
+        default:
+          break;
       }
+    #pragma GCC diagnostic pop
 
 
     } else if (bytes == 4) {
-      // write a 16 bit register
+      // turn off warnings for unhandled enumeration values
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wswitch"
 
+      // write a 16 bit register
       switch (register_number) {
         case Register::restart_voltage:
           restart_voltage = rbuf[1] | (rbuf[2] << 8);
@@ -168,7 +180,10 @@ void receive_event(int bytes) {
           switch_recovery_delay = rbuf[1] | (rbuf[2] << 8);
           update_eeprom = true;
           break;
+        default:
+          break;
       }
+    #pragma GCC diagnostic pop
     }
   }
   if (bytes != 1) {
@@ -186,6 +201,10 @@ void request_event() {
   /*
     Read from the register variable to know what to send back.
   */
+  // turn off warnings for unhandled enumeration values
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wswitch"
+
   switch (register_number) {
 
     case Register::last_access:
@@ -284,7 +303,10 @@ void request_event() {
     case Register::mcu_status_register:
       write_data_crc((uint8_t *)&mcusr_mirror, sizeof(mcusr_mirror));
       break;
+    default:
+      break;
   }
+  #pragma GCC diagnostic pop
 
   // we had a read operation and reset the counter
   reset_counter_Int();

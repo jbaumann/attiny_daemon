@@ -6,13 +6,21 @@
    ATTiny85 is 512 bytes.
  */
 struct MyEEPROMClass : EEPROMClass {
+    // turn off warnings no return for non-void function
+    // we have to do this to ensure the minimum time spent in
+    // the atomic block
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wreturn-type"
+
     template< typename T > T &get( int idx, volatile T &t ){
       T tmp;
       EEPROMClass::get(idx, tmp);
       ATOMIC_BLOCK(ATOMIC_FORCEON) {
         t = tmp;
-      }      
+      }
+      // no return, the method works only through its side-effects
     };
+    #pragma GCC diagnostic pop
     template< typename T > const T &put( int idx, volatile T &t ){
       T tmp;
       ATOMIC_BLOCK(ATOMIC_FORCEON) {

@@ -136,7 +136,7 @@ void act_on_state_change() {
     }
     if (should_restart) {
       if (primed > 0
-          || (primed == 0 && (should_shutdown && Shutdown_Cause::button)) ) {
+          || (primed == 0 && (should_shutdown && static_cast<uint8_t>(Shutdown_Cause::button))) ) {
         // RPi has not accessed the I2C interface for more than timeout seconds.
         if(tried_reset) {
           // we already tried the reset. Blink 5 times to signal that.
@@ -208,7 +208,14 @@ void voltage_dependent_state_change() {
       case State::unclear_state:
         state = State::running_state;
         break;
-    }
+      // in the following cases nothing needs to be done
+      case State::shutdown_to_running:
+        break;
+      case State::warn_to_running:
+        break;
+      case State::running_state:
+        break;
+     }
   }
 }
 
